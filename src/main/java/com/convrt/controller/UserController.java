@@ -1,6 +1,6 @@
 package com.convrt.controller;
 
-import com.convrt.data.entity.User;
+import com.convrt.entity.User;
 import com.convrt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

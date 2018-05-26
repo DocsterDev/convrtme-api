@@ -1,4 +1,4 @@
-package com.convrt.data.entity;
+package com.convrt.entity;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.Email;

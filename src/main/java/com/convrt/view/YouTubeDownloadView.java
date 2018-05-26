@@ -1,10 +1,11 @@
-package com.convrt.wrapper;
+package com.convrt.view;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ResponseWrapper {
+public class YouTubeDownloadView {
     private String url;
+    private boolean audioOnly;
 }

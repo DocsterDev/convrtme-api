@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class CorsFilter extends OncePerRequestFilter {
+public class CorsInterceptFilter extends OncePerRequestFilter {
 
 	@Value("${server.publicAddress}")
 	private String publicAddress;

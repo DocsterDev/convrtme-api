@@ -17,10 +17,9 @@ import java.util.List;
 public class YouTubeSearchController {
 
     @Autowired
-    YouTubeSearchService youTubeSearchService;
+    private YouTubeSearchService youTubeSearchService;
 
-    @GetMapping()
-    @Cacheable("queries")
+    @GetMapping
     public List<Object> getQuery(@RequestParam("q") String query) {
         return youTubeSearchService.search(query);
     }

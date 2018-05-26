@@ -1,7 +1,7 @@
 package com.convrt.service;
 
-import com.convrt.data.entity.User;
-import com.convrt.data.repo.UserRepository;
+import com.convrt.entity.User;
+import com.convrt.repository.UserRepository;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

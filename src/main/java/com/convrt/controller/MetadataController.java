@@ -1,6 +1,6 @@
 package com.convrt.controller;
 
-import com.convrt.data.entity.Metadata;
+import com.convrt.entity.Metadata;
 import com.convrt.service.MetadataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

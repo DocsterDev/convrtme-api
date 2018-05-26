@@ -7,6 +7,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,7 +19,9 @@ import java.util.List;
 @Service
 public class YouTubeSearchService {
 
+    //@Cacheable("query")
     public List<Object> search(String query) {
+        log.info("Received search request for query: {}", query);
         if (query == null)
             return new LinkedList<>();
         UriComponents uriComponents = UriComponentsBuilder.newInstance()

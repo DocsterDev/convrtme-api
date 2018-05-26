@@ -1,26 +1,22 @@
 package com.convrt.service;
 
-import com.convrt.view.AutoComplete;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Service
-public class AutoCompleteService {
+public class YouTubeAutoCompleteService {
 
+    @Cacheable("autocomplete")
     public JsonNode getAutoCompleteLookup(String input) {
         log.info("Retrieving autocomplete lookup for input \"{}\"", input);
 

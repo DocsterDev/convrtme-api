@@ -1,14 +1,4 @@
-package com.convrt.worker;
-
-import com.github.axet.vget.VGet;
-import com.github.axet.vget.info.VGetParser;
-import com.github.axet.vget.info.VideoFileInfo;
-import com.github.axet.vget.info.VideoInfo;
-import com.github.axet.vget.vhs.VimeoInfo;
-import com.github.axet.vget.vhs.YouTubeInfo;
-import com.github.axet.wget.SpeedInfo;
-import com.github.axet.wget.info.DownloadInfo;
-import lombok.Getter;
+package com.convrt.service;
 
 import java.io.File;
 import java.net.URL;
@@ -17,53 +7,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Getter
-public class YouTubeDownloadWorker {
-    private static String URL = "https://www.youtube.com/watch?v=";
-    private static File PATH = new File("youtube-downloads/");
+import com.convrt.view.YouTubeDownloadView;
+import com.github.axet.vget.VGet;
+import com.github.axet.vget.info.VGetParser;
+import com.github.axet.vget.info.VideoFileInfo;
+import com.github.axet.vget.info.VideoInfo;
+import com.github.axet.vget.vhs.VimeoInfo;
+import com.github.axet.vget.vhs.YouTubeInfo;
+import com.github.axet.wget.SpeedInfo;
+import com.github.axet.wget.info.DownloadInfo;
+import com.github.axet.wget.info.DownloadInfo.Part;
+import com.github.axet.wget.info.ex.DownloadInterruptedError;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 
-    VGet v;
-    private VideoInfo videoInfo;
-    final AtomicBoolean stop = new AtomicBoolean(false);
-    VGetParser user;
-    VGetStatus notify;
+@Slf4j
+@Service
+public class YouTubeDownloadService {
 
-    public void startDownload (String videoId){
-        this.extractInfo(videoId);
-        this.v.download(user, stop, notify);
-    }
-
-    public void extractInfo(String videoId) {
-        URL web;
-        try {
-            web = new URL(URL + videoId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        user = VGet.parser(web);
-        VideoInfo videoInfo = user.info(web);
-
-        this.v = new VGet(videoInfo, PATH);
-
-        notify = new VGetStatus(videoInfo);
-        v.extract(user, stop, notify);
-        this.videoInfo = videoInfo;
-        System.out.println("Title: " + videoInfo.getTitle());
-        List<VideoFileInfo> list = videoInfo.getInfo();
-        if (list != null) {
-            for (VideoFileInfo d : list) {
-                System.out.println("Download URL: " + d.getSource());
-            }
-        }
-    }
-
-    class VGetStatus implements Runnable {
+    static class VGetStatus implements Runnable {
         VideoInfo videoinfo;
         long last;
+
         Map<VideoFileInfo, SpeedInfo> map = new HashMap<VideoFileInfo, SpeedInfo>();
+
         public VGetStatus(VideoInfo i) {
             this.videoinfo = i;
         }
+
         public SpeedInfo getSpeedInfo(VideoFileInfo dinfo) {
             SpeedInfo speedInfo = map.get(dinfo);
             if (speedInfo == null) {
@@ -74,6 +46,7 @@ public class YouTubeDownloadWorker {
             return speedInfo;
         }
 
+        @Override
         public void run() {
             List<VideoFileInfo> dinfoList = videoinfo.getInfo();
 
@@ -133,8 +106,8 @@ public class YouTubeDownloadWorker {
                             List<DownloadInfo.Part> pp = dinfo.getParts();
                             if (pp != null) {
                                 // multipart download
-                                for (DownloadInfo.Part p : pp) {
-                                    if (p.getState().equals(DownloadInfo.Part.States.DOWNLOADING)) {
+                                for (Part p : pp) {
+                                    if (p.getState().equals(VideoInfo.States.DOWNLOADING)) {
                                         parts += String.format("part#%d(%.2f) ", p.getNumber(),
                                                 p.getCount() / (float) p.getLength());
                                     }
@@ -165,5 +138,82 @@ public class YouTubeDownloadWorker {
         }
     }
 
+    // @Cacheable("video")
+    public YouTubeDownloadView startDownload(String url) {
+        // ex: http://www.youtube.com/watch?v=Nj6PFaDmp6c
+        //String url = args[0];
+        // ex: /Users/axet/Downloads/
+        File path = new File("youtube-download");
 
+        try {
+            final AtomicBoolean stop = new AtomicBoolean(false);
+
+            URL web = new URL(url);
+
+            // [OPTIONAL] limit maximum quality, or do not call this function if
+            // you wish maximum quality available.
+            //
+            // if youtube does not have video with requested quality, program
+            // will raise en exception.
+            VGetParser user = null;
+
+            // create proper html parser depends on url
+            user = VGet.parser(web);
+
+            // download limited video quality from youtube
+           // user = new YouTubeQParser(YouTubeInfo.YoutubeQuality.p480);
+
+            // download mp4 format only, fail if non exist
+            // user = new YouTubeMPGParser();
+
+            // create proper videoinfo to keep specific video information
+            VideoInfo videoinfo = user.info(web);
+
+            VGet v = new VGet(videoinfo, path);
+
+            VGetStatus notify = new VGetStatus(videoinfo);
+
+            // [OPTIONAL] call v.extract() only if you d like to get video title
+            // or download url link before start download. or just skip it.
+            v.extract(user, stop, notify);
+
+            log.info("Title: " + videoinfo.getTitle());
+            List<VideoFileInfo> list = videoinfo.getInfo();
+            String audioUrl = null;
+            if (list != null) {
+                for (VideoFileInfo d : list) {
+                    // [OPTIONAL] setTarget file for each download source video/audio
+                    // use d.getContentType() to determine which or use
+                    // v.targetFile(dinfo, ext, conflict) to set name dynamically or
+                    // d.targetFile = new File("/Downloads/CustomName.mp3");
+                    // to set file name manually.
+                    log.info("Content-Type: " + d.getContentType());
+
+                    if (d.getContentType().contains("audio")) {
+                        log.info("Dedicated audio URL found");
+                        audioUrl = d.getSource().toString();
+                        return new YouTubeDownloadView(audioUrl, true);
+                    }
+                }
+                if (audioUrl==null) {
+                    log.info("No dedicated audio url found. Attmepting to exp");
+                    if (list.size() > 1) {
+                        audioUrl = list.get(1).getSource().toString();
+                        log.info("Potentially found video url. Please validate: " + audioUrl);
+                        return new YouTubeDownloadView(audioUrl, false);
+                    } else {
+                        audioUrl = list.get(0).getSource().toString();
+                        log.info("Potentially found audio url. Please validate: " + audioUrl);
+                        return new YouTubeDownloadView(audioUrl, true);
+                    }
+                }
+            }
+            throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!");
+            // v.download(user, stop, notify);
+        } catch (DownloadInterruptedError e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!", e);
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.convrt.data.entity;
+package com.convrt.entity;
 
 import com.convrt.view.View;
 import com.fasterxml.jackson.annotation.JsonView;

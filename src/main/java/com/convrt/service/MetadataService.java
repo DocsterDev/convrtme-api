@@ -1,7 +1,7 @@
 package com.convrt.service;
 
-import com.convrt.data.entity.Metadata;
-import com.convrt.data.repo.MetadataRepository;
+import com.convrt.entity.Metadata;
+import com.convrt.repository.MetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

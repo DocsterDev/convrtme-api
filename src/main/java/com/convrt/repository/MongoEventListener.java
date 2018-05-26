@@ -1,6 +1,6 @@
-package com.convrt.websocket.config;
+package com.convrt.repository;
 
-import com.convrt.data.entity.Metadata;
+import com.convrt.entity.Metadata;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
 import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
