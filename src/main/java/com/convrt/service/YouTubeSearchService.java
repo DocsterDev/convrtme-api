@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 public class YouTubeSearchService {
 
-    //@Cacheable("query")
+    @Cacheable("query")
     public List<Object> search(String query) {
         log.info("Received search request for query: {}", query);
         if (query == null)
