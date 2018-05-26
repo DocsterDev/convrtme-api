@@ -206,10 +206,8 @@ public class AppManagedDownload {
             // v.download(user, stop, notify);
         } catch (DownloadInterruptedError e) {
             throw e;
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!", e);
         }
     }
 }
