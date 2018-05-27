@@ -1,5 +1,6 @@
 package com.convrt.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,15 +39,22 @@ public class YouTubeSearchService {
         } catch (Exception e) {
             throw new RuntimeException("Error parsing document", e);
         }
-        return extractVideoMetaData(doc.body());
+        return extractVideoMetadata(doc.body());
     }
 
-    private List<Object> extractVideoMetaData(Element body) {
+    private List<Object> extractVideoMetadata(Element body) {
         Elements scripts = body.select("script").eq(8);
         String json = scripts.html().split("\r\n|\r|\n")[0];
         json = StringUtils.substring(json, 26, json.length() - 1);
         String baseQuery = "$.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents[*].videoRenderer";
-        return JsonPath.parse(json).read(baseQuery);
+
+        List<Object> jsonNode = JsonPath.parse(json).read(baseQuery);
+
+//        jsonNode.forEach((e) -> {
+//            log.info("Found Json Field from path: " + e.get("").asText());
+//        });
+
+        return jsonNode;
     }
 
 }

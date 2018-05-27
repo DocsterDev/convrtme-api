@@ -1,4 +1,4 @@
-package com.convrt.model;
+package com.convrt.view;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

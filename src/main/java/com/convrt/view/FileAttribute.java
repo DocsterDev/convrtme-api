@@ -1,4 +1,4 @@
-package com.convrt.model;
+package com.convrt.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

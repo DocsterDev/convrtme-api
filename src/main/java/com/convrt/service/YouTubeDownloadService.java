@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.convrt.view.YouTubeStreamInfoWS;
+import com.convrt.view.VideoStreamInfoWS;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
 import com.github.axet.vget.info.VideoFileInfo;
@@ -17,7 +17,6 @@ import com.github.axet.vget.vhs.YouTubeInfo;
 import com.github.axet.wget.SpeedInfo;
 import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
-import com.github.axet.wget.info.ex.DownloadInterruptedError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -141,7 +140,7 @@ public class YouTubeDownloadService {
     }
 
     @Cacheable("video")
-    public YouTubeStreamInfoWS startDownload(String videoId) {
+    public VideoStreamInfoWS startDownload(String videoId) {
         File path = new File("youtube-download");
 
         try {
@@ -168,7 +167,7 @@ public class YouTubeDownloadService {
                     log.info("Found content-type: " + d.getContentType());
                     if (d.getContentType().contains("audio")) {
                         log.info("Dedicated audio url found");
-                        return new YouTubeStreamInfoWS(d.getSource().toString(), d.getLength(), d.getContentType(), true);
+                        return new VideoStreamInfoWS(d.getSource().toString(), d.getLength(), d.getContentType(), true);
                     }
                     videoFileInfo = d;
                 }
@@ -176,7 +175,7 @@ public class YouTubeDownloadService {
                 if (list.size() > 1) {
                     throw new RuntimeException(String.format("More than one file found for videoId %s", videoId));
                 }
-                return new YouTubeStreamInfoWS(videoFileInfo.getSource().toString(), videoFileInfo.getLength(), videoFileInfo.getContentType(), true);
+                return new VideoStreamInfoWS(videoFileInfo.getSource().toString(), videoFileInfo.getLength(), videoFileInfo.getContentType(), true);
             }
             throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!");
             // v.download(user, stop, notify);

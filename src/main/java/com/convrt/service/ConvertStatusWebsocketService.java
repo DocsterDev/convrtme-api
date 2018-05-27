@@ -1,6 +1,6 @@
 package com.convrt.service;
 
-import com.convrt.model.ConvertStatus;
+import com.convrt.view.ConvertStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
