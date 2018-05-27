@@ -1,13 +1,10 @@
 package com.convrt.repository;
 
 import com.convrt.entity.Metadata;
-import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
-import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
-import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MongoEventListener extends AbstractMongoEventListener<Metadata> {
+public class MongoEventListener extends AbstractJpaEventListener<Metadata> {
 
 	@Override
 	public void onBeforeSave(BeforeSaveEvent<Metadata> event) {
