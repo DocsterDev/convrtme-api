@@ -1,12 +1,6 @@
 package com.convrt.service;
 
-import java.io.File;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import com.convrt.view.VideoInfoWS;
 import com.convrt.view.VideoStreamInfoWS;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
@@ -17,13 +11,26 @@ import com.github.axet.vget.vhs.YouTubeInfo;
 import com.github.axet.wget.SpeedInfo;
 import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Service
 public class YouTubeDownloadService {
+
+    @Autowired
+    private VideoService videoService;
+    @Autowired
+    private VideoPlayCountService videoPlayCountService;
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
 
@@ -31,7 +38,7 @@ public class YouTubeDownloadService {
         VideoInfo videoinfo;
         long last;
 
-        Map<VideoFileInfo, SpeedInfo> map = new HashMap<VideoFileInfo, SpeedInfo>();
+        Map<VideoFileInfo, SpeedInfo> map = Maps.newHashMap();
 
         public VGetStatus(VideoInfo i) {
             this.videoinfo = i;
@@ -139,8 +146,7 @@ public class YouTubeDownloadService {
         }
     }
 
-    @Cacheable("video")
-    public VideoStreamInfoWS startDownload(String videoId) {
+    private VideoStreamInfoWS startDownload(String videoId) {
         File path = new File("youtube-download");
 
         try {
@@ -184,5 +190,19 @@ public class YouTubeDownloadService {
         } catch (Exception e) {
             throw new RuntimeException("Oops, looks like something went wrong :)", e);
         }
+    }
+
+    @Cacheable("video")
+    public VideoStreamInfoWS downloadAndSaveVideo(String userUuid, VideoInfoWS videoInfo) {
+        log.info("Attempting to fetch existing valid stream url for video={} user={}", videoInfo.getId(), userUuid);
+        VideoStreamInfoWS streamInfo = videoService.readVideoByVideoId(userUuid, videoInfo.getId());
+        if (streamInfo == null) {
+            log.info("No existing stream url available for video={} user={}", videoInfo.getId(), userUuid);
+            streamInfo = startDownload(videoInfo.getId());
+            streamInfo.setVideoInfo(videoInfo);
+            videoService.createVideo(userUuid, streamInfo);
+        }
+        videoPlayCountService.iteratePlayCount(userUuid, videoInfo.getId());
+        return streamInfo;
     }
 }

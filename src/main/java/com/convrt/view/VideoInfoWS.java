@@ -16,6 +16,7 @@ public class VideoInfoWS {
     private String title;
     private String owner;
     private String viewCount;
+    private Long playCount;
     private Long duration;
     private Instant currentTime;
     private String publishedTimeAgo;

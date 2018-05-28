@@ -51,6 +51,9 @@ public class Video extends BaseEntity {
     @Column(name = "play_duration")
     private Long playDuration;
 
+    @Column(name = "view_count")
+    private String viewCount;
+
     @Column(name = "play_count")
     private Long playCount;
 
