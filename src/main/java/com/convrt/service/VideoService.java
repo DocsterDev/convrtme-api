@@ -27,7 +27,7 @@ public class VideoService {
     public Video createVideo(String userUuid, VideoStreamInfoWS streamInfo) {
         String videoId = streamInfo.getVideoInfo().getId();
         Video video = new Video();
-        video.setUuid(UUID.randomUUID().toString());
+        video.setUuid(UUID.nameUUIDFromBytes(videoId.getBytes()).toString());
         video.setTitle(streamInfo.getVideoInfo().getTitle());
         video.setOwner(streamInfo.getVideoInfo().getOwner());
         video.setPublishedTimeAgo(streamInfo.getVideoInfo().getPublishedTimeAgo());

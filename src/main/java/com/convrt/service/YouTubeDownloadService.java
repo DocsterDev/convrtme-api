@@ -201,6 +201,12 @@ public class YouTubeDownloadService {
             streamInfo = startDownload(videoInfo.getId());
             streamInfo.setVideoInfo(videoInfo);
             videoService.createVideo(userUuid, streamInfo);
+        } else {
+            try {
+                Thread.sleep(350);
+            } catch (Exception e) {
+
+            }
         }
         videoPlayCountService.iteratePlayCount(userUuid, videoInfo.getId());
         return streamInfo;

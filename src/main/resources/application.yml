@@ -5,8 +5,8 @@ spring.profiles: default
 server:
   contextPath: /
   port: 8080
-  address: localhost
-  publicAddress: http://localhost:4200
+  address: 192.168.1.3
+  publicAddress: http://jeff-staging.mynetgear.com:4200
 
 spring:
   servlet:
@@ -16,11 +16,11 @@ spring:
       max-swallow-size: -1
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   datasource:
     url: jdbc:mysql://localhost:3306/convrt_me_dev
     username: root
-    password: 1234
+    password: root
 #  data:
 #    mongodb:
 #      host: localhost
