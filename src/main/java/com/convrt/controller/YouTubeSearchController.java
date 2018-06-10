@@ -1,6 +1,7 @@
 package com.convrt.controller;
 
 import com.convrt.service.YouTubeSearchService;
+import com.convrt.view.SearchResultWS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,7 +21,7 @@ public class YouTubeSearchController {
     private YouTubeSearchService youTubeSearchService;
 
     @GetMapping
-    public List<Object> getQuery(@RequestParam("q") String query) {
+    public List<SearchResultWS> getQuery(@RequestParam("q") String query) {
         return youTubeSearchService.search(query);
     }
 

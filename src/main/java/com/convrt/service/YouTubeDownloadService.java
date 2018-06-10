@@ -181,7 +181,7 @@ public class YouTubeDownloadService {
                 if (list.size() > 1) {
                     throw new RuntimeException(String.format("More than one file found for videoId %s", videoId));
                 }
-                return new VideoStreamInfoWS(videoFileInfo.getSource().toString(), videoFileInfo.getLength(), videoFileInfo.getContentType(), true);
+                return new VideoStreamInfoWS(videoFileInfo.getSource().toString(), videoFileInfo.getLength(), videoFileInfo.getContentType(), false);
             }
             throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!");
             // v.download(user, stop, notify);
@@ -203,7 +203,7 @@ public class YouTubeDownloadService {
             videoService.createVideo(userUuid, streamInfo);
         } else {
             try {
-                Thread.sleep(350);
+                Thread.sleep(250);
             } catch (Exception e) {
 
             }

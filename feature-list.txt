@@ -2,7 +2,7 @@ Feature Backlog
 
 In backend retry the video search (limit 3 times) if necessary (If Json doesnt load correctly)
 Extract data from youtube json in backend that way we can log an error if we arent able to parse it correctly
-Ability to pick up a video fron here they left off (the technological impacts of keeping user play data updated) - TODO: thinking of keeping this data in cache and update the database in batch every 5 minutes?? and the invalidating the cache after 20 minutes of inactivity
+Ability to pick up a video from here they left off (the technological impacts of keeping user play data updated) - TODO: thinking of keeping this data in cache and update the database in batch every 5 minutes?? and the invalidating the cache after 20 minutes of inactivity
 Ability to add users and keep track of different devices they are on
 
 Pre-load video urls asyncly while video list is loading (that way we can grey-out the videos that are not available (or not show them at all - this also may be a good time to indicate if there is an audio only url or not) )
