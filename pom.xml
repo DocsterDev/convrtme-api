@@ -13,7 +13,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-parent</artifactId>
-                <version>1.5.10.RELEASE</version>
+                <version>1.5.13.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -110,7 +110,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.5.10.RELEASE</version>
+                <version>1.5.13.RELEASE</version>
             </plugin>
         </plugins>
     </build>

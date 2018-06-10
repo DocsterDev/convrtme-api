@@ -1,6 +1,7 @@
 package com.convrt.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -49,10 +50,11 @@ public class YouTubeSearchService {
         String baseQuery = "$.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents[*].videoRenderer";
 
         List<Object> jsonNode = JsonPath.parse(json).read(baseQuery);
-
-//        jsonNode.forEach((e) -> {
-//            log.info("Found Json Field from path: " + e.get("").asText());
-//        });
+        try {
+            log.info(new ObjectMapper().writeValueAsString(jsonNode));
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
 
         return jsonNode;
     }

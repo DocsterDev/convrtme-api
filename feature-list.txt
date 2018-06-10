@@ -1,0 +1,21 @@
+Feature Backlog
+
+In backend retry the video search (limit 3 times) if necessary (If Json doesnt load correctly)
+Extract data from youtube json in backend that way we can log an error if we arent able to parse it correctly
+Ability to pick up a video fron here they left off (the technological impacts of keeping user play data updated) - TODO: thinking of keeping this data in cache and update the database in batch every 5 minutes?? and the invalidating the cache after 20 minutes of inactivity
+Ability to add users and keep track of different devices they are on
+
+Pre-load video urls asyncly while video list is loading (that way we can grey-out the videos that are not available (or not show them at all - this also may be a good time to indicate if there is an audio only url or not) )
+Loading spinner when video urls are loading in results list - Optional - may be overwhelming - Maybe have it in one place until all are loaded?
+Ability to alert user when file is too big (or there is no audio only url) - We could add an indicator in the results list if this is the case
+
+Indicator list:
+File too big
+Video only url
+Cant be loaded / is a music video (or simply dont show it in list)
+
+Back back log
+Add ability to add play lists (figure out defining features such as how a user can access the different play lists)
+Would be cool to keep track of how much data is downloaded in total - how the F can we do this??
+Ability to configure in settings what file size to alert
+Ability to collapse / expand bottom player

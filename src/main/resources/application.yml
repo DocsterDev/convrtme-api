@@ -5,7 +5,7 @@ spring.profiles: default
 server:
   contextPath: /
   port: 8080
-  address: 192.168.1.3
+  address: localhost
   publicAddress: http://jeff-staging.mynetgear.com:4200
 
 spring:
