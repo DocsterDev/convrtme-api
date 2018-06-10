@@ -26,11 +26,6 @@ public class YouTubeDownloadController {
     @PostMapping("{videoId}/download")
     public VideoStreamInfoWS download(@PathVariable("videoId") String videoId, @RequestBody VideoInfoWS videoInfo) {
         log.info("Download request for video {}", videoId);
-//        try {
-//            Thread.sleep(5000);
-//        } catch (Exception e) {
-//
-//        }
         VideoStreamInfoWS streamInfo = youtubeDownloadService.downloadAndSaveVideo("FAKE_USER_UUID", videoInfo);
         return streamInfo;
     }
