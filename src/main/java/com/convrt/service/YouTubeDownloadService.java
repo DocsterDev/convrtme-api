@@ -202,11 +202,11 @@ public class YouTubeDownloadService {
 
     @Cacheable("video")
     public VideoStreamInfoWS downloadAndSaveVideo(String userUuid, VideoInfoWS videoInfo) {
-        log.info("Attempting to fetch existing valid stream url for video={} user={}", videoInfo.getId(), userUuid);
-        VideoStreamInfoWS streamInfo = videoService.readVideoByVideoId(userUuid, videoInfo.getId());
+        log.info("Attempting to fetch existing valid stream url for video={} user={}", videoInfo.getVideoId(), userUuid);
+        VideoStreamInfoWS streamInfo = videoService.readVideoByVideoId(userUuid, videoInfo.getVideoId());
         if (streamInfo == null) {
-            log.info("No existing stream url available for video={} user={}", videoInfo.getId(), userUuid);
-            streamInfo = startDownload(videoInfo.getId());
+            log.info("No existing stream url available for video={} user={}", videoInfo.getVideoId(), userUuid);
+            streamInfo = startDownload(videoInfo.getVideoId());
             streamInfo.setVideoInfo(videoInfo);
             videoService.createVideo(userUuid, streamInfo);
         } else {
@@ -216,7 +216,7 @@ public class YouTubeDownloadService {
 
             }
         }
-        videoPlayCountService.iteratePlayCount(userUuid, videoInfo.getId());
+        videoPlayCountService.iteratePlayCount(userUuid, videoInfo.getVideoId());
         return streamInfo;
     }
 }

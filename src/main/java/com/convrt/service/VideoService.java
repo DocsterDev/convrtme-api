@@ -25,7 +25,7 @@ public class VideoService {
 
     @Transactional
     public Video createVideo(String userUuid, VideoStreamInfoWS streamInfo) {
-        String videoId = streamInfo.getVideoInfo().getId();
+        String videoId = streamInfo.getVideoInfo().getVideoId();
         Video video = new Video();
         video.setUuid(UUID.nameUUIDFromBytes(videoId.getBytes()).toString());
         video.setTitle(streamInfo.getVideoInfo().getTitle());
@@ -57,7 +57,7 @@ public class VideoService {
             videoStreamInfo.setAudio(video.isAudioOnly());
             videoStreamInfo.setSourceExpireDate(video.getStreamUrlExpireDate());
             videoStreamInfo.setSourceFetchedDate(video.getStreamUrlDate());
-            videoInfoWS.setId(video.getVideoId());
+            videoInfoWS.setVideoId(video.getVideoId());
             videoInfoWS.setDuration(video.getPlayDuration());
             videoInfoWS.setOwner(video.getOwner());
             videoInfoWS.setTitle(video.getTitle());

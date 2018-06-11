@@ -12,7 +12,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VideoInfoWS {
-    private String id;
+    private String videoId;
     private String title;
     private String owner;
     private String viewCount;
