@@ -167,12 +167,20 @@ public class YouTubeDownloadService {
             v.extract(user, stop, notify);
             List<VideoFileInfo> list = videoinfo.getInfo();
             VideoFileInfo videoFileInfo = null;
+            // DEVELOPMENT ONLY
+            log.info("Video Size: ");
+            Long videoSize;
+            Long audioSize;
+            // DEV ONLY
             if (list != null) {
                 log.info("Scanning content-types");
                 for (VideoFileInfo d : list) {
                     log.info("Found content-type: " + d.getContentType());
+                    log.info("One of the sizes: " + d.getLength());
                     if (d.getContentType().contains("audio")) {
                         log.info("Dedicated audio url found");
+
+                        log.info("Audio Size (Should be smaller): " + d.getLength());
                         return new VideoStreamInfoWS(d.getSource().toString(), d.getLength(), d.getContentType(), true);
                     }
                     videoFileInfo = d;
