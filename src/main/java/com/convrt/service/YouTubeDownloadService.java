@@ -13,11 +13,13 @@ import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.input.Tailer;
+import org.apache.commons.io.input.TailerListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.io.*;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,8 @@ public class YouTubeDownloadService {
     private VideoService videoService;
     @Autowired
     private VideoPlayCountService videoPlayCountService;
+    @Autowired
+    private YouTubeConversionService youTubeConversionService;
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
 
@@ -146,6 +150,8 @@ public class YouTubeDownloadService {
         }
     }
 
+    private static String SOURCE = null;
+
     private VideoStreamInfoWS startDownload(String videoId) {
         File path = new File("youtube-download");
 
@@ -216,7 +222,74 @@ public class YouTubeDownloadService {
 
             }
         }
+        log.info("Attempting to open audio stream");
+
+        SOURCE = streamInfo.getSource();
+        Thread thread = new Thread(() -> {
+            youTubeConversionService.convertVideo(SOURCE);
+        });
+        thread.start();
+
+        log.info("Opened audio stream");
         videoPlayCountService.iteratePlayCount(userUuid, videoInfo.getVideoId());
         return streamInfo;
+    }
+
+    private void captureByteStream(VideoStreamInfoWS streamInfo) {
+
+        File outputFile = new File("test-output.webm");
+        try {
+            outputFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Start tailer for output file to see if this shit works
+        Thread thread = new Thread(() -> {
+
+
+        });
+        thread.start();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        InputStream is = null;
+        URL url = null;
+
+        FileOutputStream fileoutputstream = null;
+        try {
+            fileoutputstream = new FileOutputStream(outputFile);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("File not found for streaming");
+        }
+
+        try {
+            url = new URL(streamInfo.getSource());
+            is = url.openStream ();
+            byte[] byteChunk = new byte[4096]; // Or whatever size you want to read in at a time.
+            int n;
+
+            while ( (n = is.read(byteChunk)) > 0 ) {
+                byte[] byteArray = byteChunk;
+                // baos.write(byteArray, 0, n);
+                fileoutputstream.write(byteArray);
+                log.info("File size: " + outputFile.length());
+                log.info("Byte Array Size:" + baos.size());
+            }
+        }
+        catch (IOException e) {
+            System.err.printf ("Failed while reading bytes from %s: %s", url.toExternalForm(), e.getMessage());
+            e.printStackTrace ();
+            // Perform any other exception handling that's appropriate.
+        }
+        finally {
+            if (is != null) {
+                try {
+                    is.close();
+                    fileoutputstream.close();
+                } catch (IOException e) {
+                    e.printStackTrace ();
+                }
+            }
+        }
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,29 +47,11 @@ public class YouTubeSearchService {
         } catch (Exception e) {
             throw new RuntimeException("Error parsing document", e);
         }
-        return extractVideoMetadata(doc.body());
+        return mapYouTubeJsonFields(doc.body());
     }
 
-    private List<SearchResultWS> extractVideoMetadata(Element body) {
-        JsonNode jsonNode = null;
-        retryCount = 0;
-        while (retryCount <= 3) {
-            try {
-                Elements scripts = body.select("script").eq(8);
-                String json = scripts.html().split("\r\n|\r|\n")[0];
-                json = StringUtils.substring(json, 26, json.length() - 1);
-                String baseQuery = "$.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents[*].videoRenderer";
-                String jsonStr = JsonPath.parse(json).read(baseQuery).toString();
-                jsonNode = MAPPER.readTree(jsonStr);
-                break;
-            } catch (Exception e) {
-                if (retryCount > 3) {
-                    throw new RuntimeException("Error parsing json from YouTube search results", e);
-                }
-                log.warn("Failed parsing YouTube json. Retrying...");
-                retryCount++;
-            }
-        }
+    private List<SearchResultWS> mapYouTubeJsonFields(Element body) {
+    JsonNode jsonNode = parseYouTubeJson(body);
         List<SearchResultWS> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = jsonNode.iterator();
         while (iterator.hasNext()) {
@@ -80,15 +63,44 @@ public class YouTubeSearchService {
                 searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(0).get("url").asText());
                 searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
-                searchResult.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
-                searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
+//              searchResult.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
+//              searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
                 searchResults.add(searchResult);
-            } catch (Exception e) {
+            } catch (NullPointerException e) {
                 throw new RuntimeException("Error mapping json fields from YouTube search results", e);
             }
         }
-
         return searchResults;
+    }
+
+    private JsonNode parseYouTubeJson(Element body) {
+        JsonNode jsonNode = null;
+        retryCount = 0;
+        while (retryCount <= 3) {
+            try {
+                Elements scripts = body.select("script").eq(8);
+                String json = scripts.html().split("\r\n|\r|\n")[0];
+                json = StringUtils.substring(json, 26, json.length() - 1);
+                String baseQuery = "$.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents[*].videoRenderer";
+                String jsonStr = JsonPath.parse(json).read(baseQuery).toString();
+                jsonNode = MAPPER.readTree(jsonStr);
+                break;
+            } catch (NullPointerException e) {
+                log.error("Bro, we hit an error");
+                if (retryCount > 3) {
+                    throw new RuntimeException("Error parsing json from YouTube search results", e);
+                }
+                log.warn("Failed parsing YouTube json. Retrying...");
+                retryCount++;
+            } catch (Exception e) {
+                if (retryCount > 3) {
+                    throw new RuntimeException("Error parsing json from YouTube search results", e);
+                }
+                log.warn("Failed parsing YouTube json. Retrying...");
+                retryCount++;
+            }
+        }
+        return jsonNode;
     }
 
 }
