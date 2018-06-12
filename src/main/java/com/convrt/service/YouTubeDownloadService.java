@@ -196,7 +196,7 @@ public class YouTubeDownloadService {
         } catch (NullPointerException e) {
             throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!", e);
         } catch (Exception e) {
-            throw new RuntimeException("Oops, looks like something went wrong :)", e);
+            throw new RuntimeException("Oops, looks like something went wrong :(", e);
         }
     }
 
