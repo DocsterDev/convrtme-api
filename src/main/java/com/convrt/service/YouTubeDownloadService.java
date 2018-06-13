@@ -13,8 +13,6 @@ import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.input.Tailer;
-import org.apache.commons.io.input.TailerListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -224,11 +222,11 @@ public class YouTubeDownloadService {
         }
         log.info("Attempting to open audio stream");
 
-        SOURCE = streamInfo.getSource();
-        Thread thread = new Thread(() -> {
-            youTubeConversionService.convertVideo(SOURCE);
-        });
-        thread.start();
+//        SOURCE = streamInfo.getSource();
+//        Thread thread = new Thread(() -> {
+//            youTubeConversionService.convertVideo(SOURCE);
+//        });
+//        thread.start();
 
         log.info("Opened audio stream");
         videoPlayCountService.iteratePlayCount(userUuid, videoInfo.getVideoId());
