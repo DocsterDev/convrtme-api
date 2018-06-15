@@ -21,6 +21,8 @@ public class YouTubeConversionService {
         final Path encodingFile = Paths.get("output.webm");
         final Path errorFile = Paths.get("error.txt");
 
+        // https://trac.ffmpeg.org/wiki/AudioChannelManipulation
+
         int retCode;
 
         try {
@@ -29,25 +31,32 @@ public class YouTubeConversionService {
 
             log.info("Video URL to be Converted: {}", videoIn.toString());
 
-//            final ProcessBuilder pb
-//                    = new ProcessBuilder("./ffmpeg",
-//                    "-i", videoIn.toString(),
-//                    "-vn",
-//                    "-ab",
-//                    "128k",
-//                    "-ar",
-//                    "44100",
-//                    "-y",
-//                    "-"
-//            );
-            log.info("URL: " + MPEG_PATH_LINUX + "/ffmpeg");
+            // Final works
             final ProcessBuilder pb
                     = new ProcessBuilder(MPEG_PATH_LINUX + "/ffmpeg",
+                    "-i", videoIn.toString(),
+                    "-vn",
+                    "-ab",
+                    "64k", //-vn -ab 128k -ar 44100 -y
+                    "-ar",
+                    "22050",
                     "-y",
-                    "-i",
-                    videoIn.toString(),
-                    "output.mp3"
+                    "output3.mp3"
             );
+
+//            final ProcessBuilder pb
+//                    = new ProcessBuilder(MPEG_PATH_LINUX + "/ffmpeg",
+//                    "-y",
+//                    "-i",
+//                    videoIn.toString(),
+//                    "-f",
+//                    "mp3", //ffmpeg -i "movie.avi" -y -f flv -ar 44100 -ab 64 -ac 1 -acodec mp3 "movie.flv"
+//                    "-ar 44100",
+//                    "-ab 64",
+//                    "-ac 1",
+//                    "-acodec mp3",
+//                    "output2.mp3"
+//            );
 
 
             // NOTE: Ran: "brew reinstall ffmpeg --with-libvpx --with-libvorbis" on Mac to download necessary codecs
