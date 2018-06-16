@@ -150,6 +150,8 @@ public class YouTubeDownloadService {
         }
     }
 
+    private static String SOURCE = null;
+
     private VideoStreamInfoWS startDownload(String videoId) {
         File path = new File("youtube-download");
 
@@ -222,9 +224,11 @@ public class YouTubeDownloadService {
         }
         log.info("Attempting to open audio stream");
 
-        youTubeConversionService.convertVideo();
-
-        // captureByteStream(streamInfo);
+//        SOURCE = streamInfo.getSource();
+//        Thread thread = new Thread(() -> {
+//            youTubeConversionService.convertVideo(SOURCE);
+//        });
+//        thread.start();
 
         log.info("Opened audio stream");
         videoPlayCountService.iteratePlayCount(userUuid, videoInfo.getVideoId());
@@ -243,41 +247,9 @@ public class YouTubeDownloadService {
         // Start tailer for output file to see if this shit works
         Thread thread = new Thread(() -> {
 
-            TailerListener listener = new TailerListener() {
-                @Override
-                public void handle(String line) {
-                   // System.out.println(line);
-                    if (line != null) {
-                        log.info("Byte size: " + line.getBytes().length);
-                    }
-                }
-
-                @Override
-                public void handle(Exception e) {
-                    System.out.println(e);
-                }
-
-                @Override
-                public void init(Tailer tailer) {
-                    System.out.println("Init");
-                }
-
-                @Override
-                public void fileNotFound() {
-
-                }
-
-                @Override
-                public void fileRotated() {
-
-                }
-            };
-
-            Tailer tailer = Tailer.create(outputFile, listener, 2000);
-            tailer.run();
 
         });
-        //thread.start();
+        thread.start();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         InputStream is = null;
