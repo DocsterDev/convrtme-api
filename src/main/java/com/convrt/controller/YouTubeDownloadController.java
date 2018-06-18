@@ -1,18 +1,11 @@
 
 package com.convrt.controller;
 
-import com.convrt.entity.Video;
-import com.convrt.repository.VideoRepository;
-import com.convrt.service.VideoService;
 import com.convrt.service.YouTubeDownloadService;
-import com.convrt.view.VideoStreamInfoWS;
-import com.convrt.view.VideoInfoWS;
+import com.convrt.view.VideoStreamMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -23,12 +16,15 @@ public class YouTubeDownloadController {
     private YouTubeDownloadService youtubeDownloadService;
 
 
+
     @PostMapping("{videoId}/download")
-    public VideoStreamInfoWS download(@PathVariable("videoId") String videoId, @RequestBody VideoInfoWS videoInfo) {
+    public VideoStreamMetadata download(@PathVariable("videoId") String videoId, @RequestBody VideoStreamMetadata videoStreamMetadata) {
         log.info("Download request for video {}", videoId);
-        VideoStreamInfoWS streamInfo = youtubeDownloadService.downloadAndSaveVideo("FAKE_USER_UUID", videoInfo);
-        return streamInfo;
+        videoStreamMetadata.setVideoId(videoId);
+        return youtubeDownloadService.mapStreamData("12345", videoStreamMetadata);
     }
 
-}
+
+
+    }
 

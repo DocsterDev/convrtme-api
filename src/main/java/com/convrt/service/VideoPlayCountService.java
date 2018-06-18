@@ -1,16 +1,12 @@
 package com.convrt.service;
 
-import com.convrt.entity.Video;
 import com.convrt.entity.VideoPlayCount;
 import com.convrt.repository.VideoPlayCountRepository;
-import com.convrt.repository.VideoRepository;
-import com.convrt.view.VideoStreamInfoWS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.Instant;
 import java.util.UUID;
 
 @Slf4j

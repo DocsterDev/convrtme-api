@@ -1,7 +1,6 @@
 package com.convrt.service;
 
-import com.convrt.view.VideoInfoWS;
-import com.convrt.view.VideoStreamInfoWS;
+import com.convrt.view.VideoStreamMetadata;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
 import com.github.axet.vget.info.VideoFileInfo;
@@ -13,6 +12,7 @@ import com.github.axet.wget.info.DownloadInfo;
 import com.github.axet.wget.info.DownloadInfo.Part;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -31,8 +31,6 @@ public class YouTubeDownloadService {
     private VideoService videoService;
     @Autowired
     private VideoPlayCountService videoPlayCountService;
-    @Autowired
-    private YouTubeConversionService youTubeConversionService;
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
 
@@ -148,70 +146,54 @@ public class YouTubeDownloadService {
         }
     }
 
-    private static String SOURCE = null;
-
-    private VideoStreamInfoWS startDownload(String videoId) {
-        File path = new File("youtube-download");
+    private VideoStreamMetadata startDownload(String videoId) {
 
         try {
             final AtomicBoolean stop = new AtomicBoolean(false);
 
             URL web = new URL(String.format(YOUTUBE_URL, videoId));
-            VGetParser user = null;
-            // create proper html parser depends on url
-            user = VGet.parser(web);
-
-            // user = new YouTubeQParser(YouTubeInfo.YoutubeQuality.p480);
-
-            // download limited video quality from youtube
-           // user = new YouTubeQParser(YouTubeInfo.YoutubeQuality.p480);
+            VGetParser user = VGet.parser(web);
             VideoInfo videoinfo = user.info(web);
-            VGet v = new VGet(videoinfo, path);
             VGetStatus notify = new VGetStatus(videoinfo);
-            v.extract(user, stop, notify);
-            List<VideoFileInfo> list = videoinfo.getInfo();
-            VideoFileInfo videoFileInfo = null;
-            // DEVELOPMENT ONLY
-            log.info("Video Size: ");
-            Long videoSize;
-            Long audioSize;
-            // DEV ONLY
-            if (list != null) {
-                log.info("Scanning content-types");
-                for (VideoFileInfo d : list) {
-                    log.info("Found content-type: " + d.getContentType());
-                    log.info("One of the sizes: " + d.getLength());
-                    if (d.getContentType().contains("audio")) {
-                        log.info("Dedicated audio url found");
+            new VGet(videoinfo).extract(user, stop, notify);
 
-                        log.info("Audio Size (Should be smaller): " + d.getLength());
-                        return new VideoStreamInfoWS(d.getSource().toString(), d.getLength(), d.getContentType(), true);
-                    }
-                    videoFileInfo = d;
-                }
-                log.info("No dedicated audio url found. Returning full video url.");
-                if (list.size() > 1) {
-                    throw new RuntimeException(String.format("More than one file found for videoId %s", videoId));
-                }
-                return new VideoStreamInfoWS(videoFileInfo.getSource().toString(), videoFileInfo.getLength(), videoFileInfo.getContentType(), false);
-            }
-            throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!");
-            // v.download(user, stop, notify);
+            List<VideoFileInfo> list = videoinfo.getInfo();
+            return getMediaStreamUrl(list);
+
         } catch (NullPointerException e) {
             throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!", e);
         } catch (Exception e) {
             throw new RuntimeException("Oops, looks like something went wrong :(", e);
         }
+
+    }
+
+    private VideoStreamMetadata getMediaStreamUrl(List<VideoFileInfo> list) {
+        VideoFileInfo videoFileInfo = null;
+        if (list != null) {
+            for (VideoFileInfo d : list) {
+                log.info("Found content-type: " + d.getContentType());
+                if (d.getContentType().contains("audio")) {
+                    log.info("Dedicated audio url found");
+                    return new VideoStreamMetadata(d.getSource().toString(), d.getLength(), d.getContentType(), true);
+                }
+                videoFileInfo = d;
+            }
+            log.info("No dedicated audio url found. Returning full video url.");
+            return new VideoStreamMetadata(videoFileInfo.getSource().toString(), videoFileInfo.getLength(), videoFileInfo.getContentType(), false);
+        }
+        throw new RuntimeException("Could not extract media stream url.");
     }
 
     @Cacheable("video")
-    public VideoStreamInfoWS downloadAndSaveVideo(String userUuid, VideoInfoWS videoInfo) {
-        log.info("Attempting to fetch existing valid stream url for video={} user={}", videoInfo.getVideoId(), userUuid);
-        VideoStreamInfoWS streamInfo = videoService.readVideoByVideoId(userUuid, videoInfo.getVideoId());
+    public VideoStreamMetadata mapStreamData(String userUuid, VideoStreamMetadata videoStreamMetadata) {
+        String videoId = videoStreamMetadata.getVideoId();
+        log.info("Attempting to fetch existing valid stream url for video={} user={}", videoId, userUuid);
+        VideoStreamMetadata streamInfo = videoService.readVideoByVideoId(userUuid, videoId);
+        BeanUtils.copyProperties(videoStreamMetadata, streamInfo);
         if (streamInfo == null) {
-            log.info("No existing stream url available for video={} user={}", videoInfo.getVideoId(), userUuid);
-            streamInfo = startDownload(videoInfo.getVideoId());
-            streamInfo.setVideoInfo(videoInfo);
+            log.info("No existing stream url available for video={} user={}", videoId, userUuid);
+            streamInfo = startDownload(videoId);
             videoService.createVideo(userUuid, streamInfo);
         } else {
             try {
@@ -220,74 +202,8 @@ public class YouTubeDownloadService {
 
             }
         }
-        log.info("Attempting to open audio stream");
-
-//        SOURCE = streamInfo.getSource();
-//        Thread thread = new Thread(() -> {
-//            youTubeConversionService.convertVideo(SOURCE);
-//        });
-//        thread.start();
-
-        log.info("Opened audio stream");
-        videoPlayCountService.iteratePlayCount(userUuid, videoInfo.getVideoId());
+        videoPlayCountService.iteratePlayCount(userUuid, videoId);
         return streamInfo;
     }
 
-    private void captureByteStream(VideoStreamInfoWS streamInfo) {
-
-        File outputFile = new File("test-output.webm");
-        try {
-            outputFile.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Start tailer for output file to see if this shit works
-        Thread thread = new Thread(() -> {
-
-
-        });
-        thread.start();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        InputStream is = null;
-        URL url = null;
-
-        FileOutputStream fileoutputstream = null;
-        try {
-            fileoutputstream = new FileOutputStream(outputFile);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("File not found for streaming");
-        }
-
-        try {
-            url = new URL(streamInfo.getSource());
-            is = url.openStream ();
-            byte[] byteChunk = new byte[4096]; // Or whatever size you want to read in at a time.
-            int n;
-
-            while ( (n = is.read(byteChunk)) > 0 ) {
-                byte[] byteArray = byteChunk;
-                // baos.write(byteArray, 0, n);
-                fileoutputstream.write(byteArray);
-                log.info("File size: " + outputFile.length());
-                log.info("Byte Array Size:" + baos.size());
-            }
-        }
-        catch (IOException e) {
-            System.err.printf ("Failed while reading bytes from %s: %s", url.toExternalForm(), e.getMessage());
-            e.printStackTrace ();
-            // Perform any other exception handling that's appropriate.
-        }
-        finally {
-            if (is != null) {
-                try {
-                    is.close();
-                    fileoutputstream.close();
-                } catch (IOException e) {
-                    e.printStackTrace ();
-                }
-            }
-        }
-    }
 }
