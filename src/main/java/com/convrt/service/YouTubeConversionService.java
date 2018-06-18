@@ -14,16 +14,13 @@ import java.nio.file.Paths;
 @Service
 public class YouTubeConversionService {
 
-    private static final String MPEG_PATH_LINUX = "/usr/local/Cellar/ffmpeg/3.4.2/bin";
-
     public InputStream convertVideo(String url) {
 
         // https://trac.ffmpeg.org/wiki/AudioChannelManipulation
 
         // Final works
         final ProcessBuilder pb
-               // = new ProcessBuilder(MPEG_PATH_LINUX + "/ffmpeg",
-                = new ProcessBuilder("./ffmpeg.exe",
+                = new ProcessBuilder("./ffmpeg",
                 "-i", url,
                 "-progress",
                 "progress",
@@ -31,9 +28,9 @@ public class YouTubeConversionService {
                 "-c:a",
                 "libopus",
                 "-b:a",
-                "64k",
+                "16k",
                 "-ar",
-                "24000", // 48000 24000 16000 12000 8000
+                "8000", // 48000 24000 16000 12000 8000
                 "-compression_level",
                 "10",
                 "-y",
