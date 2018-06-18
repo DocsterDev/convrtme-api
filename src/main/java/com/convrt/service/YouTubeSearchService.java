@@ -63,8 +63,8 @@ public class YouTubeSearchService {
                 searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(0).get("url").asText());
                 searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
-//              searchResult.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
-//              searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
+                searchResult.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
+                searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
                 searchResults.add(searchResult);
             } catch (NullPointerException e) {
                 throw new RuntimeException("Error mapping json fields from YouTube search results", e);

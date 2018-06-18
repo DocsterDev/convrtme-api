@@ -18,22 +18,24 @@ public class YouTubeConversionService {
 
     public InputStream convertVideo(String url) {
 
-        final Path videoIn = Paths.get(url);
-
         // https://trac.ffmpeg.org/wiki/AudioChannelManipulation
 
         // Final works
         final ProcessBuilder pb
                // = new ProcessBuilder(MPEG_PATH_LINUX + "/ffmpeg",
                 = new ProcessBuilder("./ffmpeg.exe",
-                "-i", videoIn.toString(),
+                "-i", url,
                 "-progress",
                 "progress",
                 "-vn",
-                "-ab",
-                "16k",
+                "-c:a",
+                "libopus",
+                "-b:a",
+                "64k",
                 "-ar",
-                "11025",
+                "24000", // 48000 24000 16000 12000 8000
+                "-compression_level",
+                "10",
                 "-y",
                 "-f",
                 "webm",

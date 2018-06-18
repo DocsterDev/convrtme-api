@@ -1,6 +1,9 @@
 package com.convrt.controller;
 
+import com.convrt.entity.Video;
+import com.convrt.service.VideoService;
 import com.convrt.service.YouTubeConversionService;
+import com.convrt.view.VideoStreamMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,20 +28,24 @@ public class AudioStreamController {
 
     @Autowired
     private YouTubeConversionService youtubeConversionService;
-
-    // private static Map<String, String> streamUrlMap;
+    @Autowired
+    private VideoService videoService;
 
     @GetMapping("/{videoId}")
     public StreamingResponseBody handleRequest(@PathVariable("videoId") String videoId, HttpServletResponse response) {
-        String url = "https:/r5---sn-n4v7sn7z.googlevideo.com/videoplayback?mn=sn-n4v7sn7z%2Csn-a5meknsd&mm=31%2C26&ip=73.170.141.95&gir=yes&key=yt6&pl=23&mime=audio%2Fwebm&id=o-AJEijijLaIMoZNLzVoPRoEHcLwaNXKP-razb0jkly0X0&mv=m&sparams=clen%2Cdur%2Cei%2Cgcr%2Cgir%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Ckeepalive%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Crequiressl%2Csource%2Cexpire&mt=1529262620&ms=au%2Conr&fvip=5&lmt=1528694004558766&c=WEB&ipbits=0&clen=153444060&dur=10146.981&initcwndbps=1751250&source=youtube&requiressl=yes&signature=4F7082B95C625BFC66482A054EED0A8FEF702E9D.34BB2ACDB7C840282BB6C042237C4200F997401C&itag=251&keepalive=yes&gcr=us&ei=iLImW4yBHYiM_APvi5moBw&expire=1529284328&signature=4F7082B95C625BFC66482A054EED0A8FEF702E9D.34BB2ACDB7C840282BB6C042237C4200F997401C";
+        VideoStreamMetadata videoStreamMetadata = videoService.readVideoByVideoId("12345", videoId);
         response.setContentType("audio/webm");
         response.setHeader("Content-disposition", "inline; filename=output.webm");
         return new StreamingResponseBody() {
             @Override
-            public void writeTo(OutputStream outputStream) throws IOException {
-                InputStream is = youtubeConversionService.convertVideo(url);
-                IOUtils.copyLarge(is, outputStream, new byte[DEFAULT_BUFFER_SIZE]);
-                outputStream.close();
+            public void writeTo(OutputStream outputStream) {
+                try {
+                    InputStream is = youtubeConversionService.convertVideo(videoStreamMetadata.getSource());
+                    IOUtils.copyLarge(is, outputStream, new byte[DEFAULT_BUFFER_SIZE]);
+                    outputStream.close();
+                } catch (Exception e) {
+                    throw new RuntimeException(String.format("Cannot stream videoId=%s", videoId), e);
+                }
             }
         };
     }
