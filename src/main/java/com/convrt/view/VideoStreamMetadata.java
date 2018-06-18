@@ -14,21 +14,19 @@ import java.util.List;
 @Slf4j
 @Data
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class VideoStreamInfoWS {
+//@JsonInclude(JsonInclude.Include.NON_NULL)
+public class VideoStreamMetadata {
 
-    public VideoStreamInfoWS(String source, Long size, String contentType, boolean audio) {
+    public VideoStreamMetadata(String source, Long size, String contentType, boolean audio) {
         this.source = source;
         this.size = size;
         this.contentType = contentType;
         this.audio = audio;
         this.sourceFetchedDate = Instant.now();
         if (StringUtils.isNotBlank(this.source)) {
-            MultiValueMap<String, String> parameters =
-                    UriComponentsBuilder.fromUriString(this.source).build().getQueryParams();
+            MultiValueMap<String, String> parameters = UriComponentsBuilder.fromUriString(this.source).build().getQueryParams();
             List<String> param1 = parameters.get("expire");
             this.sourceExpireDate = Instant.ofEpochSecond(Long.valueOf(param1.get(0)));
-            log.info("Successfully parsed expiration date for video: " + this.sourceExpireDate);
         }
     }
 
@@ -38,5 +36,16 @@ public class VideoStreamInfoWS {
     private Long size;
     private String contentType;
     private boolean audio;
-    private VideoInfoWS videoInfo;
+
+    /* Video Info */
+    private String videoId;
+    private String title;
+    private String owner;
+    private String viewCount;
+    private Long playCount;
+    private Long duration;
+    private Instant currentTime;
+    private String publishedTimeAgo;
+    private Boolean newUpload;
+
 }
