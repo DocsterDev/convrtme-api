@@ -30,7 +30,7 @@ public class VideoService {
         video.setPublishedTimeAgo(videoStreamMetadata.getPublishedTimeAgo());
         video.setPlayDuration(videoStreamMetadata.getDuration());
         video.setStreamUrl(videoStreamMetadata.getSource());
-        video.setDataSize(videoStreamMetadata.getSize());
+        video.setDataSize(videoStreamMetadata.getLength());
         video.setStreamUrlDate(Instant.now());
         video.setAudioOnly(videoStreamMetadata.isAudio());
         video.setVideoId(videoId);
@@ -48,7 +48,7 @@ public class VideoService {
         if (Instant.now().isBefore(expireDate)) {
             VideoStreamMetadata videoStreamMetadata = new VideoStreamMetadata();
             videoStreamMetadata.setSource(video.getStreamUrl());
-            videoStreamMetadata.setSize(video.getDataSize());
+            videoStreamMetadata.setLength(video.getDataSize());
             videoStreamMetadata.setAudio(video.isAudioOnly());
             videoStreamMetadata.setSourceExpireDate(video.getStreamUrlExpireDate());
             videoStreamMetadata.setSourceFetchedDate(video.getStreamUrlDate());

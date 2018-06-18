@@ -15,8 +15,6 @@ public class YouTubeDownloadController {
     @Autowired
     private YouTubeDownloadService youtubeDownloadService;
 
-
-
     @PostMapping("{videoId}/download")
     public VideoStreamMetadata download(@PathVariable("videoId") String videoId, @RequestBody VideoStreamMetadata videoStreamMetadata) {
         log.info("Download request for video {}", videoId);

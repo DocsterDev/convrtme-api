@@ -24,7 +24,8 @@ public class YouTubeConversionService {
 
         // Final works
         final ProcessBuilder pb
-                = new ProcessBuilder(MPEG_PATH_LINUX + "/ffmpeg",
+               // = new ProcessBuilder(MPEG_PATH_LINUX + "/ffmpeg",
+                = new ProcessBuilder("./ffmpeg.exe",
                 "-i", videoIn.toString(),
                 "-progress",
                 "progress",

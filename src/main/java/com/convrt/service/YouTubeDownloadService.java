@@ -189,12 +189,17 @@ public class YouTubeDownloadService {
     public VideoStreamMetadata mapStreamData(String userUuid, VideoStreamMetadata videoStreamMetadata) {
         String videoId = videoStreamMetadata.getVideoId();
         log.info("Attempting to fetch existing valid stream url for video={} user={}", videoId, userUuid);
-        VideoStreamMetadata streamInfo = videoService.readVideoByVideoId(userUuid, videoId);
-        BeanUtils.copyProperties(videoStreamMetadata, streamInfo);
-        if (streamInfo == null) {
+        VideoStreamMetadata persistentVideoMetadata = videoService.readVideoByVideoId(userUuid, videoId);
+        if (persistentVideoMetadata == null) {
             log.info("No existing stream url available for video={} user={}", videoId, userUuid);
-            streamInfo = startDownload(videoId);
-            videoService.createVideo(userUuid, streamInfo);
+            persistentVideoMetadata = startDownload(videoId);
+            videoStreamMetadata.setSource(persistentVideoMetadata.getSource());
+            videoStreamMetadata.setLength(persistentVideoMetadata.getLength());
+            videoStreamMetadata.setContentType(persistentVideoMetadata.getContentType());
+            videoStreamMetadata.setAudio(persistentVideoMetadata.isAudio());
+            videoStreamMetadata.setSourceFetchedDate(persistentVideoMetadata.getSourceFetchedDate());
+            videoStreamMetadata.setSourceExpireDate(persistentVideoMetadata.getSourceExpireDate());
+            videoService.createVideo(userUuid, videoStreamMetadata);
         } else {
             try {
                 Thread.sleep(250);
@@ -203,7 +208,7 @@ public class YouTubeDownloadService {
             }
         }
         videoPlayCountService.iteratePlayCount(userUuid, videoId);
-        return streamInfo;
+        return videoStreamMetadata;
     }
 
 }

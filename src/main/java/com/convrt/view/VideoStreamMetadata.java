@@ -17,9 +17,9 @@ import java.util.List;
 //@JsonInclude(JsonInclude.Include.NON_NULL)
 public class VideoStreamMetadata {
 
-    public VideoStreamMetadata(String source, Long size, String contentType, boolean audio) {
+    public VideoStreamMetadata(String source, Long length, String contentType, boolean audio) {
         this.source = source;
-        this.size = size;
+        this.length = length;
         this.contentType = contentType;
         this.audio = audio;
         this.sourceFetchedDate = Instant.now();
@@ -33,7 +33,7 @@ public class VideoStreamMetadata {
     private String source;
     private Instant sourceFetchedDate;
     private Instant sourceExpireDate;
-    private Long size;
+    private Long length;
     private String contentType;
     private boolean audio;
 
