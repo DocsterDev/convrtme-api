@@ -77,10 +77,32 @@ public class YouTubeSearchService {
         return searchResults;
     }
 
+    static int i = 0;
+
     private void parseRecommended(Element body) {
-        // FIND  "window["ytInitialData"]" in the jsoup response this is where the recommended video text
-        // LOOK FOR  "secondaryResults" <- All the recommended videos are there
-        // log.info(body.toString());
+        JsonNode jsonNode = null;
+        retryCount = 0;
+        //while (retryCount <= 3) {
+        try {
+            Elements scripts = body.select("script").eq(27);
+            String json = scripts.html().split("\r\n|\r|\n")[0];
+            json = StringUtils.substring(json, 26, json.length() - 1);
+            jsonNode = MAPPER.readTree(json);
+        } catch (Exception e) {
+            log.warn("Failed parsing YouTube json. Retrying...");
+        }
+        JsonNode objNode = jsonNode.get("contents").get("twoColumnWatchNextResults").get("secondaryResults").get("secondaryResults").get("results");
+        Iterator<JsonNode> iterator = objNode.iterator();
+        i = 0;
+        iterator.forEachRemaining((e) -> {
+            if (i == 0) {
+                log.info("Up Next: " + e.get("compactAutoplayRenderer").get("contents").get(0).get("compactVideoRenderer"));
+            } else {
+                log.info("Entry: " + e.get("compactVideoRenderer"));
+            }
+            i++;
+        });
+
     }
 
     private JsonNode parseYouTubeJson(Element body) {
