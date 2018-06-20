@@ -42,8 +42,11 @@ public class YouTubeSearchService {
                 .encode();
         String uri = uriComponents.toUriString();
         Document doc;
+        Document doc2;
         try {
             doc = Jsoup.connect(uri).get();
+            doc2 = Jsoup.connect("https://www.youtube.com/watch?v=soTXxzKWhG0").get();
+            parseRecommended(doc2);
         } catch (Exception e) {
             throw new RuntimeException("Error parsing document", e);
         }
@@ -51,7 +54,7 @@ public class YouTubeSearchService {
     }
 
     private List<SearchResultWS> mapYouTubeJsonFields(Element body) {
-    JsonNode jsonNode = parseYouTubeJson(body);
+        JsonNode jsonNode = parseYouTubeJson(body);
         List<SearchResultWS> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = jsonNode.iterator();
         while (iterator.hasNext()) {
@@ -60,7 +63,8 @@ public class YouTubeSearchService {
                 JsonNode next = iterator.next();
                 searchResult.setVideoId(next.path("videoId").asText());
                 searchResult.setTitle(next.get("title").get("simpleText").asText());
-                searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(0).get("url").asText());
+                int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
+                searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize-1).get("url").asText());
                 searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
                 searchResult.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
@@ -71,6 +75,12 @@ public class YouTubeSearchService {
             }
         }
         return searchResults;
+    }
+
+    private void parseRecommended(Element body) {
+        // FIND  "window["ytInitialData"]" in the jsoup response this is where the recommended video text
+        // LOOK FOR  "secondaryResults" <- All the recommended videos are there
+        // log.info(body.toString());
     }
 
     private JsonNode parseYouTubeJson(Element body) {
