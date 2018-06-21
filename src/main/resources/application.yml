@@ -40,8 +40,8 @@ spring:
 #cache
   cache:
     type: caffeine
-    cache-names: query, video. autocomplete
-    caffeine:
+    cache-names: search, video. autocomplete, recommended
+    caffeine: 
         spec: maximumSize=500, expireAfterAccess=1h
 
 #jackson config
