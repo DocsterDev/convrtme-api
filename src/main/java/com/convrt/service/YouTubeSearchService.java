@@ -33,34 +33,49 @@ public class YouTubeSearchService {
         log.info("Received search request for query: {}", query);
         if (query == null)
             return new LinkedList<>();
-        UriComponents uriComponents = UriComponentsBuilder.newInstance()
-                .scheme("https")
-                .host("www.youtube.com")
-                .path("/results")
-                .queryParam("q", query)
-                .build()
-                .encode();
-        String uri = uriComponents.toUriString();
+        UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/results").queryParam("q", query).build().encode();
         Document doc;
-        Document doc2;
-        try {
-            doc = Jsoup.connect(uri).get();
-            doc2 = Jsoup.connect("https://www.youtube.com/watch?v=soTXxzKWhG0").get();
-            parseRecommended(doc2);
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing document", e);
+        List<SearchResultWS> results = Lists.newArrayList();
+        retryCount = 0;
+        while (retryCount <= 3) {
+            try {
+                doc = Jsoup.connect(uriComponents.toUriString()).get();
+                results = mapYouTubeJsonFields(doc.body());
+                break;
+            } catch (Exception e) {
+                if (retryCount > 0) {
+                    throw new RuntimeException("Error parsing json from YouTube search results", e);
+                }
+                retryCount++;
+                log.warn("Failed parsing YouTube json. Retrying...", e);
+            }
         }
-        return mapYouTubeJsonFields(doc.body());
+        return results;
     }
 
-    private List<SearchResultWS> mapYouTubeJsonFields(Element body) {
-        JsonNode jsonNode = parseYouTubeJson(body);
+    private JsonNode parseSearchResults(Element body) throws IOException {
+        JsonNode jsonNode = null;
+        Elements scripts = body.select("script").eq(8);
+        String json = scripts.html().split("\r\n|\r|\n")[0];
+        json = StringUtils.substring(json, 26, json.length() - 1);
+        log.info(json);
+        jsonNode = MAPPER.readTree(json);
+        JsonNode objNode = jsonNode.get("contents").get("twoColumnSearchResultsRenderer").get("primaryContents").get("sectionListRenderer").get("contents").get(0).get("itemSectionRenderer").get("contents");
+        log.info(objNode.asText());
+        //String baseQuery = "$.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents[*].videoRenderer";
+        //String jsonStr = JsonPath.parse(json).read(baseQuery).toString();
+        //jsonNode = MAPPER.readTree(jsonStr);
+        return jsonNode;
+    }
+
+    private List<SearchResultWS> mapYouTubeJsonFields(Element body) throws IOException {
+        JsonNode jsonNode = parseSearchResults(body);
         List<SearchResultWS> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = jsonNode.iterator();
         while (iterator.hasNext()) {
             try {
                 SearchResultWS searchResult = new SearchResultWS();
-                JsonNode next = iterator.next();
+                JsonNode next = iterator.next().get("videoRenderer");
                 searchResult.setVideoId(next.path("videoId").asText());
                 searchResult.setTitle(next.get("title").get("simpleText").asText());
                 int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
@@ -77,62 +92,8 @@ public class YouTubeSearchService {
         return searchResults;
     }
 
-    static int i = 0;
 
-    private void parseRecommended(Element body) {
-        JsonNode jsonNode = null;
-        retryCount = 0;
-        //while (retryCount <= 3) {
-        try {
-            Elements scripts = body.select("script").eq(27);
-            String json = scripts.html().split("\r\n|\r|\n")[0];
-            json = StringUtils.substring(json, 26, json.length() - 1);
-            jsonNode = MAPPER.readTree(json);
-        } catch (Exception e) {
-            log.warn("Failed parsing YouTube json. Retrying...");
-        }
-        JsonNode objNode = jsonNode.get("contents").get("twoColumnWatchNextResults").get("secondaryResults").get("secondaryResults").get("results");
-        Iterator<JsonNode> iterator = objNode.iterator();
-        i = 0;
-        iterator.forEachRemaining((e) -> {
-            if (i == 0) {
-                log.info("Up Next: " + e.get("compactAutoplayRenderer").get("contents").get(0).get("compactVideoRenderer"));
-            } else {
-                log.info("Entry: " + e.get("compactVideoRenderer"));
-            }
-            i++;
-        });
 
-    }
 
-    private JsonNode parseYouTubeJson(Element body) {
-        JsonNode jsonNode = null;
-        retryCount = 0;
-        while (retryCount <= 3) {
-            try {
-                Elements scripts = body.select("script").eq(8);
-                String json = scripts.html().split("\r\n|\r|\n")[0];
-                json = StringUtils.substring(json, 26, json.length() - 1);
-                String baseQuery = "$.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents[*].videoRenderer";
-                String jsonStr = JsonPath.parse(json).read(baseQuery).toString();
-                jsonNode = MAPPER.readTree(jsonStr);
-                break;
-            } catch (NullPointerException e) {
-                log.error("Bro, we hit an error");
-                if (retryCount > 3) {
-                    throw new RuntimeException("Error parsing json from YouTube search results", e);
-                }
-                log.warn("Failed parsing YouTube json. Retrying...");
-                retryCount++;
-            } catch (Exception e) {
-                if (retryCount > 3) {
-                    throw new RuntimeException("Error parsing json from YouTube search results", e);
-                }
-                log.warn("Failed parsing YouTube json. Retrying...");
-                retryCount++;
-            }
-        }
-        return jsonNode;
-    }
 
 }
