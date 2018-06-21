@@ -185,7 +185,6 @@ public class YouTubeDownloadService {
         throw new RuntimeException("Could not extract media stream url.");
     }
 
-    @Cacheable("video")
     public VideoStreamMetadata mapStreamData(String userUuid, VideoStreamMetadata videoStreamMetadata) {
         String videoId = videoStreamMetadata.getVideoId();
         log.info("Attempting to fetch existing valid stream url for video={} user={}", videoId, userUuid);

@@ -16,7 +16,6 @@ import java.util.Arrays;
 @Service
 public class YouTubeAutoCompleteService {
 
-    @Cacheable("autocomplete")
     public JsonNode getAutoCompleteLookup(String input) {
         log.info("Retrieving autocomplete lookup for input \"{}\"", input);
 

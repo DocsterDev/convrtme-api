@@ -26,29 +26,27 @@ import java.util.List;
 public class YouTubeSearchService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    int retryCount = 0;
 
-    // @Cacheable("query")
-    public List<SearchResultWS> search(String query) {
+
+    @Cacheable("search")
+    public List<SearchResultWS> getSearch(String query) {
         log.info("Received search request for query: {}", query);
-        if (query == null)
-            return new LinkedList<>();
+        if (query == null) return new LinkedList<>();
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/results").queryParam("q", query).build().encode();
-        Document doc;
         List<SearchResultWS> results = Lists.newArrayList();
-        retryCount = 0;
-        while (retryCount <= 1) {
+        int retryCount = 0;
+        while (retryCount <= 3) {
             try {
-                doc = Jsoup.connect(uriComponents.toUriString()).get();
-                results = mapYouTubeJsonFields(doc.body());
+                Document doc = Jsoup.connect(uriComponents.toUriString()).get();
+                results = mapSearchResultFields(doc.body());
                 log.info("Iteration");
                 break;
             } catch (Exception e) {
-                if (retryCount > 0) {
-                    throw new RuntimeException("Error parsing json from YouTube search results", e);
+                if (retryCount == 3) {
+                    throw new RuntimeException("Error parsing json from YouTube search results after " + retryCount + " attempts", e);
                 }
-                retryCount++;
                 log.warn("Failed parsing YouTube json. Retrying...", e);
+                retryCount++;
             }
         }
         return results;
@@ -62,25 +60,25 @@ public class YouTubeSearchService {
         return jsonNode.get("contents").get("twoColumnSearchResultsRenderer").get("primaryContents").get("sectionListRenderer").get("contents").get(0).get("itemSectionRenderer").get("contents");
     }
 
-    private List<SearchResultWS> mapYouTubeJsonFields(Element body) throws IOException {
+    private List<SearchResultWS> mapSearchResultFields(Element body) throws IOException {
         List<SearchResultWS> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = parseSearchResults(body).iterator();
         while (iterator.hasNext()) {
+            try {
                 SearchResultWS searchResult = new SearchResultWS();
-                try {
-                    JsonNode next = iterator.next().get("videoRenderer");
-                    searchResult.setVideoId(next.get("videoId").asText());
-                    int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
-                    searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize-1).get("url").asText());
-                    searchResult.setTitle(next.get("title").get("simpleText").asText());
-                    searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
-                    searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
-                    searchResult.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
-                    searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
-                    searchResults.add(searchResult);
-                } catch (NullPointerException e) {
-
-                }
+                JsonNode next = iterator.next().get("videoRenderer");
+                searchResult.setVideoId(next.get("videoId").asText());
+                int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
+                searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize-1).get("url").asText());
+                searchResult.setTitle(next.get("title").get("simpleText").asText());
+                searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
+                searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
+                searchResult.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
+                searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
+                searchResults.add(searchResult);
+            } catch (NullPointerException e) {
+                log.error("Search result is null. Not including in results.");
+            }
         }
         return searchResults;
     }

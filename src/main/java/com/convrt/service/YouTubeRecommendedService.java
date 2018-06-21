@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,47 +29,73 @@ public class YouTubeRecommendedService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Cacheable("recommended")
-    public JsonNode getRecommended(String videoId) {
+    public List<SearchResultWS> getRecommended(String videoId) {
         log.info("Received recommended request for video: {}", videoId);
-        if (videoId == null)
-            return null;
+        if (videoId == null) return new LinkedList<>();
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/watch").queryParam("v", "soTXxzKWhG0").build().encode();
-        Document doc;
-        try {
-            doc = Jsoup.connect(uriComponents.toUriString()).get();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing document", e);
-        }
-        return parseRecommendedResults(doc);
-    }
-
-
-    static int i = 0;
-
-    private JsonNode parseRecommendedResults(Element body) {
-        JsonNode jsonNode = null;
-        try {
-            Elements scripts = body.select("script").eq(27);
-            String json = scripts.html().split("\r\n|\r|\n")[0];
-            json = StringUtils.substring(json, 26, json.length() - 1);
-            jsonNode = MAPPER.readTree(json);
-            JsonNode objNode = jsonNode.get("contents").get("twoColumnWatchNextResults").get("secondaryResults").get("secondaryResults").get("results");
-            Iterator<JsonNode> iterator = objNode.iterator();
-            i = 0;
-            iterator.forEachRemaining((e) -> {
-                if (i == 0) {
-                    log.info("Up Next: " + e.get("compactAutoplayRenderer").get("contents").get(0).get("compactVideoRenderer"));
-                } else {
-                    log.info("Entry: " + e.get("compactVideoRenderer"));
+        List<SearchResultWS> results = Lists.newArrayList();
+        int retryCount = 0;
+        while (retryCount <= 2) {
+            try {
+                Document doc = Jsoup.connect(uriComponents.toUriString()).get();
+                results = mapRecommendedFields(doc.body());
+                log.info("Iteration");
+                break;
+            } catch (Exception e) {
+                if (retryCount == 2) {
+                    throw new RuntimeException("Error parsing json from YouTube recommended results after " + retryCount + 1 + " attempts", e);
                 }
-                i++;
-            });
-        } catch (Exception e) {
-            log.warn("Failed parsing YouTube json. Retrying...");
+                log.warn("Failed parsing YouTube json. Retrying...", e);
+                retryCount++;
+            }
         }
-        return jsonNode;
+        return results;
     }
 
+    private List<SearchResultWS> mapRecommendedFields(Element body) throws IOException {
+        List<SearchResultWS> searchResults = Lists.newArrayList();
+        Iterator<JsonNode> iterator = parseRecommendedResults(body).iterator();
+        int i = 0;
+        while (iterator.hasNext()) {
+            try {
+                JsonNode next;
+                if (i == 0) {
+                    next = iterator.next().get("compactAutoplayRenderer").get("contents").get(0).get("compactVideoRenderer");
+                } else {
+                    next = iterator.next().get("compactVideoRenderer");
+                }
+                SearchResultWS searchResult = new SearchResultWS();
+                searchResult.setVideoId(next.get("videoId").asText());
+                int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
+                searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize - 1).get("url").asText());
+                searchResult.setTitle(next.get("title").get("simpleText").asText());
+                searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
+                searchResult.setViewCount(next.get("viewCountText").get("simpleText").asText());
+                searchResult.setDuration(next.get("lengthText").get("simpleText").asText());
+                // searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
+                searchResults.add(searchResult);
+            } catch (NullPointerException e) {
+                log.error("Search result is null. Not including in results.");
+            }
+            i++;
+        }
+        return searchResults;
+    }
 
+    private JsonNode parseRecommendedResults(Element body) throws IOException {
+        Elements scripts = body.select("script");
+        String script = null;
+        for (int i = 0; i < 100; i++) {
+            String html = scripts.eq(i).html();
+            if ( html.contains("window[\"ytInitialData\"]")) {
+                log.info("Found Recommended at: " + i);
+                script = html;
+               break;
+            }
+        }
+        String json = script.split("\r\n|\r|\n")[0];
+        json = StringUtils.substring(json, 26, json.length() - 1);
+        JsonNode jsonNode = MAPPER.readTree(json);
+        return jsonNode.get("contents").get("twoColumnWatchNextResults").get("secondaryResults").get("secondaryResults").get("results");
+    }
 }
