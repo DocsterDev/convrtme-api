@@ -85,7 +85,7 @@ public class YouTubeRecommendedService {
     private JsonNode parseRecommendedResults(Element body) throws IOException {
         Elements scripts = body.select("script");
         String script = null;
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < scripts.size(); i++) {
             String html = scripts.eq(i).html();
             if ( html.contains("window[\"ytInitialData\"]")) {
                 log.info("Found Recommended at: " + i);

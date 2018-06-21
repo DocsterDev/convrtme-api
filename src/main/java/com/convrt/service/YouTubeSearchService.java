@@ -53,8 +53,17 @@ public class YouTubeSearchService {
     }
 
     private JsonNode parseSearchResults(Element body) throws IOException {
-        Elements scripts = body.select("script").eq(8);
-        String json = scripts.html().split("\r\n|\r|\n")[0];
+        Elements scripts = body.select("script");
+        String script = null;
+        for (int i = 0; i < scripts.size(); i++) {
+            String html = scripts.eq(i).html();
+            if ( html.contains("window[\"ytInitialData\"]")) {
+                log.info("Found Search at: " + i);
+                script = html;
+                break;
+            }
+        }
+        String json = script.split("\r\n|\r|\n")[0];
         json = StringUtils.substring(json, 26, json.length() - 1);
         JsonNode jsonNode = MAPPER.readTree(json);
         return jsonNode.get("contents").get("twoColumnSearchResultsRenderer").get("primaryContents").get("sectionListRenderer").get("contents").get(0).get("itemSectionRenderer").get("contents");
