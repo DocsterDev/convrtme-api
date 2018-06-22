@@ -6,11 +6,14 @@ import com.convrt.repository.PlaylistRepository;
 import com.convrt.repository.VideoRepository;
 import com.convrt.view.VideoIdSet;
 import lombok.extern.slf4j.Slf4j;
+import org.omg.SendingContext.RunTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -22,22 +25,26 @@ public class PlaylistService {
     @Autowired
     private VideoRepository videoRepository;
 
+    @Transactional
     public Playlist createPlaylist(Playlist playlist) {
         return playlistRepository.save(playlist);
     }
 
+    @Transactional(readOnly = true)
     public Playlist getPlaylist(String uuid){
         Playlist playlist = playlistRepository.findOne(uuid);
-        List<String> videoIdList = playlist.getVideoIdList();
-        List<Video> videoList = videoRepository.findVideosByVideoIdIn(videoIdList);
-        List<VideoIdSet> videoIdSets = playlist.getVideos();
-        videoIdSets.stream().forEach((e) -> {
-            videoList.stream().forEach((k) -> {
-                if (e.getVideoId().equals(k.getVideoId())) {
-                    e.setVideo(k);
-                }
-            });
-        });
+        if (playlist == null){
+            throw new RuntimeException("Playlist not found for uuid=" + uuid);
+        }
+        // TODO: Get stream from the database to test that functionality / was getting "stream has already been operated upon or closed"
+        List<Video> videos = videoRepository.findVideosByVideoIdIn(playlist.getVideoIdList());
+        List<VideoIdSet> videoIds = playlist.getVideos();
+        videoIds.stream().forEach((id) ->
+            videos.forEach((v) -> {
+                if (id.getVideoId().equals(v.getVideoId()))
+                    id.setVideo(v);
+            })
+        );
         return playlist;
     }
 
