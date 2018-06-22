@@ -2,6 +2,7 @@ package com.convrt.entity;
 
 import com.convrt.utils.JpaJsonConverter;
 import com.convrt.view.VideoIdSet;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -38,7 +39,7 @@ public class Playlist extends BaseEntity {
     @Convert(converter = JpaJsonConverter.class)
     private List<VideoIdSet> videos;
 
-    @Transient
+    @JsonIgnore
     public List<String> getVideoIdList(){
         if (videos == null) {
             log.error("No video ids found for this playlist");
