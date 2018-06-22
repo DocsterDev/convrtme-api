@@ -30,7 +30,7 @@ public class YouTubeRecommendedService {
     public List<SearchResultWS> getRecommended(String videoId) {
         log.info("Received recommended request for video: {}", videoId);
         if (videoId == null) return new LinkedList<>();
-        UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/watch").queryParam("v", "soTXxzKWhG0").build().encode();
+        UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/watch").queryParam("v", videoId).build().encode();
         List<SearchResultWS> results = Lists.newArrayList();
         int retryCount = 0;
         while (retryCount <= 2) {
