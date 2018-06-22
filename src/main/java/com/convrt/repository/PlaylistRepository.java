@@ -1,10 +1,11 @@
 package com.convrt.repository;
 
+import com.convrt.entity.Playlist;
 import com.convrt.entity.Video;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PlaylistRepository extends JpaRepository<Video, String> {
+public interface PlaylistRepository extends JpaRepository<Playlist, String> {
 
-	Video findByUserId(String userId);
+	Playlist findByUserUuid(String userUuid);
 
 }

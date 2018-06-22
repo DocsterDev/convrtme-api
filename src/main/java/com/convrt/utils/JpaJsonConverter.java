@@ -5,16 +5,17 @@ import java.util.List;
 
 import javax.persistence.AttributeConverter;
 
+import com.convrt.view.VideoIdSet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JpaJsonConverter implements AttributeConverter<List<String>, String> {
+public class JpaJsonConverter implements AttributeConverter<List<VideoIdSet>, String> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(List<String> meta) {
+    public String convertToDatabaseColumn(List<VideoIdSet> meta) {
         try {
             return objectMapper.writeValueAsString(meta);
         } catch (JsonProcessingException ex) {
@@ -23,12 +24,11 @@ public class JpaJsonConverter implements AttributeConverter<List<String>, String
     }
 
     @Override
-    public List<String> convertToEntityAttribute(String dbData) {
+    public List<VideoIdSet> convertToEntityAttribute(String dbData) {
         try {
-            return objectMapper.readValue(dbData, new TypeReference<List<String>>(){});
+            return objectMapper.readValue(dbData, new TypeReference<List<VideoIdSet>>(){});
         } catch (IOException ex) {
             return null;
         }
     }
-
 }

@@ -1,5 +1,6 @@
 package com.convrt.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Entity
 @Table(name = "video", indexes = {@Index(name = "video_video_id_idx0", columnList = "video_id"), @Index(name = "video_user_uuid_idx1", columnList = "user_uuid")})
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Video extends BaseEntity {
 
     @Column(name = "video_id", length = 20)

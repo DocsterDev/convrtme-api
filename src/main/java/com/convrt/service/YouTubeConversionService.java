@@ -20,7 +20,7 @@ public class YouTubeConversionService {
 
         // Final works
         final ProcessBuilder pb
-                = new ProcessBuilder("./ffmpeg",
+                = new ProcessBuilder("./ffmpeg.exe",
                 "-i", url,
                 "-progress",
                 "progress",
