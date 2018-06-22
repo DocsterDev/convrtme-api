@@ -54,6 +54,7 @@ public class Video extends BaseEntity {
     @Column(name = "view_count")
     private String viewCount;
 
+    // Make this an @Formula
     @Column(name = "play_count")
     private Long playCount;
 
