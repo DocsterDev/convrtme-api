@@ -37,14 +37,14 @@ public class PlaylistService {
             throw new RuntimeException("Playlist not found for uuid=" + uuid);
         }
         // TODO: Get stream from the database to test that functionality / was getting "stream has already been operated upon or closed"
-        List<Video> videos = videoRepository.findVideosByVideoIdIn(playlist.getVideoIdList());
+        Iterator<Video> videos = videoRepository.findVideosByVideoIdIn(playlist.getVideoIdList()).iterator();
         List<VideoIdSet> videoIds = playlist.getVideos();
-        videoIds.stream().forEach((id) ->
-            videos.forEach((v) -> {
+        videos.forEachRemaining((v) -> {
+            videoIds.stream().forEach((id) -> {
                 if (id.getVideoId().equals(v.getVideoId()))
                     id.setVideo(v);
-            })
-        );
+            });
+        });
         return playlist;
     }
 
