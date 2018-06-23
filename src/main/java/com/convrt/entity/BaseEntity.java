@@ -1,6 +1,7 @@
 package com.convrt.entity;
 
 import com.convrt.view.View;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -19,9 +20,11 @@ public abstract class BaseEntity {
     @Column(name = "uuid", length = 36)
     private String uuid;
 
+    @JsonIgnore
     @Column(name = "created_date", columnDefinition = "DATETIME", nullable = false, updatable = false)
     private Instant createdDate;
 
+    @JsonIgnore
     @Column(name = "modified_date", columnDefinition = "DATETIME")
     private Instant modifiedDate;
 

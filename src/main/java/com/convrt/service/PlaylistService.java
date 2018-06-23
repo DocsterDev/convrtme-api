@@ -10,15 +10,18 @@ import org.omg.SendingContext.RunTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class PlaylistService {
-
 
     @Autowired
     private PlaylistRepository playlistRepository;
@@ -27,11 +30,12 @@ public class PlaylistService {
 
     @Transactional
     public Playlist createPlaylist(Playlist playlist) {
+
         return playlistRepository.save(playlist);
     }
 
     @Transactional(readOnly = true)
-    public Playlist getPlaylist(String uuid){
+    public Playlist readPlaylist(String uuid){
         Playlist playlist = playlistRepository.findOne(uuid);
         if (playlist == null){
             throw new RuntimeException("Playlist not found for uuid=" + uuid);
@@ -48,26 +52,32 @@ public class PlaylistService {
         return playlist;
     }
 
+    @Transactional
+    public Playlist updatePlaylist(String uuid, Playlist playlist) {
+        Playlist playlistPersistent = playlistRepository.findOne(uuid);
+        if (playlistPersistent == null) {
+            throw new RuntimeException("Playlist does not exist for this user");
+        }
+        playlistPersistent.setName(playlist.getName());
+        playlistPersistent.setIconColor(playlist.getIconColor());
+        playlistPersistent.setVideos(playlist.getVideos());
+        return playlistPersistent;
+    }
+
+    @Transactional
+    public void deletePlaylist(String uuid) {
+        if (!playlistRepository.exists(uuid)) {
+            throw new RuntimeException("No playlist found to delete with uuid=" + uuid);
+        }
+        playlistRepository.delete(uuid);
+    }
+
 }
 
 
-//    public Playlist createPlaylist (@RequestBody Playlist videoList) {
-//        return playlistService.createPlaylist(videoList);
-//    }
-//
 //    @GetMapping
 //    public Map<String, List<Video>> getAllPlaylists() {
 //        return playlistService.getAllPlaylists();
-//    }
-//
-//    @GetMapping("/{uuid}")
-//    public List<Playlist> getPlaylist(@PathVariable("uuid") String uuid) {
-//        return playlistService.getPlaylist(uuid);
-//    }
-//
-//    @PutMapping("/{uuid}")
-//    public Playlist updatePlaylist(@PathVariable("uuid") String uuid, @RequestBody List<String> videoList) {
-//        return playlistService.updatePlaylist(uuid, videoList);
 //    }
 //
 //    @DeleteMapping("/{uuid}")
