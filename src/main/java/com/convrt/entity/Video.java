@@ -1,5 +1,6 @@
 package com.convrt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,18 +30,23 @@ public class Video extends BaseEntity {
     @Column(name = "owner", length = 30)
     private String owner;
 
+    @JsonIgnore
     @Column(name = "published_time_ago", length = 30)
     private String publishedTimeAgo;
 
+    @JsonIgnore
     @Column(name = "stream_url_date", columnDefinition = "DATETIME")
     private Instant streamUrlDate;
 
+    @JsonIgnore
     @Column(name = "stream_url", length = 1000)
     private String streamUrl;
 
+    @JsonIgnore
     @Column(name = "stream_url_expire_date")
     private Instant streamUrlExpireDate;
 
+    @JsonIgnore
     @Column(name = "data_size")
     private Long dataSize;
 
@@ -56,7 +62,7 @@ public class Video extends BaseEntity {
     @Column(name = "view_count")
     private String viewCount;
 
-    // Make this an @Formula
+    // TODO: Make this an @Formula
     @Column(name = "play_count")
     private Long playCount;
 
