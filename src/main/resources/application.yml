@@ -21,8 +21,10 @@ spring:
     url: jdbc:mysql://localhost:3306/convrt_me_dev
 #    username: root
 #    password: 1234
-    username: tripactions
-    password: prodActive00
+    username: root
+    password: root
+#    username: tripactions
+#    password: prodActive00
 #  data:
 #    mongodb:
 #      host: localhost
