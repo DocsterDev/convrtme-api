@@ -1,7 +1,6 @@
 package com.convrt.controller;
 
-import com.convrt.service.YouTubeRecommendedService;
-import com.convrt.service.YouTubeSearchService;
+import com.convrt.service.RecommendedService;
 import com.convrt.view.SearchResultWS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +13,18 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/youtube/recommended")
-public class YouTubeRecommendedController {
+@RequestMapping("/api/videos/recommended")
+public class RecommendedController {
 
     @Autowired
-    private YouTubeRecommendedService youTubeRecommendedService;
+    private RecommendedService recommendedService;
 
     @GetMapping
     public List<SearchResultWS> getRecommended(@RequestParam("v") String videoId) {
-        return youTubeRecommendedService.getRecommended(videoId);
+        if (videoId == null) {
+            throw new RuntimeException("No video ID provided for recommendation lookup");
+        }
+        return recommendedService.getRecommended(videoId);
     }
 
 }

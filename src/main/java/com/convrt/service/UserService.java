@@ -16,17 +16,20 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<User> getUsers() {
+    public List<User> readUsers() {
         return userRepository.findAll();
     }
 
-    public User addNewUser(@NotNull User newUser) {
-        if (!userRepository.existsByEmail(newUser.getEmail())) {
-            return userRepository.save(newUser);
-        }
-
-        return null;
+    public User readUser(@NotNull String uuid) {
+        return userRepository.findOne(uuid);
     }
 
+    public User createUser(@NotNull User user) {
+        return userRepository.save(user);
+    }
+
+    public boolean existsByEmail(String email){
+        return userRepository.existsByEmail(email);
+    }
 
 }

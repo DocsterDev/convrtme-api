@@ -12,8 +12,8 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "video_play_count", indexes = {@Index(name = "video_play_count_video_id_idx0", columnList = "video_id"), @Index(name = "video_play_count_user_uuid_idx1", columnList = "user_uuid")})
-public class VideoPlayCount extends BaseEntity {
+@Table(name = "play_count", indexes = {@Index(name = "play_count_video_id_idx0", columnList = "video_id"), @Index(name = "play_count_user_uuid_idx1", columnList = "user_uuid")})
+public class PlayCount extends BaseEntity {
 
     @Column(name = "video_id", length = 20)
     private String videoId;
@@ -21,7 +21,11 @@ public class VideoPlayCount extends BaseEntity {
     @Column(name = "user_uuid", length = 36)
     private String userUuid;
 
-    @Column(name = "play_count")
-    private long playCount;
+    @Column(name = "num_plays")
+    private long numPlays = 0;
+
+    public void iterateNumPlays(){
+        this.numPlays += 1;
+    }
 
 }

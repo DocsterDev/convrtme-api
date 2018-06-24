@@ -17,6 +17,7 @@ public class SearchResultWS {
     private String thumbnailUrl;
     private String duration;
     private String publishedTimeAgo;
+    private Long playCount;
     private boolean audio;
 
 }

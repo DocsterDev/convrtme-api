@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,39 +32,26 @@ public class Video extends BaseEntity {
     private String owner;
 
     @JsonIgnore
-    @Column(name = "published_time_ago", length = 30)
-    private String publishedTimeAgo;
-
-    @JsonIgnore
-    @Column(name = "stream_url_date", columnDefinition = "DATETIME")
+    @Column(name = "stream_url_date")
     private Instant streamUrlDate;
-
-    @JsonIgnore
-    @Column(name = "stream_url", length = 1000)
-    private String streamUrl;
 
     @JsonIgnore
     @Column(name = "stream_url_expire_date")
     private Instant streamUrlExpireDate;
 
     @JsonIgnore
-    @Column(name = "data_size")
-    private Long dataSize;
+    @Column(name = "stream_url", length = 1000)
+    private String streamUrl;
 
-    @Column(name = "audio_only")
-    private boolean audioOnly;
-
-    @Column(name = "last_played_date", columnDefinition = "DATETIME")
+    @Column(name = "last_played_date")
     private Instant lastPlayedDate;
 
     @Column(name = "play_duration")
     private Long playDuration;
 
-    @Column(name = "view_count")
-    private String viewCount;
-
     // TODO: Make this an @Formula
-    @Column(name = "play_count")
+    @Formula("(select play_count.play_count)")
     private Long playCount;
+
 
 }

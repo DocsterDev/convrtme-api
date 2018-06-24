@@ -17,7 +17,7 @@ public class VideoService {
     @Autowired
     private VideoRepository videoRepository;
     @Autowired
-    private VideoPlayCountService videoPlayCountService;
+    private PlayCountService playCountService;
 
 
     @Transactional
@@ -27,12 +27,9 @@ public class VideoService {
         video.setUuid(UUID.nameUUIDFromBytes(videoId.getBytes()).toString());
         video.setTitle(videoStreamMetadata.getTitle());
         video.setOwner(videoStreamMetadata.getOwner());
-        video.setPublishedTimeAgo(videoStreamMetadata.getPublishedTimeAgo());
         video.setPlayDuration(videoStreamMetadata.getDuration());
         video.setStreamUrl(videoStreamMetadata.getSource());
-        video.setDataSize(videoStreamMetadata.getLength());
         video.setStreamUrlDate(Instant.now());
-        video.setAudioOnly(videoStreamMetadata.isAudio());
         video.setVideoId(videoId);
         video.setStreamUrlExpireDate(videoStreamMetadata.getSourceExpireDate());
         return videoRepository.save(video);
@@ -48,17 +45,13 @@ public class VideoService {
         if (Instant.now().isBefore(expireDate)) {
             VideoStreamMetadata videoStreamMetadata = new VideoStreamMetadata();
             videoStreamMetadata.setSource(video.getStreamUrl());
-            videoStreamMetadata.setLength(video.getDataSize());
-            videoStreamMetadata.setAudio(video.isAudioOnly());
             videoStreamMetadata.setSourceExpireDate(video.getStreamUrlExpireDate());
             videoStreamMetadata.setSourceFetchedDate(video.getStreamUrlDate());
             videoStreamMetadata.setVideoId(video.getVideoId());
             videoStreamMetadata.setDuration(video.getPlayDuration());
             videoStreamMetadata.setOwner(video.getOwner());
             videoStreamMetadata.setTitle(video.getTitle());
-            videoStreamMetadata.setPublishedTimeAgo(video.getPublishedTimeAgo());
-            videoStreamMetadata.setViewCount(video.getViewCount());
-            long playCount = videoPlayCountService.readPlayCountByVideoId(userUuid, videoId);
+;            long playCount = playCountService.readNumPlaysByVideoId(videoId);
             videoStreamMetadata.setPlayCount(playCount);
 
             return videoStreamMetadata;

@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 @Slf4j
 @Service
-public class YouTubeAutoCompleteService {
+public class AutoCompleteService {
 
     public JsonNode getAutoCompleteLookup(String input) {
         log.info("Retrieving autocomplete lookup for input \"{}\"", input);

@@ -1,18 +1,13 @@
 package com.convrt.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 
 @Slf4j
 @Service
-public class YouTubeConversionService {
+public class StreamConversionService {
 
     public InputStream convertVideo(String url) {
 
@@ -20,7 +15,7 @@ public class YouTubeConversionService {
 
         // Final works
         final ProcessBuilder pb
-                = new ProcessBuilder("./ffmpeg.exe",
+                = new ProcessBuilder("./ffmpeg",
                 "-i", url,
                 "-progress",
                 "progress",

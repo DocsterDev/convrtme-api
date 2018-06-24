@@ -22,7 +22,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class YouTubeRecommendedService {
+public class RecommendedService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 

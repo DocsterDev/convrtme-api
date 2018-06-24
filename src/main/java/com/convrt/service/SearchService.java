@@ -4,13 +4,13 @@ import com.convrt.view.SearchResultWS;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
@@ -23,7 +23,10 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class YouTubeSearchService {
+public class SearchService {
+
+    @Autowired
+    private PlayCountService playCountService;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -84,6 +87,7 @@ public class YouTubeSearchService {
                 searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
                 searchResult.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
                 searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
+                // searchResult.setPlayCount(playCountService.readNumPlaysByVideoId(searchResult.getVideoId()));
                 searchResults.add(searchResult);
             } catch (NullPointerException e) {
                 log.error("Search result is null. Not including in results.");

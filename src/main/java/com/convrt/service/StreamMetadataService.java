@@ -15,12 +15,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Service
-public class YouTubeDownloadService {
+public class StreamMetadataService {
 
     @Autowired
     private VideoService videoService;
     @Autowired
-    private VideoPlayCountService videoPlayCountService;
+    private PlayCountService playCountService;
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
 
@@ -72,7 +72,7 @@ public class YouTubeDownloadService {
             videoStreamMetadata.setSourceExpireDate(persistentVideoMetadata.getSourceExpireDate());
             videoService.createVideo(userUuid, videoStreamMetadata);
         }
-        videoPlayCountService.iteratePlayCount(userUuid, videoId);
+        playCountService.iteratePlayCount(userUuid, videoId);
         return videoStreamMetadata;
     }
 

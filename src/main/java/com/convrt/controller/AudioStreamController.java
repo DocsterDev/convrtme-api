@@ -1,8 +1,7 @@
 package com.convrt.controller;
 
-import com.convrt.entity.Video;
 import com.convrt.service.VideoService;
-import com.convrt.service.YouTubeConversionService;
+import com.convrt.service.StreamConversionService;
 import com.convrt.view.VideoStreamMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -27,7 +25,7 @@ import static org.apache.catalina.connector.OutputBuffer.DEFAULT_BUFFER_SIZE;
 public class AudioStreamController {
 
     @Autowired
-    private YouTubeConversionService youtubeConversionService;
+    private StreamConversionService youtubeStreamConversionService;
     @Autowired
     private VideoService videoService;
 
@@ -40,7 +38,7 @@ public class AudioStreamController {
             @Override
             public void writeTo(OutputStream outputStream) {
                 try {
-                    InputStream is = youtubeConversionService.convertVideo(videoStreamMetadata.getSource());
+                    InputStream is = youtubeStreamConversionService.convertVideo(videoStreamMetadata.getSource());
                     IOUtils.copyLarge(is, outputStream, new byte[DEFAULT_BUFFER_SIZE]);
                     outputStream.close();
                 } catch (Exception e) {

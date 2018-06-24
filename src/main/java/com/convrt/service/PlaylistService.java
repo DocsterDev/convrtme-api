@@ -43,12 +43,13 @@ public class PlaylistService {
         // TODO: Get stream from the database to test that functionality / was getting "stream has already been operated upon or closed"
         Iterator<Video> videos = videoRepository.findVideosByVideoIdIn(playlist.getVideoIdList()).iterator();
         List<VideoIdSet> videoIds = playlist.getVideos();
-        videos.forEachRemaining((v) -> {
-            videoIds.stream().forEach((id) -> {
-                if (id.getVideoId().equals(v.getVideoId()))
-                    id.setVideo(v);
-            });
-        });
+        // TODO Get rid of this and replace with formula
+//        videos.forEachRemaining((v) -> {
+//            videoIds.stream().forEach((id) -> {
+//                if (id.getVideoId().equals(v.getVideoId()))
+//                    id.setVideo(v);
+//            });
+//        });
         return playlist;
     }
 
