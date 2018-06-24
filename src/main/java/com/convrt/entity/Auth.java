@@ -22,10 +22,6 @@ public class Auth extends BaseEntity {
     private boolean valid;
 
     @JsonIgnore
-    @Column(name = "anonymous")
-    private boolean anonymous;
-
-    @JsonIgnore
     @Column(name = "last_login")
     private Instant lastLogin;
 
