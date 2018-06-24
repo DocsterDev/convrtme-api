@@ -1,12 +1,13 @@
 package com.convrt.controller;
 
+import com.convrt.entity.Auth;
 import com.convrt.entity.User;
+import com.convrt.service.AuthService;
 import com.convrt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -14,37 +15,37 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AuthService authService;
 
+    // TODO Delete after development is done
     @GetMapping
     public List<User> getUsers() {
         return userService.readUsers();
     }
 
+    // TODO Delete after development is done
     @GetMapping("/{uuid}")
     public User getUser(@PathVariable("uuid") String uuid) {
         return userService.readUser(uuid);
     }
 
     @PostMapping("/register")
-    public User createUser(@RequestHeader(value = "User-Agent", required = false) String userAgent, @RequestBody User user) {
-        String email = user.getEmail();
-        if (userService.existsByEmail(email)) {
-            throw new RuntimeException("User already exists for email address " + email);
-        }
-        user.setUuid(UUID.randomUUID().toString());
-        user.setUserAgent(userAgent);
-        return userService.createUser(user);
+    public Auth registerUser(@RequestBody User user, @RequestHeader(value = "User-Agent", required = false) String userAgent) {
+        User userPersistent = userService.createUser(user);
+        return authService.generateUserToken(userAgent, userPersistent);
     }
 
-    @PostMapping
-    public User createAnonymousUser(@RequestHeader(value = "User-Agent", required = false) String userAgent) {
-        String email = user.getEmail();
-        if (userService.existsByEmail(email)) {
-            throw new RuntimeException("User already exists for email address " + email);
+    // @RequestHeader(value = "token", required = false) String token <-- this goes everywhere auth is required
+
+    @PostMapping("/login")
+    public Auth loginUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin, @RequestHeader(value = "User-Agent", required = false) String userAgent) {
+        User user = userService.getUserByPinAndEmail(pin, email);
+        Auth auth = authService.lookupUserToken(user);
+        if (auth == null) {
+            return authService.generateUserToken(userAgent, user);
         }
-        user.setUuid(UUID.randomUUID().toString());
-        user.setUserAgent(userAgent);
-        return userService.createUser(user);
+        return auth;
     }
 
 }

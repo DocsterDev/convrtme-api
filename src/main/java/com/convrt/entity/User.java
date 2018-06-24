@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
@@ -19,17 +20,21 @@ import java.util.List;
 public class User extends BaseEntity {
 
     @Email
+    @NonNull
+    @Column(name = "email", length = 50)
     private String email;
 
+    @NonNull
+    @Column(name = "pin", length = 4) // TODO: encrypt this
     private String pin;
-
-    @JsonIgnore
-    private String userAgent;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<PlayCount> playCounts;
 
+//    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+//    private List<Playlist> playlists;
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    private List<Playlist> playlists;
+    private List<Auth> auths;
 
 }

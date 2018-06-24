@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/playlists")
+@RequestMapping("/api/videos/playlists")
 public class PlaylistController {
 
     @Autowired
@@ -49,8 +49,9 @@ public class PlaylistController {
     }
 
     @PutMapping("/{uuid}")
-    public Playlist updatePlaylist(@PathVariable("uuid") String uuid, @RequestBody Playlist playlist) {
-        return playlistService.updatePlaylist(uuid, playlist);
+    public Playlist updatePlaylist(@RequestHeader(value = "User", required = false) String userUuid, @RequestBody Playlist playlist) {
+        User user = userService.readUser(userUuid);
+        return playlistService.updatePlaylist(user, playlist);
     }
 
     @DeleteMapping("/{uuid}")

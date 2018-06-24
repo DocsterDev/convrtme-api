@@ -40,7 +40,7 @@ public class PlaylistService {
         }
         playlistPersistent.setName(playlist.getName());
         playlistPersistent.setIconColor(playlist.getIconColor());
-        playlistPersistent.setVideos(playlist.getVideos());
+        // playlistPersistent.setVideos(playlist.getVideos());
         return playlistPersistent;
     }
 

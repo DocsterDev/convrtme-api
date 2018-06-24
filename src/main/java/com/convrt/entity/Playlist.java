@@ -33,24 +33,12 @@ public class Playlist extends BaseEntity {
     @Column(name = "icon_color", length = 10)
     private String iconColor;
 
-//    @Column(name = "video_list_json", columnDefinition = "TEXT")
-//    @Convert(converter = JpaJsonConverter.class)
-//    private List<VideoIdSet> videos;
-
-    @ManyToMany(mappedBy = "playlistVideos")
-    private List<Video> videos;
+//    @ManyToMany(mappedBy = "playlistVideos")
+//    private List<Video> videos;
 
     //@JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_playlist_user_uuid"))
     private User user;
-
-//    @JsonIgnore
-//    public List<String> getVideoIdList(){
-//        if (videos == null) {
-//            log.error("No video ids found for this playlist");
-//        }
-//        return videos.stream().map(VideoIdSet::getVideoId).collect(Collectors.toList());
-//    }
 
 }
