@@ -14,4 +14,6 @@ public interface AuthRepository extends JpaRepository<Auth, String> {
 
     Auth findByUser(User user);
 
+    Auth findByUserAndUserAgent(User user, String userAgent);
+
 }

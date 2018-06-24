@@ -41,7 +41,7 @@ public class UserController {
     @PostMapping("/login")
     public Auth loginUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin, @RequestHeader(value = "User-Agent", required = false) String userAgent) {
         User user = userService.getUserByPinAndEmail(pin, email);
-        Auth auth = authService.lookupUserToken(user);
+        Auth auth = authService.lookupUserToken(user, userAgent);
         if (auth == null) {
             return authService.generateUserToken(userAgent, user);
         }

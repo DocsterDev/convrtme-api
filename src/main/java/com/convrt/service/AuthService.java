@@ -40,9 +40,9 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public Auth lookupUserToken(User user) {
+    public Auth lookupUserToken(User user, String userAgent) {
         log.info("Looking up existing user session for user {}", user.getEmail());
-        Auth auth = authRepository.findByUser(user);
+        Auth auth = authRepository.findByUserAndUserAgent(user, userAgent);
         if (auth == null) {
             log.error("User {} already logged in", user.getEmail());
             return auth;
