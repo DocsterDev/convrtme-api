@@ -1,7 +1,9 @@
 package com.convrt.controller;
 
 import com.convrt.entity.Playlist;
+import com.convrt.entity.User;
 import com.convrt.service.PlaylistService;
+import com.convrt.service.UserService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,17 +18,23 @@ public class PlaylistController {
 
     @Autowired
     private PlaylistService playlistService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping
-    public Playlist createPlaylist (@RequestBody @NonNull Playlist playlist) {
+    public Playlist createPlaylist (@RequestHeader(value = "User", required = false) String userUuid, @RequestBody @NonNull Playlist playlist) {
+        User user = null;
+        if (userUuid != null) {
+            user = userService.readUser(userUuid);
+        }
         if (playlist.getUuid() != null) {
-            Playlist playlistPersistent = playlistService.readPlaylist(playlist.getUuid());
+            Playlist playlistPersistent = playlistService.readPlaylist(user, playlist.getUuid());
             if (playlistPersistent != null) {
                 throw new RuntimeException("Cant create a new playlist that already exists");
             }
         }
         playlist.setUuid(UUID.randomUUID().toString());
-        return playlistService.createPlaylist(playlist);
+        return playlistService.createPlaylist(user, playlist);
     }
 
 //    @GetMapping
@@ -35,8 +43,9 @@ public class PlaylistController {
 //    }
 
     @GetMapping("/{uuid}")
-    public Playlist getPlaylist(@PathVariable(value = "uuid") String uuid) {
-        return playlistService.readPlaylist(uuid);
+    public Playlist getPlaylist(@RequestHeader(value = "User", required = false) String userUuid, @PathVariable(value = "uuid") String uuid) {
+        User user = userService.readUser(userUuid);
+        return playlistService.readPlaylist(user, uuid);
     }
 
     @PutMapping("/{uuid}")

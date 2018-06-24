@@ -5,8 +5,8 @@ import com.convrt.repository.UserRepository;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Service
@@ -16,18 +16,26 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public List<User> readUsers() {
         return userRepository.findAll();
     }
 
-    public User readUser(@NotNull String uuid) {
-        return userRepository.findOne(uuid);
+    @Transactional(readOnly = true)
+    public User readUser(String uuid) {
+        User user = userRepository.findOne(uuid);
+        if (user == null) {
+            throw new RuntimeException("User not found uuid=" + uuid);
+        }
+        return user;
     }
 
-    public User createUser(@NotNull User user) {
+    @Transactional
+    public User createUser(User user) {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public boolean existsByEmail(String email){
         return userRepository.existsByEmail(email);
     }

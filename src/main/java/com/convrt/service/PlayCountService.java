@@ -1,6 +1,7 @@
 package com.convrt.service;
 
 import com.convrt.entity.PlayCount;
+import com.convrt.entity.User;
 import com.convrt.repository.PlayCountRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,21 +18,16 @@ public class PlayCountService {
     private PlayCountRepository playCountRepository;
 
     @Transactional
-    public PlayCount iteratePlayCount(String userUuid, String videoId) {
-        PlayCount playCount = playCountRepository.findByVideoId(videoId);
+    public Long iterateNumPlays(User user, String videoId) {
+        PlayCount playCount = playCountRepository.findByUserUuidAndVideoId(user.getUuid(), videoId);
         if (playCount == null) {
             playCount = new PlayCount();
             playCount.setUuid(UUID.randomUUID().toString());
             playCount.setVideoId(videoId);
-            playCount.setUserUuid(userUuid);
+            playCount.setUser(user);
         }
         playCount.iterateNumPlays();
-        return playCount;
-    }
-
-    @Transactional
-    public Long readNumPlaysByVideoId(String videoId) {
-        return playCountRepository.findByVideoId(videoId).getNumPlays();
+        return playCountRepository.save(playCount).getNumPlays();
     }
 
 }

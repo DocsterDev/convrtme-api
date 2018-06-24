@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @Data
 @NoArgsConstructor
-//@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class VideoStreamMetadata {
 
     public VideoStreamMetadata(String source, Long length, String contentType, boolean audio) {

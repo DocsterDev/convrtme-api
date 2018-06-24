@@ -1,27 +1,28 @@
 package com.convrt.service;
 
+import com.convrt.entity.User;
 import com.convrt.entity.Video;
 import com.convrt.repository.VideoRepository;
 import com.convrt.view.VideoStreamMetadata;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class VideoService {
-
 
     @Autowired
     private VideoRepository videoRepository;
     @Autowired
     private PlayCountService playCountService;
 
-
     @Transactional
-    public Video createVideo(String userUuid, VideoStreamMetadata videoStreamMetadata) {
+    public Video createVideo(VideoStreamMetadata videoStreamMetadata) {
         String videoId = videoStreamMetadata.getVideoId();
         Video video = new Video();
         video.setUuid(UUID.nameUUIDFromBytes(videoId.getBytes()).toString());
@@ -35,8 +36,8 @@ public class VideoService {
         return videoRepository.save(video);
     }
 
-    @Transactional
-    public VideoStreamMetadata readVideoByVideoId(String userUuid, String videoId) {
+    @Transactional(readOnly = true)
+    public VideoStreamMetadata readVideoByVideoId(String videoId) {
         Video video = videoRepository.findByVideoId(videoId);
         if (video == null) {
             return null;
@@ -51,9 +52,6 @@ public class VideoService {
             videoStreamMetadata.setDuration(video.getPlayDuration());
             videoStreamMetadata.setOwner(video.getOwner());
             videoStreamMetadata.setTitle(video.getTitle());
-;            long playCount = playCountService.readNumPlaysByVideoId(videoId);
-            videoStreamMetadata.setPlayCount(playCount);
-
             return videoStreamMetadata;
         }
         return null;

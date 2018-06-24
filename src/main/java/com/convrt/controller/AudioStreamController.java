@@ -31,7 +31,7 @@ public class AudioStreamController {
 
     @GetMapping("/{videoId}")
     public StreamingResponseBody handleRequest(@PathVariable("videoId") String videoId, HttpServletResponse response) {
-        VideoStreamMetadata videoStreamMetadata = videoService.readVideoByVideoId("12345", videoId);
+        VideoStreamMetadata videoStreamMetadata = videoService.readVideoByVideoId(videoId);
         response.setContentType("audio/webm");
         response.setHeader("Content-disposition", "inline; filename=output.webm");
         return new StreamingResponseBody() {

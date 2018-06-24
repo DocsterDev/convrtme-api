@@ -25,8 +25,19 @@ public class UserController {
         return userService.readUser(uuid);
     }
 
+    @PostMapping("/register")
+    public User createUser(@RequestHeader(value = "User-Agent", required = false) String userAgent, @RequestBody User user) {
+        String email = user.getEmail();
+        if (userService.existsByEmail(email)) {
+            throw new RuntimeException("User already exists for email address " + email);
+        }
+        user.setUuid(UUID.randomUUID().toString());
+        user.setUserAgent(userAgent);
+        return userService.createUser(user);
+    }
+
     @PostMapping
-    public User createUser(@RequestHeader(value = "User-Agent", required = false) String userAgent, @RequestBody User user){
+    public User createAnonymousUser(@RequestHeader(value = "User-Agent", required = false) String userAgent) {
         String email = user.getEmail();
         if (userService.existsByEmail(email)) {
             throw new RuntimeException("User already exists for email address " + email);

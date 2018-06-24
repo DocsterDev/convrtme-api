@@ -1,5 +1,6 @@
 package com.convrt.service;
 
+import com.convrt.entity.User;
 import com.convrt.view.VideoStreamMetadata;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
@@ -8,6 +9,7 @@ import com.github.axet.vget.info.VideoInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
 import java.util.List;
@@ -57,12 +59,13 @@ public class StreamMetadataService {
         throw new RuntimeException("Could not extract media stream url.");
     }
 
-    public VideoStreamMetadata mapStreamData(String userUuid, VideoStreamMetadata videoStreamMetadata) {
+    @Transactional
+    public VideoStreamMetadata mapStreamData(User user, VideoStreamMetadata videoStreamMetadata) {
         String videoId = videoStreamMetadata.getVideoId();
-        log.info("Attempting to fetch existing valid stream url for video={} user={}", videoId, userUuid);
-        VideoStreamMetadata persistentVideoMetadata = videoService.readVideoByVideoId(userUuid, videoId);
+        log.info("Attempting to fetch existing valid stream url for video={} user={}", videoId, user.getEmail());
+        VideoStreamMetadata persistentVideoMetadata = videoService.readVideoByVideoId(videoId);
         if (persistentVideoMetadata == null) {
-            log.info("No existing stream url available for video={} user={}", videoId, userUuid);
+            log.info("No existing stream url available for video={} user={}", videoId, user.getEmail());
             persistentVideoMetadata = startDownload(videoId);
             videoStreamMetadata.setSource(persistentVideoMetadata.getSource());
             videoStreamMetadata.setLength(persistentVideoMetadata.getLength());
@@ -70,9 +73,11 @@ public class StreamMetadataService {
             videoStreamMetadata.setAudio(persistentVideoMetadata.isAudio());
             videoStreamMetadata.setSourceFetchedDate(persistentVideoMetadata.getSourceFetchedDate());
             videoStreamMetadata.setSourceExpireDate(persistentVideoMetadata.getSourceExpireDate());
-            videoService.createVideo(userUuid, videoStreamMetadata);
+            videoService.createVideo(videoStreamMetadata);
         }
-        playCountService.iteratePlayCount(userUuid, videoId);
+        if (user != null) {
+            videoStreamMetadata.setPlayCount(playCountService.iterateNumPlays(user, videoId));
+        }
         return videoStreamMetadata;
     }
 

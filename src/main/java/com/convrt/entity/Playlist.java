@@ -19,10 +19,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
-@Entity
-@NoArgsConstructor
 @Slf4j
+@Data
+@NoArgsConstructor
+@Entity
 @Table(name = "playlist", indexes = {@Index(name = "playlist_user_id_idx0", columnList = "user_uuid")})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Playlist extends BaseEntity {
@@ -33,19 +33,24 @@ public class Playlist extends BaseEntity {
     @Column(name = "icon_color", length = 10)
     private String iconColor;
 
-    @Column(name = "user_uuid", length = 36)
-    private String userUuid;
+//    @Column(name = "video_list_json", columnDefinition = "TEXT")
+//    @Convert(converter = JpaJsonConverter.class)
+//    private List<VideoIdSet> videos;
 
-    @Column(name = "video_list_json", columnDefinition = "TEXT")
-    @Convert(converter = JpaJsonConverter.class)
-    private List<VideoIdSet> videos;
+    @ManyToMany(mappedBy = "playlistVideos")
+    private List<Video> videos;
 
-    @JsonIgnore
-    public List<String> getVideoIdList(){
-        if (videos == null) {
-            log.error("No video ids found for this playlist");
-        }
-        return videos.stream().map(VideoIdSet::getVideoId).collect(Collectors.toList());
-    }
+    //@JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_playlist_user_uuid"))
+    private User user;
+
+//    @JsonIgnore
+//    public List<String> getVideoIdList(){
+//        if (videos == null) {
+//            log.error("No video ids found for this playlist");
+//        }
+//        return videos.stream().map(VideoIdSet::getVideoId).collect(Collectors.toList());
+//    }
 
 }
