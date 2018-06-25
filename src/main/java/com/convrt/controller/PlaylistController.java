@@ -2,10 +2,8 @@ package com.convrt.controller;
 
 import com.convrt.entity.Context;
 import com.convrt.entity.Playlist;
-import com.convrt.entity.User;
 import com.convrt.service.ContextService;
 import com.convrt.service.PlaylistService;
-import com.convrt.service.UserService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +54,7 @@ public class PlaylistController {
     @DeleteMapping("/{uuid}")
     public void deletePlaylist(@RequestHeader(value = "user-token") String token, @PathVariable("uuid") String uuid) {
         Context context = contextService.validateContext(token);
-        playlistService.deletePlaylist(uuid);
+        playlistService.deletePlaylist(context.getUser(), uuid);
     }
 
 }

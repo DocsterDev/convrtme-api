@@ -33,6 +33,7 @@ public class ContextService {
         Context context = new Context();
         context.setUuid(UUID.randomUUID().toString());
         context.setToken(token);
+        context.setUserAgent(userAgent);
         context.setUser(user);
         context.setValid(true);
         context.setLastLogin(Instant.now());

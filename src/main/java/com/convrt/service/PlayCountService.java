@@ -25,7 +25,7 @@ public class PlayCountService {
             playCount = new PlayCount();
             playCount.setUuid(UUID.randomUUID().toString());
             playCount.setVideoId(videoId);
-            playCount.setContext(context);
+            playCount.setUser(context.getUser());
         }
         playCount.iterateNumPlays();
         return playCountRepository.save(playCount).getNumPlays();

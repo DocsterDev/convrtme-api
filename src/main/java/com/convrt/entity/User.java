@@ -21,17 +21,12 @@ import java.util.UUID;
         indexes = {@Index(name = "user_email_idx0", columnList = "email"), @Index(name = "user_pin_idx1", columnList = "pin")})
 public class User extends BaseEntity {
 
-    public User (String pin, String email) {
+    public User (String email, String pin) {
         this.uuid = UUID.randomUUID().toString();
         this.pin = pin;
         this.email = email;
     }
 
-    public void setUuid(String pin, String email) {
-        this.uuid = UUIDUtils.generateUuid(pin, email);
-    }
-
-    @Email
     @NonNull
     @Column(name = "email", length = 50)
     private String email;
@@ -44,10 +39,10 @@ public class User extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<PlayCount> playCounts;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<Playlist> playlists;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<Context> contexts;
 
 }

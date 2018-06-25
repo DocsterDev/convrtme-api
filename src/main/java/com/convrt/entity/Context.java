@@ -21,20 +21,10 @@ public class Context extends BaseEntity {
         this.uuid = UUID.randomUUID().toString();
     }
 
-    @JsonIgnore
-    private String uuid;
-
-    @JsonIgnore
-    private Instant createdDate;
-
-    @JsonIgnore
-    private Instant modifiedDate;
-
     @Column(name = "token", length = 100, nullable = false, updatable = false)
     private String token;
 
-    @NonNull
-    @Column(name = "user_agent", length = 100, nullable = false)
+    @Column(name = "user_agent", length = 100)
     private String userAgent;
 
     @JsonIgnore

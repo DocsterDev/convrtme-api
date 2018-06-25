@@ -11,14 +11,17 @@ import lombok.NonNull;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-@Table(name = "location", indexes = @Index(name = "location_ip_address_idx0", columnList = "ip_address"))
-public class Log extends BaseEntity{
+@Table(name = "log", indexes = @Index(name = "log_ip_address_idx0", columnList = "ip_address"))
+public class Log {
+
+    @Id
+    @Column(name = "uuid", length = 36)
+    private String uuid;
 
     @JsonProperty("geoplugin_request")
     @Column(name = "ip_address", length = 30)
@@ -74,15 +77,8 @@ public class Log extends BaseEntity{
     private ActionType action;
 
     @JsonIgnore
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "context_uuid", nullable = false, foreignKey = @ForeignKey(name = "fk_context_log_context_uuid"))
+    @ManyToOne
+    @JoinColumn(name = "context_uuid", foreignKey = @ForeignKey(name = "fk_context_log_context_uuid"))
     private Context context;
-
-    @Override
-    public void setUuid(String uuid) {
-        // this.uuid = UUIDUtils.generateUuid(ipAddress, city, region, country);
-        this.uuid = UUID.randomUUID().toString();
-        this.dateAccessed = (Instant.now());
-    }
 
 }
