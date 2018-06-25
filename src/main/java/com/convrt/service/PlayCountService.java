@@ -1,5 +1,6 @@
 package com.convrt.service;
 
+import com.convrt.entity.Context;
 import com.convrt.entity.PlayCount;
 import com.convrt.entity.User;
 import com.convrt.repository.PlayCountRepository;
@@ -18,13 +19,13 @@ public class PlayCountService {
     private PlayCountRepository playCountRepository;
 
     @Transactional
-    public Long iterateNumPlays(User user, String videoId) {
-        PlayCount playCount = playCountRepository.findByUserUuidAndVideoId(user.getUuid(), videoId);
+    public Long iterateNumPlays(Context context, String videoId) {
+        PlayCount playCount = playCountRepository.findByUserUuidAndVideoId(context.getUuid(), videoId);
         if (playCount == null) {
             playCount = new PlayCount();
             playCount.setUuid(UUID.randomUUID().toString());
             playCount.setVideoId(videoId);
-            playCount.setUser(user);
+            playCount.setContext(context);
         }
         playCount.iterateNumPlays();
         return playCountRepository.save(playCount).getNumPlays();

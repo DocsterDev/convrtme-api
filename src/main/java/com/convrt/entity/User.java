@@ -1,5 +1,6 @@
 package com.convrt.entity;
 
+import com.convrt.utils.UUIDUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,7 @@ import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -19,22 +21,33 @@ import java.util.List;
         indexes = {@Index(name = "user_email_idx0", columnList = "email"), @Index(name = "user_pin_idx1", columnList = "pin")})
 public class User extends BaseEntity {
 
+    public User (String pin, String email) {
+        this.uuid = UUID.randomUUID().toString();
+        this.pin = pin;
+        this.email = email;
+    }
+
+    public void setUuid(String pin, String email) {
+        this.uuid = UUIDUtils.generateUuid(pin, email);
+    }
+
     @Email
     @NonNull
     @Column(name = "email", length = 50)
     private String email;
 
     @NonNull
+    @JsonIgnore
     @Column(name = "pin", length = 4) // TODO: encrypt this
     private String pin;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<PlayCount> playCounts;
 
-//    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-//    private List<Playlist> playlists;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+    private List<Playlist> playlists;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    private List<Auth> auths;
+    private List<Context> contexts;
 
 }

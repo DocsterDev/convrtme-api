@@ -1,5 +1,6 @@
 package com.convrt.service;
 
+import com.convrt.entity.Context;
 import com.convrt.entity.User;
 import com.convrt.view.VideoStreamMetadata;
 import com.github.axet.vget.VGet;
@@ -60,12 +61,12 @@ public class StreamMetadataService {
     }
 
     @Transactional
-    public VideoStreamMetadata mapStreamData(User user, VideoStreamMetadata videoStreamMetadata) {
+    public VideoStreamMetadata mapStreamData(Context context, VideoStreamMetadata videoStreamMetadata) {
         String videoId = videoStreamMetadata.getVideoId();
-        log.info("Attempting to fetch existing valid stream url for video={} user={}", videoId, user.getEmail());
+        log.info("Attempting to fetch existing valid stream url for video={} context={}", videoId, context.getUuid());
         VideoStreamMetadata persistentVideoMetadata = videoService.readVideoByVideoId(videoId);
         if (persistentVideoMetadata == null) {
-            log.info("No existing stream url available for video={} user={}", videoId, user.getEmail());
+            log.info("No existing stream url available for video={} context={}", videoId, context.getUuid());
             persistentVideoMetadata = startDownload(videoId);
             videoStreamMetadata.setSource(persistentVideoMetadata.getSource());
             videoStreamMetadata.setLength(persistentVideoMetadata.getLength());
@@ -75,9 +76,7 @@ public class StreamMetadataService {
             videoStreamMetadata.setSourceExpireDate(persistentVideoMetadata.getSourceExpireDate());
             videoService.createVideo(videoStreamMetadata);
         }
-        if (user != null) {
-            videoStreamMetadata.setPlayCount(playCountService.iterateNumPlays(user, videoId));
-        }
+        videoStreamMetadata.setPlayCount(playCountService.iterateNumPlays(context, videoId));
         return videoStreamMetadata;
     }
 

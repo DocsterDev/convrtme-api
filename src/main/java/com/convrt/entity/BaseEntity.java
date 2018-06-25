@@ -18,15 +18,15 @@ public abstract class BaseEntity {
     @Id
     @JsonView(View.BaseView.class)
     @Column(name = "uuid", length = 36)
-    private String uuid;
+    public String uuid;
 
     @JsonIgnore
     @Column(name = "created_date", columnDefinition = "DATETIME", nullable = false, updatable = false)
-    private Instant createdDate;
+    public Instant createdDate;
 
     @JsonIgnore
     @Column(name = "modified_date", columnDefinition = "DATETIME")
-    private Instant modifiedDate;
+    public Instant modifiedDate;
 
     @PrePersist
     protected void prePersist() {

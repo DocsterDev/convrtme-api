@@ -1,5 +1,6 @@
 package com.convrt.service;
 
+import com.convrt.entity.Context;
 import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
 import com.convrt.repository.PlaylistRepository;
@@ -20,21 +21,22 @@ public class PlaylistService {
 
     @Transactional
     public Playlist createPlaylist(User user, Playlist playlist) {
+        playlist.setUser(user);
         return playlistRepository.save(playlist);
     }
 
     @Transactional(readOnly = true)
     public Playlist readPlaylist(User user, String uuid) {
-        Playlist playlist = playlistRepository.findOne(uuid);
+        Playlist playlist = playlistRepository.findByUuidAndUser(uuid, user);
         if (playlist == null) {
-            throw new RuntimeException("No playlist found");
+            throw new RuntimeException("No playlist found with uuid " + uuid);
         }
         return playlist;
     }
 
     @Transactional
     public Playlist updatePlaylist(User user, Playlist playlist) {
-        Playlist playlistPersistent = playlistRepository.findOne(user.getUuid());
+        Playlist playlistPersistent = playlistRepository.findByUuidAndUser(playlist.getUuid(), user);
         if (playlistPersistent == null) {
             throw new RuntimeException("No playlist found to update");
         }
@@ -45,11 +47,11 @@ public class PlaylistService {
     }
 
     @Transactional
-    public void deletePlaylist(String uuid) {
-        if (!playlistRepository.exists(uuid)) {
+    public void deletePlaylist(User user, String uuid) {
+        if (!playlistRepository.existsByUuidAndUser(uuid, user)) {
             throw new RuntimeException("No playlist found to delete");
         }
-        playlistRepository.delete(uuid);
+        playlistRepository.deleteByUuidAndUser(uuid, user);
     }
 
 }

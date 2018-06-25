@@ -23,7 +23,7 @@ public class PlayCount extends BaseEntity {
     private long numPlays = 0;
 
     @JsonIgnore
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "user_uuid", nullable = false, foreignKey = @ForeignKey(name = "fk_play_count_user_uuid"))
     private User user;
 

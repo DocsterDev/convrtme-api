@@ -17,28 +17,15 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Transactional(readOnly = true)
-    public List<User> readUsers() {
-        return userRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public User readUser(String uuid) {
-        User user = userRepository.findOne(uuid);
-        if (user == null) {
-            throw new RuntimeException("User not found uuid=" + uuid);
-        }
-        return user;
-    }
-
     @Transactional
-    public User createUser(User user) {
-        String email = user.getEmail();
+    public User createUser(String email, String pin) {
+        if (pin == null || email == null) {
+            throw new RuntimeException("Must provide both pin and email address");
+        }
         if (existsByEmail(email)) {
             throw new RuntimeException("User already exists for email address " + email);
         }
-        user.setUuid(UUID.randomUUID().toString());
-        return userRepository.save(user);
+        return userRepository.save(new User(email,pin));
     }
 
     @Transactional(readOnly = true)
@@ -48,6 +35,9 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getUserByPinAndEmail(String pin, String email) {
+        if (pin == null || email == null) {
+            throw new RuntimeException("Must provide both pin and email address");
+        }
         User user = userRepository.findByPinAndEmail(pin, email);
         if (user == null) {
             throw new RuntimeException("User pin and/or email not found");

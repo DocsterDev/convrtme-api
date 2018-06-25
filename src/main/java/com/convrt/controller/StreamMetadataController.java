@@ -1,7 +1,9 @@
 
 package com.convrt.controller;
 
+import com.convrt.entity.Context;
 import com.convrt.entity.User;
+import com.convrt.service.ContextService;
 import com.convrt.service.StreamMetadataService;
 import com.convrt.service.UserService;
 import com.convrt.view.VideoStreamMetadata;
@@ -18,16 +20,15 @@ public class StreamMetadataController {
     private StreamMetadataService streamMetadataService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ContextService contextService;
 
     @PostMapping("{videoId}/metadata")
-    public VideoStreamMetadata getStreamMetadata(@RequestHeader(value = "User", required = false) String userUuid, @PathVariable("videoId") String videoId, @RequestBody VideoStreamMetadata videoStreamMetadata) {
-        User user = null;
-        if (userUuid != null) {
-            user = userService.readUser(userUuid);
-        }
+    public VideoStreamMetadata getStreamMetadata(@RequestHeader(value = "token") String token, @PathVariable("videoId") String videoId, @RequestBody VideoStreamMetadata videoStreamMetadata) {
+        Context context = contextService.validateContext(token);
         log.info("Metadata request for video {}", videoId);
         videoStreamMetadata.setVideoId(videoId);
-        VideoStreamMetadata video = streamMetadataService.mapStreamData(user, videoStreamMetadata);
+        VideoStreamMetadata video = streamMetadataService.mapStreamData(context, videoStreamMetadata);
         return video;
     }
 

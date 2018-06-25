@@ -1,6 +1,5 @@
 package com.convrt.service;
 
-import com.convrt.entity.User;
 import com.convrt.entity.Video;
 import com.convrt.repository.VideoRepository;
 import com.convrt.view.VideoStreamMetadata;

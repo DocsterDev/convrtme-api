@@ -1,7 +1,9 @@
 package com.convrt.controller;
 
+import com.convrt.entity.Context;
 import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
+import com.convrt.service.ContextService;
 import com.convrt.service.PlaylistService;
 import com.convrt.service.UserService;
 import lombok.NonNull;
@@ -19,22 +21,19 @@ public class PlaylistController {
     @Autowired
     private PlaylistService playlistService;
     @Autowired
-    private UserService userService;
+    private ContextService contextService;
 
     @PostMapping
-    public Playlist createPlaylist (@RequestHeader(value = "User", required = false) String userUuid, @RequestBody @NonNull Playlist playlist) {
-        User user = null;
-        if (userUuid != null) {
-            user = userService.readUser(userUuid);
-        }
+    public Playlist createPlaylist (@RequestHeader(value = "user-token") String token, @RequestBody @NonNull Playlist playlist) {
+        Context context = contextService.validateContext(token);
         if (playlist.getUuid() != null) {
-            Playlist playlistPersistent = playlistService.readPlaylist(user, playlist.getUuid());
+            Playlist playlistPersistent = playlistService.readPlaylist(context.getUser(), playlist.getUuid());
             if (playlistPersistent != null) {
                 throw new RuntimeException("Cant create a new playlist that already exists");
             }
         }
         playlist.setUuid(UUID.randomUUID().toString());
-        return playlistService.createPlaylist(user, playlist);
+        return playlistService.createPlaylist(context.getUser(), playlist);
     }
 
 //    @GetMapping
@@ -43,19 +42,20 @@ public class PlaylistController {
 //    }
 
     @GetMapping("/{uuid}")
-    public Playlist getPlaylist(@RequestHeader(value = "User", required = false) String userUuid, @PathVariable(value = "uuid") String uuid) {
-        User user = userService.readUser(userUuid);
-        return playlistService.readPlaylist(user, uuid);
+    public Playlist getPlaylist(@RequestHeader(value = "user-token") String token, @PathVariable(value = "uuid") String uuid) {
+        Context context = contextService.validateContext(token);
+        return playlistService.readPlaylist(context.getUser(), uuid);
     }
 
     @PutMapping("/{uuid}")
-    public Playlist updatePlaylist(@RequestHeader(value = "User", required = false) String userUuid, @RequestBody Playlist playlist) {
-        User user = userService.readUser(userUuid);
-        return playlistService.updatePlaylist(user, playlist);
+    public Playlist updatePlaylist(@RequestHeader(value = "user-token") String token, @RequestBody Playlist playlist) {
+        Context context = contextService.validateContext(token);
+        return playlistService.updatePlaylist(context.getUser(), playlist);
     }
 
     @DeleteMapping("/{uuid}")
-    public void deletePlaylist(@PathVariable("uuid") String uuid) {
+    public void deletePlaylist(@RequestHeader(value = "user-token") String token, @PathVariable("uuid") String uuid) {
+        Context context = contextService.validateContext(token);
         playlistService.deletePlaylist(uuid);
     }
 
