@@ -3,6 +3,7 @@ package com.convrt.service;
 import com.convrt.entity.Context;
 import com.convrt.entity.Log;
 import com.convrt.entity.User;
+import com.convrt.enums.ActionType;
 import com.convrt.repository.ContextRepository;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +22,40 @@ public class ContextService {
 
     @Autowired
     private ContextRepository contextRepository;
+    @Autowired
+    private UserService userService;
 
     @Transactional
-    public Context createContext(User user, Log log, String userAgent) {
-        ContextService.log.info("Generating token for user {}", user.getEmail());
+    public Context userRegister(String email, String pin, Log ctxLog, String userAgent) {
+        ContextService.log.info("Registering user with email {}", email);
+        ctxLog.setUuid(UUID.randomUUID().toString());
+        ctxLog.setDateAccessed(Instant.now());
+        ctxLog.setAction(ActionType.REGISTER);
+        User user = userService.createUser(email, pin);
+        String token = RandomStringUtils.randomAlphanumeric(100);
+        Context context = new Context();
+        context.setUuid(UUID.randomUUID().toString());
+        context.setToken(token);
+        context.setUserAgent(userAgent);
+        context.setUser(user);
+        context.setValid(true);
+        context.setLastLogin(Instant.now());
+        context.addLog(ctxLog);
+        return contextRepository.save(context);
+    }
+
+    @Transactional
+    public Context userLogin(String email, String pin, Log ctxLog, String userAgent) {
+        log.info("Logging in user with email {}", email);
+        User user = userService.getUserByPinAndEmail(pin, email);
+        ctxLog.setUuid(UUID.randomUUID().toString());
+        ctxLog.setDateAccessed(Instant.now());
+        ctxLog.setAction(ActionType.LOGIN);
         Context contextPersistent = contextRepository.findByUserAndUserAgentAndValidIsTrue(user, userAgent);
         if (contextPersistent != null) {
-            contextPersistent.addLog(log);
-            return contextPersistent;
+            log.warn("User with email {} on user agent {} is already logged in. Creating new context...", email, userAgent);
+            contextPersistent.setValid(false);
+            // TODO MAKE SURE THIS IS SET TO FALSE IN THE DB
         }
         String token = RandomStringUtils.randomAlphanumeric(100);
         Context context = new Context();
@@ -38,7 +65,7 @@ public class ContextService {
         context.setUser(user);
         context.setValid(true);
         context.setLastLogin(Instant.now());
-        context.addLog(log);
+        context.addLog(ctxLog);
         return contextRepository.save(context);
     }
 
@@ -69,8 +96,11 @@ public class ContextService {
     }
 
     @Transactional
-    public void invalidateContext(String token, Log ctxLog, String userAgent) {
-        Context context = contextRepository.findByTokenAndUserAgentAndValidIsTrue(token, userAgent);
+    public void userLogout(String token, Log ctxLog) {
+        ctxLog.setUuid(UUID.randomUUID().toString());
+        ctxLog.setDateAccessed(Instant.now());
+        ctxLog.setAction(ActionType.LOGOUT);
+        Context context = contextRepository.findByTokenAndValidIsTrue(token);
         if(context == null) {
             throw new RuntimeException("No valid context found to logout for token " + token);
         }

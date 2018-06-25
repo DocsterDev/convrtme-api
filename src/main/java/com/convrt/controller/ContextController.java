@@ -25,30 +25,19 @@ public class ContextController {
 
     @PostMapping("/register")
     public Context registerUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin, @RequestHeader(value = "User-Agent", required = false) String userAgent, @RequestBody(required = false) Log ctxLog) {
-        User user = userService.createUser(email, pin);
-        ctxLog.setUuid(UUID.randomUUID().toString());
-        ctxLog.setDateAccessed(Instant.now());
-        ctxLog.setAction(ActionType.REGISTER);
-        return contextService.createContext(user, ctxLog, userAgent);
+        return contextService.userRegister(email, pin, ctxLog, userAgent);
+    }
+
+    @PostMapping("/login")
+    public Context loginUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin, @RequestHeader(value = "User-Agent", required = false) String userAgent, @RequestBody(required = false) Log ctxLog) {
+        return contextService.userLogin(email, pin, ctxLog, userAgent);
     }
 
     // @RequestHeader(value = "token", required = false) String token <-- this goes everywhere auth is required
 
-    @PostMapping("/login")
-    public Context loginUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin, @RequestHeader(value = "User-Agent", required = false) String userAgent, @RequestBody(required = false) Log ctxLog) {
-        User user = userService.getUserByPinAndEmail(pin, email);
-        ctxLog.setUuid(UUID.randomUUID().toString());
-        ctxLog.setDateAccessed(Instant.now());
-        ctxLog.setAction(ActionType.LOGIN);
-        return contextService.createContext(user, ctxLog, userAgent);
-    }
-
     @PostMapping("/logout")
-    public void logoutUser(@RequestHeader("token") String token, @RequestHeader(value = "User-Agent", required = false) String userAgent, @RequestBody(required = false) Log ctxLog){
-        ctxLog.setUuid(UUID.randomUUID().toString());
-        ctxLog.setDateAccessed(Instant.now());
-        ctxLog.setAction(ActionType.LOGOUT);
-        contextService.invalidateContext(token, ctxLog, userAgent);
+    public void logoutUser(@RequestHeader("token") String token, @RequestBody(required = false) Log ctxLog){
+        contextService.userLogout(token, ctxLog);
     }
 
 }
