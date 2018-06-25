@@ -1,8 +1,6 @@
 package com.convrt.entity;
 
-import com.convrt.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,16 +14,16 @@ import java.time.Instant;
 public abstract class BaseEntity {
 
     @Id
-    @JsonView(View.BaseView.class)
+    @JsonIgnore
     @Column(name = "uuid", length = 36)
     public String uuid;
 
     @JsonIgnore
-    @Column(name = "created_date", columnDefinition = "DATETIME", nullable = false, updatable = false)
+    @Column(name = "created_date", nullable = false, updatable = false)
     public Instant createdDate;
 
     @JsonIgnore
-    @Column(name = "modified_date", columnDefinition = "DATETIME")
+    @Column(name = "modified_date", nullable = false, updatable = false)
     public Instant modifiedDate;
 
     @PrePersist

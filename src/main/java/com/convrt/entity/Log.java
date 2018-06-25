@@ -78,7 +78,7 @@ public class Log {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "context_uuid", foreignKey = @ForeignKey(name = "fk_context_log_context_uuid"))
+    @JoinColumn(name = "context_uuid", foreignKey = @ForeignKey(name = "fk_context_log_uuid"))
     private Context context;
 
 }

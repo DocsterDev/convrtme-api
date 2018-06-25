@@ -27,6 +27,7 @@ public class ContextService {
         ContextService.log.info("Generating token for user {}", user.getEmail());
         Context contextPersistent = contextRepository.findByUserAndUserAgentAndValidIsTrue(user, userAgent);
         if (contextPersistent != null) {
+            contextPersistent.addLog(log);
             return contextPersistent;
         }
         String token = RandomStringUtils.randomAlphanumeric(100);
@@ -37,9 +38,7 @@ public class ContextService {
         context.setUser(user);
         context.setValid(true);
         context.setLastLogin(Instant.now());
-        if (log != null) {
-            context.addLog(log);
-        }
+        context.addLog(log);
         return contextRepository.save(context);
     }
 

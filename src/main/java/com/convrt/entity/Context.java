@@ -35,21 +35,20 @@ public class Context extends BaseEntity {
     @Column(name = "last_login")
     private Instant lastLogin;
 
-    @JsonIgnore
+    // @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_context_user_uuid"))
     private User user;
 
-    // @JsonIgnore
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "context", orphanRemoval = true)
-    private List<Log> logs = Lists.newArrayList();
+//    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "context", orphanRemoval = true)
+    private List<Log> logs;
 
-    public void addLog(Log log){
-        if (log != null) {
-            Context.log.info("Adding log for context uuid = {}", this.uuid);
-            this.logs.add(log);
-            return;
-        }
+    public void addLog(Log ctxLog){
+        log.info("Adding log for context uuid = {}", this.uuid);
+        if (logs == null) { logs  = Lists.newArrayList(); }
+        ctxLog.setContext(this);
+        this.logs.add(ctxLog);
     }
 
 }
