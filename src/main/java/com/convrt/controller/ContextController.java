@@ -1,17 +1,11 @@
 package com.convrt.controller;
 
 import com.convrt.entity.Context;
-import com.convrt.entity.Log;
-import com.convrt.entity.User;
-import com.convrt.enums.ActionType;
 import com.convrt.service.ContextService;
 import com.convrt.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -24,20 +18,25 @@ public class ContextController {
     private ContextService contextService;
 
     @PostMapping("/register")
-    public Context registerUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin, @RequestHeader(value = "User-Agent", required = false) String userAgent, @RequestBody(required = false) Log ctxLog) {
-        return contextService.userRegister(email, pin, ctxLog, userAgent);
+    public Context registerUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin) {
+        return contextService.userRegister(email, pin);
     }
 
     @PostMapping("/login")
-    public Context loginUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin, @RequestHeader(value = "User-Agent", required = false) String userAgent, @RequestBody(required = false) Log ctxLog) {
-        return contextService.userLogin(email, pin, ctxLog, userAgent);
+    public Context loginUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin) {
+        return contextService.userLogin(email, pin);
     }
 
     // @RequestHeader(value = "token", required = false) String token <-- this goes everywhere auth is required
 
+    @PostMapping("/authenticate")
+    public Context authenticateUser(@RequestBody Context context){
+        return contextService.authentication(context);
+    }
+
     @PostMapping("/logout")
-    public void logoutUser(@RequestHeader("token") String token, @RequestBody(required = false) Log ctxLog){
-        contextService.userLogout(token, ctxLog);
+    public Context logoutUser(@RequestBody Context context){
+        return contextService.userLogout(context);
     }
 
 }

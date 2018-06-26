@@ -14,7 +14,6 @@ import java.time.Instant;
 public abstract class BaseEntity {
 
     @Id
-    @JsonIgnore
     @Column(name = "uuid", length = 36)
     public String uuid;
 

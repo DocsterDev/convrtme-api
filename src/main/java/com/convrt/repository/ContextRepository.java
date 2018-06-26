@@ -10,19 +10,13 @@ public interface ContextRepository extends JpaRepository<Context, String> {
 
     Context findByToken(String token);
 
-    Context findByTokenAndUserAgentAndValidIsTrue(String token, String userAgent);
+    Context findByTokenAndValidIsTrue(String token);
 
     List<Context> findByUserUuidAndValidIsTrue(String userUuid);
 
-    Context findByUserAgentAndUserUuid(String userAgent, String userUuid);
+    Context findByUserUuid(String userUuid);
 
     Context findByUser(User user);
-
-    Context findByUserAndUserAgent(User user, String userAgent);
-
-    Context findByUserAndUserAgentAndValidIsTrue(User user, String userAgent);
-
-    Context findByTokenAndValidIsTrue(String token);
 
     Context findByUserAndValidIsTrue(User user);
 

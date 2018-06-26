@@ -21,11 +21,8 @@ public class Context extends BaseEntity {
         this.uuid = UUID.randomUUID().toString();
     }
 
-    @Column(name = "token", length = 100, nullable = false, updatable = false)
+    @Column(name = "token", length = 100, nullable = false)
     private String token;
-
-    @Column(name = "user_agent", length = 100)
-    private String userAgent;
 
     @JsonIgnore
     @Column(name = "valid")
@@ -35,20 +32,13 @@ public class Context extends BaseEntity {
     @Column(name = "last_login")
     private Instant lastLogin;
 
-    // @JsonIgnore
+    @JsonIgnore
+    @Column(name = "expire_date")
+    private Instant expireDate;
+
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_context_user_uuid"))
     private User user;
-
-//    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "context", orphanRemoval = true)
-    private List<Log> logs;
-
-    public void addLog(Log ctxLog){
-        log.info("Adding log for context uuid = {}", this.uuid);
-        if (logs == null) { logs  = Lists.newArrayList(); }
-        ctxLog.setContext(this);
-        this.logs.add(ctxLog);
-    }
 
 }
