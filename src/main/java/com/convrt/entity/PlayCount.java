@@ -24,7 +24,7 @@ public class PlayCount extends BaseEntity {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "user_uuid", nullable = false, foreignKey = @ForeignKey(name = "fk_play_count_user_uuid"))
+    @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_play_count_user_uuid"))
     private User user;
 
     @JsonIgnore

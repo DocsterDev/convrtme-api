@@ -23,9 +23,9 @@ public class StreamConversionService {
                 "-c:a",
                 "libopus",
                 "-b:a",
-                "16k",
+                "128k",
                 "-ar",
-                "8000", // 48000 24000 16000 12000 8000
+                "48000", // 48000 24000 16000 12000 8000
                 "-compression_level",
                 "10",
                 "-y",

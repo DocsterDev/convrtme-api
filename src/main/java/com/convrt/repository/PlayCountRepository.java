@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PlayCountRepository extends JpaRepository<PlayCount, String> {
 
-	PlayCount findByUserUuidAndVideoId(String userUuid, String videoId);
+	PlayCount findByVideoId(String videoId);
 
 }

@@ -18,17 +18,12 @@ public class StreamMetadataController {
 
     @Autowired
     private StreamMetadataService streamMetadataService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private ContextService contextService;
 
     @PostMapping("{videoId}/metadata")
-    public VideoStreamMetadata getStreamMetadata(@RequestHeader(value = "token") String token, @PathVariable("videoId") String videoId, @RequestBody VideoStreamMetadata videoStreamMetadata) {
-        Context context = contextService.validateContext(token);
+    public VideoStreamMetadata getStreamMetadata(@PathVariable("videoId") String videoId, @RequestBody VideoStreamMetadata videoStreamMetadata) {
         log.info("Metadata request for video {}", videoId);
         videoStreamMetadata.setVideoId(videoId);
-        VideoStreamMetadata video = streamMetadataService.mapStreamData(context, videoStreamMetadata);
+        VideoStreamMetadata video = streamMetadataService.mapStreamData(videoStreamMetadata);
         return video;
     }
 

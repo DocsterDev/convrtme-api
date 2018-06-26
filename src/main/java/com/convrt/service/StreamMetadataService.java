@@ -61,12 +61,12 @@ public class StreamMetadataService {
     }
 
     @Transactional
-    public VideoStreamMetadata mapStreamData(Context context, VideoStreamMetadata videoStreamMetadata) {
+    public VideoStreamMetadata mapStreamData(VideoStreamMetadata videoStreamMetadata) {
         String videoId = videoStreamMetadata.getVideoId();
-        log.info("Attempting to fetch existing valid stream url for video={} context={}", videoId, context.getUuid());
+        log.info("Attempting to fetch existing valid stream url for video={}", videoId);
         VideoStreamMetadata persistentVideoMetadata = videoService.readVideoByVideoId(videoId);
         if (persistentVideoMetadata == null) {
-            log.info("No existing stream url available for video={} context={}", videoId, context.getUuid());
+            log.info("No existing stream url available for video={}", videoId);
             persistentVideoMetadata = startDownload(videoId);
             videoStreamMetadata.setSource(persistentVideoMetadata.getSource());
             videoStreamMetadata.setLength(persistentVideoMetadata.getLength());
@@ -76,7 +76,7 @@ public class StreamMetadataService {
             videoStreamMetadata.setSourceExpireDate(persistentVideoMetadata.getSourceExpireDate());
             videoService.createVideo(videoStreamMetadata);
         }
-        videoStreamMetadata.setPlayCount(playCountService.iterateNumPlays(context, videoId));
+        videoStreamMetadata.setPlayCount(playCountService.iterateNumPlays(videoId));
         return videoStreamMetadata;
     }
 

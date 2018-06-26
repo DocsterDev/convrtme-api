@@ -19,13 +19,12 @@ public class PlayCountService {
     private PlayCountRepository playCountRepository;
 
     @Transactional
-    public Long iterateNumPlays(Context context, String videoId) {
-        PlayCount playCount = playCountRepository.findByUserUuidAndVideoId(context.getUuid(), videoId);
+    public Long iterateNumPlays(String videoId) {
+        PlayCount playCount = playCountRepository.findByVideoId(videoId);
         if (playCount == null) {
             playCount = new PlayCount();
             playCount.setUuid(UUID.randomUUID().toString());
             playCount.setVideoId(videoId);
-            playCount.setUser(context.getUser());
         }
         playCount.iterateNumPlays();
         return playCountRepository.save(playCount).getNumPlays();
