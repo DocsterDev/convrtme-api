@@ -12,6 +12,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 public class ContextController {
 
+    /*
+
+    Call "http://www.geoplugin.net/json.gp" to get region and ip info
+
+     */
+
     @Autowired
     private UserService userService;
     @Autowired
