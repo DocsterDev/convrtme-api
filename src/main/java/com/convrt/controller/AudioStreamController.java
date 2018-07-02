@@ -4,7 +4,7 @@ import com.convrt.service.VideoService;
 import com.convrt.service.StreamConversionService;
 import com.convrt.view.VideoStreamMetadata;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,9 +15,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import static org.apache.catalina.connector.OutputBuffer.DEFAULT_BUFFER_SIZE;
-
 
 @Slf4j
 @RestController
@@ -39,7 +36,7 @@ public class AudioStreamController {
             public void writeTo(OutputStream outputStream) {
                 try {
                     InputStream is = youtubeStreamConversionService.convertVideo(videoStreamMetadata.getSource());
-                    IOUtils.copyLarge(is, outputStream, new byte[DEFAULT_BUFFER_SIZE]);
+                    IOUtils.copyLarge(is, outputStream);
                     outputStream.close();
                 } catch (Exception e) {
                     throw new RuntimeException(String.format("Cannot stream videoId=%s", videoId), e);

@@ -2,12 +2,14 @@ package com.convrt.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -39,5 +41,11 @@ public class Video extends BaseEntity {
 
     @Column(name = "play_duration")
     private Long playDuration;
+
+    @ManyToMany(mappedBy = "playlistVideos")
+    private List<Playlist> addedByPlaylists = Lists.newArrayList();
+
+//    @ManyToMany(mappedBy = "enabledRewards")
+//    private List<Company> enabledByCompanies = Lists.newArrayList();
 
 }
