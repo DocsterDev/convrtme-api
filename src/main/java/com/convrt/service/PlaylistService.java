@@ -3,6 +3,7 @@ package com.convrt.service;
 import com.convrt.entity.Context;
 import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
+import com.convrt.entity.Video;
 import com.convrt.repository.PlaylistRepository;
 import com.convrt.repository.VideoRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,7 @@ public class PlaylistService {
     @Autowired
     private PlaylistRepository playlistRepository;
     @Autowired
-    private VideoRepository videoRepository;
+    private VideoService videoService;
 
     @Transactional
     public Playlist createPlaylist(User user, Playlist playlist) {
@@ -52,6 +53,14 @@ public class PlaylistService {
             throw new RuntimeException("No playlist found to delete");
         }
         playlistRepository.deleteByUuidAndUser(uuid, user);
+    }
+
+    @Transactional
+    public Playlist addVideoToPlaylist(User user, String uuid, String videoId) {
+        Playlist playlist = readPlaylist(user, uuid);
+        Video video = videoService.readVideoByVideoId(videoId);
+        playlist.getPlaylistVideos().add();
+        return playlistPersistent;
     }
 
 }
