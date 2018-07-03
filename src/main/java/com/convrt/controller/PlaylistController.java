@@ -22,7 +22,7 @@ public class PlaylistController {
     private ContextService contextService;
 
     @PostMapping
-    public Playlist createPlaylist (@RequestHeader(value = "user-token") String token, @RequestBody @NonNull Playlist playlist) {
+    public Playlist createPlaylist (@RequestHeader(value = "token", required = false) String token, @RequestBody @NonNull Playlist playlist) {
         Context context = contextService.validateContext(token);
         if (playlist.getUuid() != null) {
             Playlist playlistPersistent = playlistService.readPlaylist(context.getUser(), playlist.getUuid());
@@ -40,21 +40,29 @@ public class PlaylistController {
 //    }
 
     @GetMapping("/{uuid}")
-    public Playlist getPlaylist(@RequestHeader(value = "user-token") String token, @PathVariable(value = "uuid") String uuid) {
+    public Playlist getPlaylist(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid) {
         Context context = contextService.validateContext(token);
         return playlistService.readPlaylist(context.getUser(), uuid);
     }
 
     @PutMapping("/{uuid}")
-    public Playlist updatePlaylist(@RequestHeader(value = "user-token") String token, @RequestBody Playlist playlist) {
+    public Playlist updatePlaylist(@RequestHeader(value = "token") String token, @RequestBody Playlist playlist) {
         Context context = contextService.validateContext(token);
         return playlistService.updatePlaylist(context.getUser(), playlist);
     }
 
     @DeleteMapping("/{uuid}")
-    public void deletePlaylist(@RequestHeader(value = "user-token") String token, @PathVariable("uuid") String uuid) {
+    public void deletePlaylist(@RequestHeader(value = "token") String token, @PathVariable("uuid") String uuid) {
         Context context = contextService.validateContext(token);
         playlistService.deletePlaylist(context.getUser(), uuid);
     }
+
+
+    @PutMapping("{uuid}/add/{videoId}")
+    public Playlist addVideoToPlaylist(@RequestHeader(value = "token", required = false) String token, @PathVariable("uuid") String uuid,  @PathVariable("videoId") String videoId) {
+        Context context = contextService.validateContext(token);
+        return playlistService.addVideoToPlaylist(context.getUser(), uuid, videoId);
+    }
+
 
 }
