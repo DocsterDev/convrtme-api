@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -34,11 +36,6 @@ public class PlaylistController {
         return playlistService.createPlaylist(context.getUser(), playlist);
     }
 
-//    @GetMapping
-//    public Map<String, List<Video>> getAllPlaylists() {
-//        return playlistService.getAllPlaylists();
-//    }
-
     @GetMapping("/{uuid}")
     public Playlist getPlaylist(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid) {
         Context context = contextService.validateContext(token);
@@ -46,8 +43,9 @@ public class PlaylistController {
     }
 
     @PutMapping("/{uuid}")
-    public Playlist updatePlaylist(@RequestHeader(value = "token") String token, @RequestBody Playlist playlist) {
+    public Playlist updatePlaylist(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid, @RequestBody @Valid Playlist playlist) {
         Context context = contextService.validateContext(token);
+        playlist.setUuid(uuid);
         return playlistService.updatePlaylist(context.getUser(), playlist);
     }
 
@@ -56,13 +54,5 @@ public class PlaylistController {
         Context context = contextService.validateContext(token);
         playlistService.deletePlaylist(context.getUser(), uuid);
     }
-
-
-    @PutMapping("{uuid}/add/{videoId}")
-    public Playlist addVideoToPlaylist(@RequestHeader(value = "token", required = false) String token, @PathVariable("uuid") String uuid,  @PathVariable("videoId") String videoId) {
-        Context context = contextService.validateContext(token);
-        return playlistService.addVideoToPlaylist(context.getUser(), uuid, videoId);
-    }
-
 
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -24,24 +25,14 @@ public class Playlist extends BaseEntity {
     @Column(name = "icon_color", length = 10)
     private String iconColor;
 
-//    @ManyToMany(mappedBy = "playlistVideos")
-//    private List<Video> videos;
-
-    @ManyToMany
-    @JoinTable(name = "playlist_video_join_table", joinColumns = @JoinColumn(name = "playlist_uuid"), inverseJoinColumns = @JoinColumn(name = "video_id"), uniqueConstraints = @UniqueConstraint(name = "playlist_video_join_table_idx0", columnNames = { "playlist_uuid", "video_id" }))
-    private List<Video> playlistVideos = Lists.newArrayList();
-
-//    @ManyToMany
-//    @JoinTable(name = "company_reward_join_table", joinColumns = @JoinColumn(name = "company_uuid"), inverseJoinColumns = @JoinColumn(name = "reward_uuid"), uniqueConstraints = @UniqueConstraint(name = "company_reward_join_table_idx0", columnNames = { "company_uuid", "reward_uuid" }))
-//    private List<Reward> enabledRewards = Lists.newArrayList();
-
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "playlist", orphanRemoval = true)
-    private List<Video> videos;
-
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_playlist_user_uuid"))
     private User user;
+
+    @Valid
+    @ManyToMany
+    @JoinTable(name = "playlist_video_join_table", joinColumns = @JoinColumn(name = "playlist_uuid"), inverseJoinColumns = @JoinColumn(name = "video_uuid"), uniqueConstraints = @UniqueConstraint(name = "playlist_video_join_table_idx0", columnNames = {"playlist_uuid", "video_uuid"}))
+    private List<Video> videos = Lists.newArrayList();
 
 }

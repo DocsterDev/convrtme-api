@@ -64,7 +64,7 @@ public class StreamMetadataService {
     public VideoStreamMetadata mapStreamData(VideoStreamMetadata videoStreamMetadata) {
         String videoId = videoStreamMetadata.getVideoId();
         log.info("Attempting to fetch existing valid stream url for video={}", videoId);
-        VideoStreamMetadata persistentVideoMetadata = videoService.readVideoByVideoId(videoId);
+        VideoStreamMetadata persistentVideoMetadata = videoService.readVideoMetadata(videoId);
         if (persistentVideoMetadata == null) {
             log.info("No existing stream url available for video={}", videoId);
             persistentVideoMetadata = startDownload(videoId);

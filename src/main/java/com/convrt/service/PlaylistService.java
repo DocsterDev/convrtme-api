@@ -1,11 +1,10 @@
 package com.convrt.service;
 
-import com.convrt.entity.Context;
 import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
 import com.convrt.entity.Video;
 import com.convrt.repository.PlaylistRepository;
-import com.convrt.repository.VideoRepository;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,7 @@ public class PlaylistService {
     @Transactional
     public Playlist createPlaylist(User user, Playlist playlist) {
         playlist.setUser(user);
+        playlist.setVideos(Lists.newArrayList());
         return playlistRepository.save(playlist);
     }
 
@@ -43,8 +43,9 @@ public class PlaylistService {
         }
         playlistPersistent.setName(playlist.getName());
         playlistPersistent.setIconColor(playlist.getIconColor());
-        // playlistPersistent.setVideos(playlist.getVideos());
-        return playlistPersistent;
+        videoService.createAllVideos(playlist.getVideos());
+        playlistPersistent.setVideos(playlist.getVideos());
+        return playlistRepository.save(playlistPersistent);
     }
 
     @Transactional
@@ -53,14 +54,6 @@ public class PlaylistService {
             throw new RuntimeException("No playlist found to delete");
         }
         playlistRepository.deleteByUuidAndUser(uuid, user);
-    }
-
-    @Transactional
-    public Playlist addVideoToPlaylist(User user, String uuid, String videoId) {
-        Playlist playlist = readPlaylist(user, uuid);
-        Video video = videoService.readVideoByVideoId(videoId);
-        playlist.getPlaylistVideos().add();
-        return playlistPersistent;
     }
 
 }

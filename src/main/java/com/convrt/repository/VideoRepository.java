@@ -8,8 +8,6 @@ import java.util.stream.Stream;
 
 public interface VideoRepository extends JpaRepository<Video, String> {
 
-	Video findByVideoId(String videoId);
-
-	List<Video> findVideosByVideoIdIn(List<String> videosIds);
+	List<Video> findVideosByIdIn(List<String> videosIds);
 
 }
