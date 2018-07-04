@@ -52,19 +52,6 @@ public class ContextService {
     }
 
     @Transactional(readOnly = true)
-    public Context authentication(Context context) {
-        if (context == null) {
-            return null;
-        }
-        log.info("Authenticating user token {}", context.getToken());
-        context = contextRepository.findByTokenAndValidIsTrue(context.getToken());
-        if(context == null) {
-            throw new RuntimeException(String.format("Cannot find context for token %s", context.getToken()));
-        }
-        return context;
-    }
-
-    @Transactional(readOnly = true)
     public Context readContext(String token, String userAgent) {
         log.info("Looking up existing user session for token {}", token);
         return contextRepository.findByTokenAndValidIsTrue(token);
