@@ -30,7 +30,7 @@ public class Playlist extends BaseEntity {
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_playlist_user_uuid"))
     private User user;
 
-    @Valid
+    @OrderColumn
     @ManyToMany
     @JoinTable(name = "playlist_video_join_table", joinColumns = @JoinColumn(name = "playlist_uuid"), inverseJoinColumns = @JoinColumn(name = "video_uuid"), uniqueConstraints = @UniqueConstraint(name = "playlist_video_join_table_idx0", columnNames = {"playlist_uuid", "video_uuid"}))
     private List<Video> videos = Lists.newArrayList();
