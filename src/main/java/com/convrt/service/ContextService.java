@@ -23,12 +23,13 @@ public class ContextService {
     private UserService userService;
 
     @Transactional
-    public Context userRegister(String email, String pin) {
-        ContextService.log.info("Registering user with email {}", email);
-        User user = userService.createUser(email, pin);
+    public Context userRegister(User user, String userAgent) {
+        log.info("Registering user with email {}", user.getEmail());
+        User userPersist = userService.createUser(user);
         Context context = new Context();
         context.setToken(RandomStringUtils.randomAlphanumeric(100));
-        context.setUser(user);
+        context.setUser(userPersist);
+        context.setUserAgent(userAgent);
         context.setValid(true);
         context.setLastLogin(Instant.now());
         return contextRepository.save(context);

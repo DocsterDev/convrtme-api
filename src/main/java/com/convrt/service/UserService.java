@@ -18,14 +18,12 @@ public class UserService {
     private UserRepository userRepository;
 
     @Transactional
-    public User createUser(String email, String pin) {
-        if (pin == null || email == null) {
-            throw new RuntimeException("Must provide both pin and email address");
+    public User createUser(User user) {
+        if (existsByEmail(user.getEmail())) {
+            throw new RuntimeException("User already exists for email address " + user.getEmail());
         }
-        if (existsByEmail(email)) {
-            throw new RuntimeException("User already exists for email address " + email);
-        }
-        return userRepository.save(new User(email,pin));
+        user.setUuid(UUID.randomUUID().toString());
+        return userRepository.save(user);
     }
 
     @Transactional(readOnly = true)

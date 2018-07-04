@@ -1,6 +1,7 @@
 package com.convrt.controller;
 
 import com.convrt.entity.Context;
+import com.convrt.entity.User;
 import com.convrt.service.ContextService;
 import com.convrt.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,8 @@ public class ContextController {
     private ContextService contextService;
 
     @PostMapping("/register")
-    public Context registerUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin) {
-        return contextService.userRegister(email, pin);
+    public Context registerUser(@RequestHeader("User-Agent") String userAgent, @RequestBody User user) {
+        return contextService.userRegister(user, userAgent);
     }
 
     @PostMapping("/login")

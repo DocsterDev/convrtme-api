@@ -24,6 +24,9 @@ public class Context extends BaseEntity {
     @Column(name = "token", length = 100, nullable = false)
     private String token;
 
+    @Column(name = "user_agent", length = 200)
+    private String userAgent;
+
     @JsonIgnore
     @Column(name = "valid")
     private boolean valid;
@@ -36,7 +39,6 @@ public class Context extends BaseEntity {
     @Column(name = "expire_date")
     private Instant expireDate;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_context_user_uuid"))
     private User user;
