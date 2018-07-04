@@ -55,7 +55,7 @@ public class VideoService {
 
     @Transactional(readOnly = true)
     public VideoStreamMetadata readVideoMetadata(String id) {
-        Video video = videoRepository.findOne(id);
+        Video video = videoRepository.findByIdAndStreamUrlExpireDateNotNull(id);
         if (video == null) {
             return null;
         }
@@ -63,7 +63,7 @@ public class VideoService {
         if (Instant.now().isBefore(expireDate)) {
             VideoStreamMetadata videoStreamMetadata = new VideoStreamMetadata();
             videoStreamMetadata.setSource(video.getStreamUrl());
-            videoStreamMetadata.setSourceExpireDate(video.getStreamUrlExpireDate());
+            videoStreamMetadata.setSourceExpireDate(expireDate);
             videoStreamMetadata.setSourceFetchedDate(video.getStreamUrlDate());
             videoStreamMetadata.setVideoId(video.getId());
             videoStreamMetadata.setDuration(video.getPlayDuration());
