@@ -2,7 +2,6 @@ package com.convrt.service;
 
 import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
-import com.convrt.entity.Video;
 import com.convrt.repository.PlaylistRepository;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +26,10 @@ public class PlaylistService {
     }
 
     @Transactional(readOnly = true)
-    public Playlist readPlaylist(User user, String uuid) {
-        Playlist playlist = playlistRepository.findByUuidAndUser(uuid, user);
+    public Playlist readPlaylist(User user, String name) {
+        Playlist playlist = playlistRepository.findByNameAndUser(name, user);
         if (playlist == null) {
-            throw new RuntimeException("No playlist found with uuid " + uuid);
+            throw new RuntimeException("No playlist found with name " + name);
         }
         return playlist;
     }

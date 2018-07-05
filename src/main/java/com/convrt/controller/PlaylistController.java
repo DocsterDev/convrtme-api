@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -26,11 +25,9 @@ public class PlaylistController {
     @PostMapping
     public Playlist createPlaylist (@RequestHeader(value = "token", required = false) String token, @RequestBody @NonNull Playlist playlist) {
         Context context = contextService.validateContext(token);
-        if (playlist.getUuid() != null) {
-            Playlist playlistPersistent = playlistService.readPlaylist(context.getUser(), playlist.getUuid());
-            if (playlistPersistent != null) {
-                throw new RuntimeException("Cant create a new playlist that already exists");
-            }
+        Playlist playlistPersistent = playlistService.readPlaylist(context.getUser(), playlist.getName());
+        if (playlistPersistent != null) {
+            throw new RuntimeException("Cant create a new playlist that already exists");
         }
         playlist.setUuid(UUID.randomUUID().toString());
         return playlistService.createPlaylist(context.getUser(), playlist);

@@ -9,6 +9,8 @@ public interface PlaylistRepository extends JpaRepository<Playlist, String> {
 
 	Playlist findByUuidAndUser(String uuid, User user);
 
+	Playlist findByNameAndUser(String name, User user);
+
 	boolean existsByUuidAndUser(String uuid, User user);
 
 	void deleteByUuidAndUser(String uuid, User user);

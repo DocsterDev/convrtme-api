@@ -15,14 +15,14 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "playlist", indexes = {@Index(name = "playlist_user_id_idx0", columnList = "user_uuid")})
+@Table(name = "playlist", indexes = {@Index(name = "playlist_user_id_idx0", columnList = "user_uuid")}, uniqueConstraints={@UniqueConstraint(columnNames = {"name", "user_uuid"})})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Playlist extends BaseEntity {
 
     @Column(name = "name", length = 100)
     private String name;
 
-    @Column(name = "icon_color", length = 10)
+    @Column(name = "icon_color", length = 6)
     private String iconColor;
 
     @JsonIgnore

@@ -59,6 +59,16 @@ public class ContextService {
     }
 
     @Transactional(readOnly = true)
+    public Context validateContext(String token, String userAgent) {
+        log.info("Validating token {}", token);
+        Context context = contextRepository.findByTokenAndUserAgentAndValidIsTrue(token, userAgent);
+        if(context == null) {
+            throw new RuntimeException("No user context found");
+        }
+        return context;
+    }
+
+    @Transactional(readOnly = true)
     public Context validateContext(String token) {
         log.info("Validating token {}", token);
         Context context = contextRepository.findByTokenAndValidIsTrue(token);

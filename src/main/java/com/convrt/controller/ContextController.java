@@ -37,8 +37,8 @@ public class ContextController {
     // @RequestHeader(value = "token", required = false) String token <-- this goes everywhere auth is required
 
     @PostMapping("/authenticate")
-    public void authenticateUser(@RequestHeader("token") String token){
-        contextService.validateContext(token);
+    public Context authenticateUser(@RequestHeader("User-Agent") String userAgent, @RequestHeader("token") String token){
+        return contextService.validateContext(token, userAgent);
     }
 
     @PostMapping("/logout")
