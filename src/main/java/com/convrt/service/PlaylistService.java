@@ -27,11 +27,7 @@ public class PlaylistService {
 
     @Transactional(readOnly = true)
     public Playlist readPlaylist(User user, String name) {
-        Playlist playlist = playlistRepository.findByNameAndUser(name, user);
-        if (playlist == null) {
-            throw new RuntimeException("No playlist found with name " + name);
-        }
-        return playlist;
+        return playlistRepository.findByNameAndUser(name, user);
     }
 
     @Transactional
