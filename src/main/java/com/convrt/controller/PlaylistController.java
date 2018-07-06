@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -37,6 +38,12 @@ public class PlaylistController {
     public Playlist getPlaylist(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid) {
         Context context = contextService.validateContext(token);
         return playlistService.readPlaylist(context.getUser(), uuid);
+    }
+
+    @GetMapping
+    public List<Playlist> getPlaylists(@RequestHeader(value = "token") String token) {
+        Context context = contextService.validateContext(token);
+        return playlistService.readPlaylists(context.getUser());
     }
 
     @PutMapping("/{uuid}")

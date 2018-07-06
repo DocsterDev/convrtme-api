@@ -14,7 +14,7 @@ import java.util.UUID;
 @Data
 @Slf4j
 @Entity
-@Table(name = "context", indexes = {@Index(name = "context_token_idx0", columnList = "token"), @Index(name = "context_user_uuid_idx1", columnList = "user_uuid")})
+@Table(name = "context", indexes = {@Index(name = "context_token_idx0", columnList = "token"), @Index(name = "context_user_agent_idx1", columnList = "user_agent"), @Index(name = "context_valid_idx2", columnList = "valid"),  @Index(name = "context_user_uuid_idx3", columnList = "user_uuid")})
 public class Context extends BaseEntity {
 
     public Context () {

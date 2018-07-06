@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class PlaylistService {
@@ -28,6 +30,11 @@ public class PlaylistService {
     @Transactional(readOnly = true)
     public Playlist readPlaylist(User user, String name) {
         return playlistRepository.findByNameAndUser(name, user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Playlist> readPlaylists(User user) {
+        return playlistRepository.findByUserOrderByNameAsc(user);
     }
 
     @Transactional
