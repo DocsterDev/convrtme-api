@@ -1,5 +1,6 @@
 package com.convrt.service;
 
+import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
 import com.convrt.repository.UserRepository;
 import lombok.NoArgsConstructor;
@@ -41,6 +42,16 @@ public class UserService {
             throw new RuntimeException("User pin and/or email not found");
         }
         return user;
+    }
+
+    @Transactional
+    public User updatePlaylistList(Playlist playlist) {
+
+    }
+
+    @Transactional
+    public User readPlaylistList(Playlist playlist) {
+
     }
 
 }

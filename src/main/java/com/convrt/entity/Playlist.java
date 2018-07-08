@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import javax.validation.Valid;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -24,6 +25,13 @@ public class Playlist extends BaseEntity {
 
     @Column(name = "icon_color", length = 6)
     private String iconColor;
+
+    @JsonIgnore
+    @Column(name = "last_accessed")
+    private Instant lastAccessed;
+
+    @Transient
+    private boolean active = false;
 
     @JsonIgnore
     @ManyToOne

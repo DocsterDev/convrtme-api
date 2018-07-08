@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -27,14 +28,29 @@ public class PlaylistService {
         return playlistRepository.save(playlist);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Playlist readPlaylist(User user, String name) {
-        return playlistRepository.findByNameAndUser(name, user);
+        Playlist playlist = playlistRepository.findByUuidAndUser(name, user);
+        if (playlist != null) {
+            playlist.setLastAccessed(Instant.now());
+            playlist.setActive(true);
+        }
+        return playlist;
+    }
+
+    @Transactional
+    public void setActive(User user, String name) {
+        Playlist playlist = playlistRepository.findByUuidAndUser(name, user);
+        if (playlist != null) {
+            playlist.setLastAccessed(Instant.now());
+            playlist.setActive(true);
+        }
     }
 
     @Transactional(readOnly = true)
     public List<Playlist> readPlaylists(User user) {
-        return playlistRepository.findByUserOrderByNameAsc(user);
+        //List<Playlist> playlists = playlistRepository.findByUserOrderByNameAsc(user);
+        return playlistRepository.findByUser(user);
     }
 
     @Transactional

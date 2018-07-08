@@ -30,7 +30,7 @@ public class VideoService {
         video.setId(videoStreamMetadata.getVideoId());
         video.setTitle(videoStreamMetadata.getTitle());
         video.setOwner(videoStreamMetadata.getOwner());
-        video.setPlayDuration(videoStreamMetadata.getDuration());
+        video.setDuration(videoStreamMetadata.getDuration());
         video.setStreamUrl(videoStreamMetadata.getSource());
         video.setStreamUrlDate(Instant.now());
         video.setStreamUrlExpireDate(videoStreamMetadata.getSourceExpireDate());
@@ -46,7 +46,7 @@ public class VideoService {
                 video.setId(v.getId());
                 video.setTitle(v.getTitle());
                 video.setOwner(v.getOwner());
-                video.setPlayDuration(v.getPlayDuration());
+                video.setDuration(v.getDuration());
                 videos.add(video);
             }
         });
@@ -66,7 +66,7 @@ public class VideoService {
             videoStreamMetadata.setSourceExpireDate(expireDate);
             videoStreamMetadata.setSourceFetchedDate(video.getStreamUrlDate());
             videoStreamMetadata.setVideoId(video.getId());
-            videoStreamMetadata.setDuration(video.getPlayDuration());
+            videoStreamMetadata.setDuration(video.getDuration());
             videoStreamMetadata.setOwner(video.getOwner());
             videoStreamMetadata.setTitle(video.getTitle());
             return videoStreamMetadata;

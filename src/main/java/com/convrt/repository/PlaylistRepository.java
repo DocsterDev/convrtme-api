@@ -13,6 +13,8 @@ public interface PlaylistRepository extends JpaRepository<Playlist, String> {
 
 	List<Playlist> findByUserOrderByNameAsc(User user);
 
+	List<Playlist> findByUser(User user);
+
 	Playlist findByNameAndUser(String name, User user);
 
 	boolean existsByUuidAndUser(String uuid, User user);

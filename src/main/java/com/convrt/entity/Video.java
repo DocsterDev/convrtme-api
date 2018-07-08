@@ -44,8 +44,8 @@ public class Video {
     private String streamUrl;
 
     @NonNull
-    @Column(name = "play_duration", nullable = false)
-    private Long playDuration;
+    @Column(name = "duration", nullable = false)
+    private Long duration;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "videos")

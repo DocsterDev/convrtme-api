@@ -38,13 +38,13 @@ public class User extends BaseEntity {
     @Column(name = "pin", length = 4) // TODO: encrypt this
     private String pin;
 
-    @JsonIgnore
+    @OrderColumn
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    private List<PlayCount> playCounts;
+    private List<Playlist> playlists;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    private List<Playlist> playlists;
+    private List<PlayCount> playCounts;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)

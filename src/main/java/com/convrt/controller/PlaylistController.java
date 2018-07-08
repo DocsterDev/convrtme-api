@@ -34,6 +34,7 @@ public class PlaylistController {
         return playlistService.createPlaylist(context.getUser(), playlist);
     }
 
+
     @GetMapping("/{uuid}")
     public Playlist getPlaylist(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid) {
         Context context = contextService.validateContext(token);
@@ -44,6 +45,12 @@ public class PlaylistController {
     public List<Playlist> getPlaylists(@RequestHeader(value = "token") String token) {
         Context context = contextService.validateContext(token);
         return playlistService.readPlaylists(context.getUser());
+    }
+
+    @PutMapping("/{uuid}/active")
+    public void setActive(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid) {
+        Context context = contextService.validateContext(token);
+        playlistService.setActive(context.getUser(), uuid);
     }
 
     @PutMapping("/{uuid}")
