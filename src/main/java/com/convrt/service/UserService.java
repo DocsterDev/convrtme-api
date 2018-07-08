@@ -4,13 +4,17 @@ import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
 import com.convrt.repository.UserRepository;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @NoArgsConstructor
 public class UserService {
@@ -45,13 +49,21 @@ public class UserService {
     }
 
     @Transactional
-    public User updatePlaylistList(Playlist playlist) {
-
+    public List<Playlist> updateUserPlaylists(List<Playlist> playlists, User user) {
+        user.setPlaylists(playlists);
+        return userRepository.save(user).getPlaylists();
     }
 
     @Transactional
-    public User readPlaylistList(Playlist playlist) {
-
+    public List<Playlist> readUserPlaylists(User user) {
+        Playlist playlist = Collections.max(user.getPlaylists(), Comparator.comparing(c -> c.getLastAccessed()));
+        List<Playlist> playlists = user.getPlaylists();
+        playlists.stream().forEach((e)->{
+            if (e.getUuid().equals(playlist.getUuid())){
+                e.setActive(true);
+            }
+        });
+        return playlists;
     }
 
 }

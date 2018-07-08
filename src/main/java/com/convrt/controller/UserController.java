@@ -4,10 +4,13 @@ import com.convrt.entity.Context;
 import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
 import com.convrt.service.ContextService;
+import com.convrt.service.PlaylistService;
 import com.convrt.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -16,6 +19,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private PlaylistService playlistService;
     @Autowired
     private ContextService contextService;
 
@@ -27,16 +32,6 @@ public class UserController {
     @PostMapping("/login")
     public Context loginUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin) {
         return contextService.userLogin(email, pin);
-    }
-
-    @GetMapping("/playlists")
-    public Context getPlaylists(@RequestHeader("token") String token, @RequestBody List<Playlist> playlistList) {
-        return contextService.userRegister(user, userAgent);
-    }
-
-    @PutMapping("/playlists")
-    public Context updatePLaylists(@RequestHeader("token") String token, @RequestBody User user) {
-        return contextService.userRegister(user, userAgent);
     }
 
 }
