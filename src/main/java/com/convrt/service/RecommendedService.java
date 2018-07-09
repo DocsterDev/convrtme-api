@@ -1,6 +1,6 @@
 package com.convrt.service;
 
-import com.convrt.view.SearchResultWS;
+import com.convrt.entity.Video;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -27,11 +27,11 @@ public class RecommendedService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Cacheable("recommended")
-    public List<SearchResultWS> getRecommended(String videoId) {
+    public List<Video> getRecommended(String videoId) {
         log.info("Received recommended request for video: {}", videoId);
-        if (videoId == null) return new LinkedList<>();
+        if (StringUtils.isBlank(videoId)) return new LinkedList<>();
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/watch").queryParam("v", videoId).build().encode();
-        List<SearchResultWS> results = Lists.newArrayList();
+        List<Video> results = Lists.newArrayList();
         int retryCount = 0;
         while (retryCount <= 2) {
             try {
@@ -50,8 +50,8 @@ public class RecommendedService {
         return results;
     }
 
-    private List<SearchResultWS> mapRecommendedFields(Element body) throws IOException {
-        List<SearchResultWS> searchResults = Lists.newArrayList();
+    private List<Video> mapRecommendedFields(Element body) throws IOException {
+        List<Video> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = parseRecommendedResults(body).iterator();
         int i = 0;
         while (iterator.hasNext()) {
@@ -62,8 +62,8 @@ public class RecommendedService {
                 } else {
                     next = iterator.next().get("compactVideoRenderer");
                 }
-                SearchResultWS searchResult = new SearchResultWS();
-                searchResult.setVideoId(next.get("videoId").asText());
+                Video searchResult = new Video();
+                searchResult.setId(next.get("videoId").asText());
                 int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
                 searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize - 1).get("url").asText());
                 searchResult.setTitle(next.get("title").get("simpleText").asText());

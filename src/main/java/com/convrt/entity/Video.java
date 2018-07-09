@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -31,6 +30,9 @@ public class Video {
     @Column(name = "owner", length = 30, nullable = false)
     private String owner;
 
+    @Column(name = "thumbnail_url", length = 300)
+    private String thumbnailUrl;
+
     @JsonIgnore
     @Column(name = "stream_url_date")
     private Instant streamUrlDate;
@@ -44,11 +46,20 @@ public class Video {
     private String streamUrl;
 
     @NonNull
-    @Column(name = "duration", nullable = false)
-    private Long duration;
+    @Column(name = "duration", length = 15, nullable = false)
+    private String duration;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "videos")
     private List<Playlist> addedByPlaylists = Lists.newArrayList();
+
+    @Transient
+    private String publishedTimeAgo;
+
+    @Transient
+    private String viewCount;
+
+    @Transient
+    private Long playCount;
 
 }

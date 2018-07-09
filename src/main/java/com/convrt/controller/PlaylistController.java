@@ -2,20 +2,21 @@ package com.convrt.controller;
 
 import com.convrt.entity.Context;
 import com.convrt.entity.Playlist;
+import com.convrt.entity.Video;
 import com.convrt.service.ContextService;
 import com.convrt.service.PlaylistService;
-import lombok.NonNull;
+import com.convrt.view.View;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/videos/playlists")
+@RequestMapping("/api/playlists")
 public class PlaylistController {
 
     @Autowired
@@ -23,39 +24,24 @@ public class PlaylistController {
     @Autowired
     private ContextService contextService;
 
-    @PostMapping
-    public Playlist createPlaylist (@RequestHeader(value = "token", required = false) String token, @RequestBody @NonNull Playlist playlist) {
-        Context context = contextService.validateContext(token);
-        Playlist playlistPersistent = playlistService.readPlaylist(context.getUser(), playlist.getName());
-        if (playlistPersistent != null) {
-            throw new RuntimeException("Cant create a new playlist that already exists");
-        }
-        playlist.setUuid(UUID.randomUUID().toString());
-        return playlistService.createPlaylist(context.getUser(), playlist);
-    }
-
     @GetMapping("/{uuid}")
+    //@JsonView(View.PlaylistWithVideo.class)
     public Playlist getPlaylist(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid) {
         Context context = contextService.validateContext(token);
         return playlistService.readPlaylist(context.getUser(), uuid);
     }
 
     @GetMapping
+    //@JsonView(View.Playlist.class)
     public List<Playlist> getPlaylists(@RequestHeader(value = "token") String token) {
         Context context = contextService.validateContext(token);
-        return playlistService.readUserPlaylists(context.getUser());
+        return context.getUser().getPlaylists();
     }
 
-    @PutMapping
-    public List<Playlist> updatePlaylists(@RequestHeader(value = "token") String token, @RequestBody @Valid List<Playlist> playlists) {
+    @PutMapping("/{uuid}/videos")
+    public Playlist updateVideos(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid, @RequestBody @Valid List<Video> videos) {
         Context context = contextService.validateContext(token);
-        return playlistService.updatePlaylists(context.getUser(), playlists);
-    }
-
-    @PutMapping("/{uuid}/active")
-    public void setActive(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid) {
-        Context context = contextService.validateContext(token);
-        playlistService.setActive(context.getUser(), uuid);
+        return playlistService.updateVideos(uuid, context.getUser(), videos);
     }
 
     @PutMapping("/{uuid}")

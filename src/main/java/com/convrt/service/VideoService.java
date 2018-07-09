@@ -2,17 +2,14 @@ package com.convrt.service;
 
 import com.convrt.entity.Video;
 import com.convrt.repository.VideoRepository;
-import com.convrt.view.VideoStreamMetadata;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.Valid;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -20,20 +17,10 @@ public class VideoService {
 
     @Autowired
     private VideoRepository videoRepository;
-    @Autowired
-    private PlayCountService playCountService;
 
     @Transactional
-    public Video createVideo(VideoStreamMetadata videoStreamMetadata) {
-        String videoId = videoStreamMetadata.getVideoId();
-        Video video = new Video();
-        video.setId(videoStreamMetadata.getVideoId());
-        video.setTitle(videoStreamMetadata.getTitle());
-        video.setOwner(videoStreamMetadata.getOwner());
-        video.setDuration(videoStreamMetadata.getDuration());
-        video.setStreamUrl(videoStreamMetadata.getSource());
+    public Video createVideo(Video video) {
         video.setStreamUrlDate(Instant.now());
-        video.setStreamUrlExpireDate(videoStreamMetadata.getSourceExpireDate());
         return videoRepository.save(video);
     }
 
@@ -54,22 +41,14 @@ public class VideoService {
     }
 
     @Transactional(readOnly = true)
-    public VideoStreamMetadata readVideoMetadata(String id) {
+    public Video readVideoMetadata(String id) {
         Video video = videoRepository.findByIdAndStreamUrlExpireDateNotNull(id);
         if (video == null) {
             return null;
         }
         Instant expireDate = video.getStreamUrlExpireDate();
         if (Instant.now().isBefore(expireDate)) {
-            VideoStreamMetadata videoStreamMetadata = new VideoStreamMetadata();
-            videoStreamMetadata.setSource(video.getStreamUrl());
-            videoStreamMetadata.setSourceExpireDate(expireDate);
-            videoStreamMetadata.setSourceFetchedDate(video.getStreamUrlDate());
-            videoStreamMetadata.setVideoId(video.getId());
-            videoStreamMetadata.setDuration(video.getDuration());
-            videoStreamMetadata.setOwner(video.getOwner());
-            videoStreamMetadata.setTitle(video.getTitle());
-            return videoStreamMetadata;
+            return video;
         }
         return null;
     }

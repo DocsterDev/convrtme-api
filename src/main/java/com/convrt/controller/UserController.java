@@ -18,10 +18,6 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserService userService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
     private ContextService contextService;
 
     @PostMapping("/register")

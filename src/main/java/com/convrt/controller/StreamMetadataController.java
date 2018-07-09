@@ -1,12 +1,8 @@
 
 package com.convrt.controller;
 
-import com.convrt.entity.Context;
-import com.convrt.entity.User;
-import com.convrt.service.ContextService;
+import com.convrt.entity.Video;
 import com.convrt.service.StreamMetadataService;
-import com.convrt.service.UserService;
-import com.convrt.view.VideoStreamMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +16,10 @@ public class StreamMetadataController {
     private StreamMetadataService streamMetadataService;
 
     @PostMapping("{videoId}/metadata")
-    public VideoStreamMetadata getStreamMetadata(@PathVariable("videoId") String videoId, @RequestBody VideoStreamMetadata videoStreamMetadata) {
+    public Video getStreamMetadata(@PathVariable("videoId") String videoId, @RequestBody Video video) {
         log.info("Metadata request for video {}", videoId);
-        videoStreamMetadata.setVideoId(videoId);
-        VideoStreamMetadata video = streamMetadataService.mapStreamData(videoStreamMetadata);
-        return video;
+        video.setId(videoId);
+        return streamMetadataService.mapStreamData(video);
     }
 
 }
-

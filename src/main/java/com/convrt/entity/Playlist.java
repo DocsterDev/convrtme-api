@@ -1,16 +1,18 @@
 package com.convrt.entity;
 
+import com.convrt.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Data
@@ -20,18 +22,29 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Playlist extends BaseEntity {
 
+    public Playlist (String name, String iconColor, User user) {
+        this.uuid = UUID.randomUUID().toString();
+        this.name = name;
+        this.iconColor = iconColor;
+        this.user = user;
+    }
+
+    @Id
+    //@JsonView(View.Playlist.class)
+    @Column(name = "uuid", length = 36, nullable = false)
+    private String uuid;
+
+    //@JsonView(View.Playlist.class)
     @Column(name = "name", length = 100)
     private String name;
 
+    //@JsonView(View.Playlist.class)
     @Column(name = "icon_color", length = 6)
     private String iconColor;
 
     @JsonIgnore
     @Column(name = "last_accessed")
-    private Instant lastAccessed;
-
-    @Transient
-    private boolean active = false;
+    private Instant lastAccessed = Instant.now();
 
     @JsonIgnore
     @ManyToOne
@@ -39,7 +52,8 @@ public class Playlist extends BaseEntity {
     private User user;
 
     @OrderColumn
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
+   // @JsonView(View.PlaylistWithVideo.class)
     @JoinTable(name = "playlist_video_join_table", joinColumns = @JoinColumn(name = "playlist_uuid"), inverseJoinColumns = @JoinColumn(name = "video_uuid"), uniqueConstraints = @UniqueConstraint(name = "playlist_video_join_table_idx0", columnNames = {"playlist_uuid", "video_uuid"}))
     private List<Video> videos = Lists.newArrayList();
 

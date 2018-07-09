@@ -1,18 +1,20 @@
 package com.convrt.service;
 
-import com.convrt.entity.Context;
-import com.convrt.entity.User;
-import com.convrt.view.VideoStreamMetadata;
+import com.convrt.entity.Video;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
 import com.github.axet.vget.info.VideoFileInfo;
 import com.github.axet.vget.info.VideoInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URL;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -27,7 +29,28 @@ public class StreamMetadataService {
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
 
-    private VideoStreamMetadata startDownload(String videoId) {
+    @Transactional
+    public Video mapStreamData(Video video) {
+        String videoId = video.getId();
+        log.info("Attempting to fetch existing valid stream url for video={}", videoId);
+        Video videoPersistent = videoService.readVideoMetadata(videoId);
+        if (videoPersistent == null) {
+            log.info("No existing stream url available for video={}", videoId);
+            String streamUrl = getStreamUrl(videoId);
+            if (StringUtils.isNotBlank(streamUrl)){
+                MultiValueMap<String, String> parameters = UriComponentsBuilder.fromUriString(streamUrl).build().getQueryParams();
+                List<String> param1 = parameters.get("expire");
+                video.setStreamUrlExpireDate(Instant.ofEpochSecond(Long.valueOf(param1.get(0))));
+                video.setStreamUrl(streamUrl);
+                video.setStreamUrlDate(Instant.now());
+            }
+            videoService.createVideo(video);
+        }
+        video.setPlayCount(playCountService.iterateNumPlays(videoId));
+        return video;
+    }
+
+    private String getStreamUrl(String videoId) {
         try {
             final AtomicBoolean stop = new AtomicBoolean(false);
             URL web = new URL(String.format(YOUTUBE_URL, videoId));
@@ -35,7 +58,7 @@ public class StreamMetadataService {
             VideoInfo videoinfo = user.info(web);
             new VGet(videoinfo).extract(user, stop, () -> {});
             List<VideoFileInfo> list = videoinfo.getInfo();
-            return getMediaStreamUrl(list);
+            return findAudioStreamUrl(list);
         } catch (NullPointerException e) {
             throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!", e);
         } catch (Exception e) {
@@ -43,41 +66,21 @@ public class StreamMetadataService {
         }
     }
 
-    private VideoStreamMetadata getMediaStreamUrl(List<VideoFileInfo> list) {
+    private String findAudioStreamUrl(List<VideoFileInfo> list) {
         VideoFileInfo videoFileInfo = null;
         if (list != null) {
             for (VideoFileInfo d : list) {
                 log.info("Found content-type: " + d.getContentType());
                 if (d.getContentType().contains("audio")) {
                     log.info("Dedicated audio url found");
-                    return new VideoStreamMetadata(d.getSource().toString(), d.getLength(), d.getContentType(), true);
+                    return d.getSource().toString();
                 }
                 videoFileInfo = d;
             }
             log.info("No dedicated audio url found. Returning full video url.");
-            return new VideoStreamMetadata(videoFileInfo.getSource().toString(), videoFileInfo.getLength(), videoFileInfo.getContentType(), false);
+            return videoFileInfo.getSource().toString();
         }
         throw new RuntimeException("Could not extract media stream url.");
-    }
-
-    @Transactional
-    public VideoStreamMetadata mapStreamData(VideoStreamMetadata videoStreamMetadata) {
-        String videoId = videoStreamMetadata.getVideoId();
-        log.info("Attempting to fetch existing valid stream url for video={}", videoId);
-        VideoStreamMetadata persistentVideoMetadata = videoService.readVideoMetadata(videoId);
-        if (persistentVideoMetadata == null) {
-            log.info("No existing stream url available for video={}", videoId);
-            persistentVideoMetadata = startDownload(videoId);
-            videoStreamMetadata.setSource(persistentVideoMetadata.getSource());
-            videoStreamMetadata.setLength(persistentVideoMetadata.getLength());
-            videoStreamMetadata.setContentType(persistentVideoMetadata.getContentType());
-            videoStreamMetadata.setAudio(persistentVideoMetadata.isAudio());
-            videoStreamMetadata.setSourceFetchedDate(persistentVideoMetadata.getSourceFetchedDate());
-            videoStreamMetadata.setSourceExpireDate(persistentVideoMetadata.getSourceExpireDate());
-            videoService.createVideo(videoStreamMetadata);
-        }
-        videoStreamMetadata.setPlayCount(playCountService.iterateNumPlays(videoId));
-        return videoStreamMetadata;
     }
 
 }

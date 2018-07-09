@@ -1,8 +1,8 @@
 package com.convrt.controller;
 
+import com.convrt.entity.Video;
 import com.convrt.service.VideoService;
 import com.convrt.service.StreamConversionService;
-import com.convrt.view.VideoStreamMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +28,14 @@ public class AudioStreamController {
 
     @GetMapping("/{videoId}")
     public StreamingResponseBody handleRequest(@PathVariable("videoId") String videoId, HttpServletResponse response) {
-        VideoStreamMetadata videoStreamMetadata = videoService.readVideoMetadata(videoId);
+        Video video = videoService.readVideoMetadata(videoId);
         response.setContentType("audio/webm");
         response.setHeader("Content-disposition", "inline; filename=output.webm");
         return new StreamingResponseBody() {
             @Override
             public void writeTo(OutputStream outputStream) {
                 try {
-                    InputStream is = youtubeStreamConversionService.convertVideo(videoStreamMetadata.getSource());
+                    InputStream is = youtubeStreamConversionService.convertVideo(video.getStreamUrl());
                     IOUtils.copyLarge(is, outputStream);
                     outputStream.close();
                 } catch (Exception e) {

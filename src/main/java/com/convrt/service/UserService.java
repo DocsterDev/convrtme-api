@@ -1,17 +1,14 @@
 package com.convrt.service;
 
-import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
 import com.convrt.repository.UserRepository;
+import com.google.common.collect.Lists;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -21,6 +18,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PlaylistService playlistService;
 
     @Transactional
     public User createUser(User user) {
@@ -28,6 +27,8 @@ public class UserService {
             throw new RuntimeException("User already exists for email address " + user.getEmail());
         }
         user.setUuid(UUID.randomUUID().toString());
+        user.setPlaylists(Lists.newArrayList());
+        playlistService.generatePlaylists(user).forEach((e) -> user.getPlaylists().add(e));
         return userRepository.save(user);
     }
 
@@ -46,24 +47,6 @@ public class UserService {
             throw new RuntimeException("User pin and/or email not found");
         }
         return user;
-    }
-
-    @Transactional
-    public List<Playlist> updateUserPlaylists(List<Playlist> playlists, User user) {
-        user.setPlaylists(playlists);
-        return userRepository.save(user).getPlaylists();
-    }
-
-    @Transactional
-    public List<Playlist> readUserPlaylists(User user) {
-        Playlist playlist = Collections.max(user.getPlaylists(), Comparator.comparing(c -> c.getLastAccessed()));
-        List<Playlist> playlists = user.getPlaylists();
-        playlists.stream().forEach((e)->{
-            if (e.getUuid().equals(playlist.getUuid())){
-                e.setActive(true);
-            }
-        });
-        return playlists;
     }
 
 }

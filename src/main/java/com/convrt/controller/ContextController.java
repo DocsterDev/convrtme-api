@@ -20,8 +20,6 @@ public class ContextController {
      */
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private ContextService contextService;
 
     // @RequestHeader(value = "token", required = false) String token <-- this goes everywhere auth is required

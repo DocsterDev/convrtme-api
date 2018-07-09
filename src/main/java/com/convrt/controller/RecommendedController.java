@@ -1,7 +1,7 @@
 package com.convrt.controller;
 
+import com.convrt.entity.Video;
 import com.convrt.service.RecommendedService;
-import com.convrt.view.SearchResultWS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,7 @@ public class RecommendedController {
     private RecommendedService recommendedService;
 
     @GetMapping
-    public List<SearchResultWS> getRecommended(@RequestParam("v") String videoId) {
+    public List<Video> getRecommended(@RequestParam("v") String videoId) {
         if (videoId == null) {
             throw new RuntimeException("No video ID provided for recommendation lookup");
         }

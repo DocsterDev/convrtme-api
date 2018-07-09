@@ -1,6 +1,6 @@
 package com.convrt.service;
 
-import com.convrt.view.SearchResultWS;
+import com.convrt.entity.Video;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -32,11 +32,11 @@ public class SearchService {
 
 
     @Cacheable("search")
-    public List<SearchResultWS> getSearch(String query) {
+    public List<Video> getSearch(String query) {
         log.info("Received search request for query: {}", query);
         if (query == null) return new LinkedList<>();
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/results").queryParam("q", query).build().encode();
-        List<SearchResultWS> results = Lists.newArrayList();
+        List<Video> results = Lists.newArrayList();
         int retryCount = 0;
         while (retryCount <= 3) {
             try {
@@ -72,23 +72,23 @@ public class SearchService {
         return jsonNode.get("contents").get("twoColumnSearchResultsRenderer").get("primaryContents").get("sectionListRenderer").get("contents").get(0).get("itemSectionRenderer").get("contents");
     }
 
-    private List<SearchResultWS> mapSearchResultFields(Element body) throws IOException {
-        List<SearchResultWS> searchResults = Lists.newArrayList();
+    private List<Video> mapSearchResultFields(Element body) throws IOException {
+        List<Video> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = parseSearchResults(body).iterator();
         while (iterator.hasNext()) {
             try {
-                SearchResultWS searchResult = new SearchResultWS();
+                Video video = new Video();
                 JsonNode next = iterator.next().get("videoRenderer");
-                searchResult.setVideoId(next.get("videoId").asText());
+                video.setId(next.get("videoId").asText());
                 int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
-                searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize-1).get("url").asText());
-                searchResult.setTitle(next.get("title").get("simpleText").asText());
-                searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
-                searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
-                searchResult.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
-                searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
+                video.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize-1).get("url").asText());
+                video.setTitle(next.get("title").get("simpleText").asText());
+                video.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
+                video.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
+                video.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
+                video.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
                 // searchResult.setPlayCount(playCountService.readNumPlaysByVideoId(searchResult.getVideoId()));
-                searchResults.add(searchResult);
+                searchResults.add(video);
             } catch (NullPointerException e) {
                 log.error("Search result is null. Not including in results.");
             }
