@@ -5,7 +5,9 @@ import com.convrt.entity.User;
 import com.convrt.entity.Video;
 import com.convrt.repository.PlaylistRepository;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.PreRemove;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -38,9 +41,15 @@ public class PlaylistService {
         if (playlist == null) {
             throw new RuntimeException("No playlist found to update videos");
         }
+        Set<String> duplicates = findDuplicates(videos);
+        if (!duplicates.isEmpty()) {
+            throw new RuntimeException(String.format("Cannot have the same video added to the same playlist. Found %s", StringUtils.join(duplicates, ",")));
+        }
         videoService.createAllVideos(videos);
         playlist.getVideos().clear();
-        videos.forEach((e) -> playlist.getVideos().add(e));
+        videos.forEach((e) -> {
+            playlist.getVideos().add(e);
+        });
         return playlistRepository.save(playlist);
     }
 
@@ -92,6 +101,17 @@ public class PlaylistService {
                new Playlist("playlist_4", "62BCF3", user),
                new Playlist("playlist_5", "668CDE", user)
        );
+    }
+
+    public Set<String> findDuplicates(List<Video> listContainingDuplicates) {
+        final Set<String> setToReturn = Sets.newHashSet();
+        final Set<String> set1 = Sets.newHashSet();
+        for (Video video : listContainingDuplicates) {
+            if (!set1.add(video.getTitle())) {
+                setToReturn.add(video.getTitle());
+            }
+        }
+        return setToReturn;
     }
 
 }
