@@ -57,4 +57,11 @@ public class PlaylistController {
         playlistService.deletePlaylist(context.getUser(), uuid);
     }
 
+    @DeleteMapping("/{uuid}/videos/{videoId}")
+    public Playlist deleteVideoInPlaylist(@RequestHeader(value = "token") String token, @PathVariable("uuid") String uuid, @PathVariable("videoId") String videoId) {
+        log.info("In delete");
+        Context context = contextService.validateContext(token);
+        return playlistService.deleteVideo(context.getUser(), uuid, videoId);
+    }
+
 }

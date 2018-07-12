@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.PreRemove;
 import java.time.Instant;
 import java.util.List;
 
@@ -60,6 +61,26 @@ public class PlaylistService {
             throw new RuntimeException("No playlist found to delete");
         }
         playlistRepository.deleteByUuidAndUser(uuid, user);
+    }
+
+    @PreRemove
+    @Transactional
+    public Playlist deleteVideo(User user, String uuid, String videoId) {
+        Playlist playlistPersistent = playlistRepository.findByUuidAndUser(uuid, user);
+        if (playlistPersistent == null) {
+            throw new RuntimeException("No playlist found to update");
+        }
+        Video videoRemove = null;
+        for (Video video: playlistPersistent.getVideos()) {
+            if (video.getId().equals(videoId)) {
+                videoRemove = video;
+                break;
+            }
+        }
+        if (videoRemove != null) {
+            playlistPersistent.getVideos().remove(videoRemove);
+        }
+        return playlistPersistent;
     }
 
     public List<Playlist> generatePlaylists(User user) {
