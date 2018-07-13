@@ -15,7 +15,7 @@ public class StreamConversionService {
 
         // Final works
         final ProcessBuilder pb
-                = new ProcessBuilder("./ffmpeg.exe",
+                = new ProcessBuilder("./ffmpeg",
                 "-i", url,
                 "-progress",
                 "progress",

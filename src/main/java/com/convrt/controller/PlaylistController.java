@@ -25,23 +25,30 @@ public class PlaylistController {
     private ContextService contextService;
 
     @GetMapping("/{uuid}")
-    //@JsonView(View.PlaylistWithVideo.class)
+    @JsonView(View.PlaylistWithVideo.class)
     public Playlist getPlaylist(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid) {
         Context context = contextService.validateContext(token);
         return playlistService.readPlaylist(context.getUser(), uuid);
     }
 
+    @GetMapping("/{uuid}/videos")
+    @JsonView(View.VideoWithPlaylist.class)
+    public List<Video> getPlaylistVideos(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid) {
+        Context context = contextService.validateContext(token);
+        return playlistService.readPlaylistVideos(context.getUser(), uuid);
+    }
+
     @GetMapping
-    //@JsonView(View.Playlist.class)
+    @JsonView(View.Playlist.class)
     public List<Playlist> getPlaylists(@RequestHeader(value = "token") String token) {
         Context context = contextService.validateContext(token);
         return context.getUser().getPlaylists();
     }
 
     @PutMapping("/{uuid}/videos")
-    public Playlist updateVideos(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid, @RequestBody @Valid List<Video> videos) {
+    public List<Video> updateVideos(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid, @RequestBody @Valid List<Video> videos) {
         Context context = contextService.validateContext(token);
-        return playlistService.updateVideos(uuid, context.getUser(), videos);
+        return playlistService.updateVideos(uuid, context.getUser(), videos).getVideos();
     }
 
     @PutMapping("/{uuid}")

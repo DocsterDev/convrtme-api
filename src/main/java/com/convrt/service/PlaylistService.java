@@ -36,6 +36,15 @@ public class PlaylistService {
     }
 
     @Transactional
+    public List<Video> readPlaylistVideos(User user, String name) {
+        Playlist playlist = playlistRepository.findByUuidAndUser(name, user);
+        if (playlist != null) {
+            playlist.setLastAccessed(Instant.now());
+        }
+        return playlist.getVideos();
+    }
+
+    @Transactional
     public Playlist updateVideos(String playlistUuid, User user, List<Video> videos) {
         Playlist playlist = playlistRepository.findByUuidAndUser(playlistUuid, user);
         if (playlist == null) {

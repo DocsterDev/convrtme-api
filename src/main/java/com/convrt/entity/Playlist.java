@@ -30,15 +30,15 @@ public class Playlist extends BaseEntity {
     }
 
     @Id
-    //@JsonView(View.Playlist.class)
+    @JsonView({View.Playlist.class, View.VideoWithPlaylist.class})
     @Column(name = "uuid", length = 36, nullable = false)
     private String uuid;
 
-    //@JsonView(View.Playlist.class)
+    @JsonView({View.Playlist.class, View.VideoWithPlaylist.class})
     @Column(name = "name", length = 100)
     private String name;
 
-    //@JsonView(View.Playlist.class)
+    @JsonView({View.Playlist.class, View.VideoWithPlaylist.class})
     @Column(name = "icon_color", length = 6)
     private String iconColor;
 
@@ -52,9 +52,8 @@ public class Playlist extends BaseEntity {
     private User user;
 
     @OrderColumn
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    // , uniqueConstraints = @UniqueConstraint(name = "playlist_video_join_table_idx0", columnNames = {"playlist_uuid", "video_uuid"})
-   // @JsonView(View.PlaylistWithVideo.class)
     @JoinTable(name = "playlist_video_join_table", joinColumns = @JoinColumn(name = "playlist_uuid"), inverseJoinColumns = @JoinColumn(name = "video_uuid"))
     private List<Video> videos = Lists.newArrayList();
 

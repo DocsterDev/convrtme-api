@@ -1,16 +1,11 @@
 package com.convrt.controller;
 
 import com.convrt.entity.Context;
-import com.convrt.entity.Playlist;
 import com.convrt.entity.User;
 import com.convrt.service.ContextService;
-import com.convrt.service.PlaylistService;
-import com.convrt.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController

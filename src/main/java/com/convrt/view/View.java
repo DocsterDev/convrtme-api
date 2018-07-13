@@ -2,8 +2,7 @@ package com.convrt.view;
 
 public class View {
 
-    public static class Playlist {
-    }
-    public static class PlaylistWithVideo extends Playlist {
-    }
+    public interface Playlist {}
+    public interface PlaylistWithVideo extends Playlist {}
+    public interface VideoWithPlaylist {}
 }

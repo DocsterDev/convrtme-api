@@ -25,11 +25,5 @@ public class Search extends BaseEntity {
     @Column(name = "video_id", length = 20)
     private String videoId;
 
-
-    // Ideally will make a many to many relationship to video and search query
-
-//    @Column(name = "video_results_list", columnDefinition = "TEXT")
-//    private List<VideoInfoWS> videoResultsList;
-
 }
 
