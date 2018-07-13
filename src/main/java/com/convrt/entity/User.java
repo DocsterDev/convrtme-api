@@ -36,6 +36,10 @@ public class User extends BaseEntity {
     @Column(name = "pin", length = 4) // TODO: encrypt this
     private String pin;
 
+    @NonNull
+    @Column(name = "first_name", length = 36, nullable = false)
+    private String firstName;
+
     @OrderColumn
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)

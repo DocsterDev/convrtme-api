@@ -63,7 +63,7 @@ public class ContextService {
         log.info("Validating token {}", token);
         Context context = contextRepository.findByTokenAndUserAgentAndValidIsTrue(token, userAgent);
         if(context == null) {
-            throw new RuntimeException("No user context found");
+            throw new RuntimeException("Uh Oh :( It looks like this session is no longer valid");
         }
         return context;
     }
