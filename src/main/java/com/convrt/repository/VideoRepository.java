@@ -10,6 +10,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
 
 	Video findByIdAndStreamUrlExpireDateNotNull(String id);
 
-	List<Video> findVideosByIdIn(List<String> videosIds);
+	Video findById(String id);
 
+	List<Video> findVideosByIdIn(List<String> videosIds);
 }

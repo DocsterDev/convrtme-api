@@ -68,8 +68,4 @@ public class Video {
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     private String viewCount;
 
-    @Transient
-    @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
-    private Long playCount;
-
 }

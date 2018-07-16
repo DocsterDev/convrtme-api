@@ -49,4 +49,22 @@ public class UserService {
         return user;
     }
 
+    @Transactional(readOnly = true)
+    public User readUser(String userUuid) {
+        User user = userRepository.findOne(userUuid);
+        if (user == null) {
+            throw new RuntimeException(String.format("User not found uuid %s", userUuid));
+        }
+        return user;
+    }
+
+    @Transactional
+    public User updateUser(User user) {
+        User userPersistent = userRepository.findOne(user.getUuid());
+        if (userPersistent == null) {
+            throw new RuntimeException(String.format("User not found to update uuid %s", user.getUuid()));
+        }
+        return userRepository.save(user);
+    }
+
 }

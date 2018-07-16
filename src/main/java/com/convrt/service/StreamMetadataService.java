@@ -1,5 +1,7 @@
 package com.convrt.service;
 
+import com.convrt.entity.PlayCount;
+import com.convrt.entity.User;
 import com.convrt.entity.Video;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
@@ -26,11 +28,13 @@ public class StreamMetadataService {
     private VideoService videoService;
     @Autowired
     private PlayCountService playCountService;
+    @Autowired
+    private UserService userService;
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
 
     @Transactional
-    public Video mapStreamData(Video video) {
+    public Video mapStreamData(Video video, String userUuid) {
         String videoId = video.getId();
         log.info("Attempting to fetch existing valid stream url for video={}", videoId);
         Video videoPersistent = videoService.readVideoMetadata(videoId);
@@ -46,7 +50,11 @@ public class StreamMetadataService {
             }
             videoService.createVideo(video);
         }
-        video.setPlayCount(playCountService.iterateNumPlays(videoId));
+        if (userUuid != null) {
+            User user = userService.readUser(userUuid);
+            PlayCount playCount = user.iteratePlayCount(video, user);
+            userService.updateUser(user);
+        }
         return video;
     }
 

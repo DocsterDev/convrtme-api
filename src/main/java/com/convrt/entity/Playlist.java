@@ -8,6 +8,8 @@ import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -47,14 +49,14 @@ public class Playlist extends BaseEntity {
     private Instant lastAccessed = Instant.now();
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_playlist_user_uuid"))
     private User user;
 
-    @OrderColumn
     @JsonIgnore
+    @OrderColumn
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "playlist_video_join_table", joinColumns = @JoinColumn(name = "playlist_uuid"), inverseJoinColumns = @JoinColumn(name = "video_uuid"))
+    @JoinTable(name = "playlist_video", joinColumns = @JoinColumn(name = "playlist_uuid"), inverseJoinColumns = @JoinColumn(name = "video_id"))
     private List<Video> videos = Lists.newArrayList();
 
 }

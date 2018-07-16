@@ -1,7 +1,10 @@
 package com.convrt.service;
 
+import com.convrt.entity.Playlist;
 import com.convrt.entity.Video;
 import com.convrt.repository.VideoRepository;
+import com.convrt.view.View;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +56,15 @@ public class VideoService {
         return null;
     }
 
+    @Transactional
+    public Video updateVideo(Video video) {
+        Video videoPersistent = videoRepository.findById(video.getId());
+        if (videoPersistent == null) {
+            throw new RuntimeException(String.format("No video found to update: video id %s", video.getId()));
+        }
+        return videoRepository.save(video);
+    }
+
     @Transactional(readOnly = true)
     public Video readVideo(String id) {
         Video video = videoRepository.findOne(id);
@@ -60,6 +72,12 @@ public class VideoService {
             throw new RuntimeException(String.format("Cannot find video with video id %s. Video must exist first.", id));
         }
         return video;
+    }
+
+    @JsonView(View.VideoWithPlaylist.class)
+    @Transactional(readOnly = true)
+    public Video readVideoByVideoId(String id) {
+        return videoRepository.findOne(id);
     }
 
     @Transactional(readOnly = true)
