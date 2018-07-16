@@ -58,16 +58,15 @@ public class User extends BaseEntity {
     private List<Context> contexts;
 
     @JsonIgnore
-    public PlayCount iteratePlayCount(Video video, User user) {
+    public void iteratePlayCount(Video video) {
         for (PlayCount playCount: playCounts) {
             if (video.getId().equals(playCount.getVideo().getId())) {
                 playCount.iterateNumPlays();
-                return playCount;
+                return;
             }
         }
-        PlayCount playCount = new PlayCount(video, user);
+        PlayCount playCount = new PlayCount(video, this);
         playCounts.add(playCount);
-        return playCount;
     }
 
 }

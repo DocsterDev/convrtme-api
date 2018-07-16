@@ -52,7 +52,7 @@ public class StreamMetadataService {
         }
         if (userUuid != null) {
             User user = userService.readUser(userUuid);
-            PlayCount playCount = user.iteratePlayCount(video, user);
+            user.iteratePlayCount(video);
             userService.updateUser(user);
         }
         return video;
@@ -68,7 +68,7 @@ public class StreamMetadataService {
             List<VideoFileInfo> list = videoinfo.getInfo();
             return findAudioStreamUrl(list);
         } catch (NullPointerException e) {
-            throw new RuntimeException("Sorry Bro, looks like we couldn't find this video!", e);
+            throw new RuntimeException("Sorry bruh, looks like we couldn't find this video!", e);
         } catch (Exception e) {
             throw new RuntimeException("Oops, looks like something went wrong :(", e);
         }
