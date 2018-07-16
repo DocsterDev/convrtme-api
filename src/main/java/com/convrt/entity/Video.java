@@ -32,7 +32,7 @@ public class Video {
 
     @NonNull
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
-    @Column(name = "owner", length = 30, nullable = false)
+    @Column(name = "owner", length = 100, nullable = false)
     private String owner;
 
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})

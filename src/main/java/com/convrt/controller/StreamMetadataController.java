@@ -22,10 +22,10 @@ public class StreamMetadataController {
     @PostMapping("{videoId}/metadata")
     public Video getStreamMetadata(@RequestHeader(value = "token") String token, @PathVariable("videoId") String videoId, @RequestBody Video video) {
         String userUuid = null;
-        if (token != null) {
-            Context context = contextService.validateContext(token);
-            userUuid = context.getUser().getUuid();
-        }
+//        if (token != null) {
+//            Context context = contextService.validateContext(token);
+//            userUuid = context.getUser().getUuid();
+//        }
         video.setId(videoId);
         return streamMetadataService.mapStreamData(video, userUuid);
     }

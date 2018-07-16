@@ -44,8 +44,8 @@ public class User extends BaseEntity {
     @Column(name = "first_name", length = 36)
     private String firstName;
 
-    @JsonIgnore
     @OrderColumn
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<Playlist> playlists;
 
