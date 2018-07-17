@@ -39,6 +39,10 @@ public class Context extends BaseEntity {
     @Column(name = "expire_date")
     private Instant expireDate;
 
+    @JsonIgnore
+    @Column(name = "user_uuid", length = 36, insertable=false, updatable=false)
+    private String userUuid;
+
     @ManyToOne
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_context_user_uuid"))
     private User user;

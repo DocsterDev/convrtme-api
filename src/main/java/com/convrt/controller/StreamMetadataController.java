@@ -24,7 +24,7 @@ public class StreamMetadataController {
         String userUuid = null;
 //        if (token != null) {
 //            Context context = contextService.validateContext(token);
-//            userUuid = context.getUser().getUuid();
+//            userUuid = context.getUserUuid();
 //        }
         video.setId(videoId);
         return streamMetadataService.mapStreamData(video, userUuid);

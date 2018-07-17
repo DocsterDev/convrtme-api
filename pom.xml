@@ -81,6 +81,33 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-java8</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor -->
+        <!--<dependency>-->
+            <!--<groupId>io.projectreactor</groupId>-->
+            <!--<artifactId>reactor</artifactId>-->
+            <!--<version>2.0.7.RELEASE</version>-->
+        <!--</dependency>-->
+
+        <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
+        <!--<dependency>-->
+            <!--<groupId>io.projectreactor</groupId>-->
+            <!--<artifactId>reactor-core</artifactId>-->
+            <!--<version>3.1.8.RELEASE</version>-->
+        <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/io.projectreactor.spring/reactor-spring-context -->
+        <!--<dependency>-->
+            <!--<groupId>io.projectreactor.spring</groupId>-->
+            <!--<artifactId>reactor-spring-context</artifactId>-->
+            <!--<version>2.0.7.RELEASE</version>-->
+        <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-net -->
+        <!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-net -->
+        <!--<dependency>-->
+            <!--<groupId>io.projectreactor</groupId>-->
+            <!--<artifactId>reactor-net</artifactId>-->
+            <!--<version>2.0.7.RELEASE</version>-->
+        <!--</dependency>-->
+
     </dependencies>
 
     <build>

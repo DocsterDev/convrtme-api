@@ -9,13 +9,13 @@ import java.io.InputStream;
 @Service
 public class StreamConversionService {
 
-    public InputStream convertVideo(String url) {
+    public Process convertVideo(String url) {
 
         // https://trac.ffmpeg.org/wiki/AudioChannelManipulation
 
         // Final works
         final ProcessBuilder pb
-                = new ProcessBuilder("./ffmpeg",
+                = new ProcessBuilder("./ffmpeg.exe",
                 "-i", url,
                 "-progress",
                 "progress",
@@ -23,9 +23,9 @@ public class StreamConversionService {
                 "-c:a",
                 "libopus",
                 "-b:a",
-                "128k",
+                "2k",
                 "-ar",
-                "48000", // 48000 24000 16000 12000 8000
+                "8000", // 48000 24000 16000 12000 8000
                 "-compression_level",
                 "10",
                 "-y",
@@ -43,7 +43,7 @@ public class StreamConversionService {
         } catch (Exception e) {
             throw new RuntimeException("Cannot start audio conversion process");
         }
-        return p.getInputStream();
+        return p;
     }
 
 }
