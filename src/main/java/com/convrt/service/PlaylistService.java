@@ -5,6 +5,7 @@ import com.convrt.entity.User;
 import com.convrt.entity.Video;
 import com.convrt.repository.PlaylistRepository;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -81,24 +82,27 @@ public class PlaylistService {
         playlistRepository.deleteByUuidAndUser(uuid, user);
     }
 
-    @PreRemove
     @Transactional
-    public Playlist deleteVideo(User user, String uuid, String videoId) {
+    public List<Video> deleteVideo(User user, String uuid, String videoId) {
         Playlist playlistPersistent = playlistRepository.findByUuidAndUser(uuid, user);
         if (playlistPersistent == null) {
             throw new RuntimeException("No playlist found to update");
         }
-        Video videoRemove = null;
+        Integer removeIndex = null;
+        int i = 0;
         for (Video video: playlistPersistent.getVideos()) {
             if (video.getId().equals(videoId)) {
-                videoRemove = video;
+                removeIndex = i;
+                log.info("Deleting: " + removeIndex);
                 break;
             }
+            i++;
         }
-        if (videoRemove != null) {
-            playlistPersistent.getVideos().remove(videoRemove);
+        if (removeIndex != null) {
+            playlistPersistent.getVideos().remove(removeIndex);
+            playlistPersistent.setVideos(Lists.newArrayList(playlistPersistent.getVideos()));
         }
-        return playlistPersistent;
+        return playlistPersistent.getVideos();
     }
 
     public List<Playlist> generatePlaylists(User user) {

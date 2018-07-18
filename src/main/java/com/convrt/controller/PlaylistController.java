@@ -46,9 +46,9 @@ public class PlaylistController {
     }
 
     @PutMapping("/{uuid}/videos")
-    public List<Video> updateVideos(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid, @RequestBody @Valid List<Video> videos) {
+    public void updateVideos(@RequestHeader(value = "token") String token, @PathVariable(value = "uuid") String uuid, @RequestBody @Valid List<Video> videos) {
         Context context = contextService.validateContext(token);
-        return playlistService.updateVideos(uuid, context.getUser(), videos).getVideos();
+        playlistService.updateVideos(uuid, context.getUser(), videos).getVideos();
     }
 
     @PutMapping("/{uuid}")
@@ -65,10 +65,10 @@ public class PlaylistController {
     }
 
     @DeleteMapping("/{uuid}/videos/{videoId}")
-    public Playlist deleteVideoInPlaylist(@RequestHeader(value = "token") String token, @PathVariable("uuid") String uuid, @PathVariable("videoId") String videoId) {
+    public void deleteVideoInPlaylist(@RequestHeader(value = "token") String token, @PathVariable("uuid") String uuid, @PathVariable("videoId") String videoId) {
         log.info("In delete");
         Context context = contextService.validateContext(token);
-        return playlistService.deleteVideo(context.getUser(), uuid, videoId);
+        playlistService.deleteVideo(context.getUser(), uuid, videoId);
     }
 
 }
