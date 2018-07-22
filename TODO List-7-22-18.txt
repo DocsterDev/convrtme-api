@@ -3,11 +3,15 @@
 ----------
 
 - Add unsubscribe to all observales in web app - DONE
-- Make it so when user is offline, they can save playlists - this will be in local storage
-- Make it easier to ass videos to playlist on mobile / and desktop
-- Move search bar to top
+- Make it so when user is offline, they can save playlists - this will be in local storage - NO LONGER NEEDED
+- Make it easier to add videos to playlist on mobile / and desktop
+- Move search bar to top - WORKING
 - Make it so when you switch around views, the currently playing song is indicated
-- See what i can do about saving the thumb on the server
+- See what i can do about saving the thumbnail on the server
+- Add on register fetch user ip and make that the username - DONE
+- Add loading indicator to search results
+- Fake the playlist search indicator
+- Make it so you can go to youtube if you want
 
 - Figure out how to serve webapp on a standalone server
 - Figure our how to serve spring boot app on standalone server

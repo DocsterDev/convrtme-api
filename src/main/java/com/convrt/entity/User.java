@@ -40,9 +40,14 @@ public class User extends BaseEntity {
     @Column(name = "pin", length = 4) // TODO: encrypt this
     private String pin;
 
-    @NonNull
-    @Column(name = "first_name", length = 36)
-    private String firstName;
+    @Column(name = "ip", length = 50)
+    private String ip;
+
+    @Column(name = "city", length = 100)
+    private String city;
+
+    @Column(name = "region", length = 100)
+    private String region;
 
     @OrderColumn
     @JsonIgnore
