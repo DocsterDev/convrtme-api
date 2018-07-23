@@ -5,8 +5,8 @@
 - Add unsubscribe to all observales in web app - DONE
 - Make it so when user is offline, they can save playlists - this will be in local storage - NO LONGER NEEDED
 - Make it easier to add videos to playlist on mobile / and desktop
-- Move search bar to top - WORKING
-- Make it so when you switch around views, the currently playing song is indicated
+- Move search bar to top - DONE
+- Make it so when you switch around views, the currently playing song is indicated - WORKING
 - See what i can do about saving the thumbnail on the server
 - Add on register fetch user ip and make that the username - DONE
 - Add loading indicator to search results
