@@ -14,7 +14,7 @@ import javax.annotation.PostConstruct;
 public class ConvrtApplication {
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static void main(String[] args) {
         System.getProperties().put("server.port", 8083);

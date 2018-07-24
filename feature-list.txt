@@ -15,7 +15,7 @@ Video only url
 Cant be loaded / is a music video (or simply dont show it in list)
 
 Back back log
-Add ability to add play lists (figure out defining features such as how a user can access the different play lists)
+Add ability to add play lists (figure out defining features such as how a user can access the different play lists) - DONE
 Would be cool to keep track of how much data is downloaded in total - how the F can we do this??
 Ability to configure in settings what file size to alert
 Ability to collapse / expand bottom player
