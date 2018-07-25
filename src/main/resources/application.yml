@@ -4,9 +4,9 @@ spring.profiles: default
 
 server:
   contextPath: /
-  port: 8080
+  port: 8083
   address: localhost
-  publicAddress: http://jeff-staging.mynetgear.com:4200
+  publicAddress: http://localhost:4200
 
 spring:
   servlet:
@@ -18,25 +18,9 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-#    url: jdbc:mysql://localhost:3306/convrt_me_dev
-#    username: root
-#    password: root
-    url: jdbc:mysql://convrt-me-aws.csx1pzmrhuek.us-west-1.rds.amazonaws.com:3306/convrt_me_aws
-    username: admin
-    password: aipas169+
-#    username: root
-#    password: root
-#    username: tripactions
-#    password: prodActive00
-#  data:
-#    mongodb:
-#      host: localhost
-#      port: 27017
-#      database: convrt_db
-#spring.jpa.hibernate.ddl-auto=create
-#spring.datasource.url=jdbc:mysql://localhost:3306/db_example
-#spring.datasource.username=springuser
-#spring.datasource.password=ThePassword
+    url: jdbc:mysql://localhost:3306/convrt_me_dev
+    username: root
+    password: 1234
 
 #cache
   cache:
