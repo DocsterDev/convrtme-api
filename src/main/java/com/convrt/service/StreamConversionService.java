@@ -12,7 +12,7 @@ public class StreamConversionService {
 
     public Process convertVideo(String url) {
         final ProcessBuilder pb
-                = new ProcessBuilder("./lib/ffmpeg/ffmpeg",
+                = new ProcessBuilder("ffmpeg",
                 "-i", url,
                 "-progress",
                 "progress",
