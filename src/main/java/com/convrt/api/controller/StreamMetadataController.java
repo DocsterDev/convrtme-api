@@ -29,8 +29,10 @@ public class StreamMetadataController {
 //        }
         video.setId(videoId);
         Video vid = streamMetadataService.mapStreamData(video, userUuid);
-        byte[] encodedUrl = Base64.getEncoder().encode(vid.getStreamUrl().getBytes());
-        vid.setEncodedStreamUrl(new String(encodedUrl));
+        if (vid.getStreamUrl() != null) {
+            byte[] encodedUrl = Base64.getEncoder().encode(vid.getStreamUrl().getBytes());
+            vid.setEncodedStreamUrl(new String(encodedUrl));
+        }
         return vid;
     }
 }
