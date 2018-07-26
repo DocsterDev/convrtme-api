@@ -20,13 +20,13 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/convrt_me_dev
     username: root
-    password: 1234
+    password: root
 
 #cache
   cache:
     type: caffeine
     cache-names: search, video. autocomplete, recommended
-    caffeine: 
+    caffeine:
         spec: maximumSize=500, expireAfterAccess=1h
 
 #jackson config
