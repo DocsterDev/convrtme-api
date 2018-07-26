@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/videos")
@@ -26,7 +28,9 @@ public class StreamMetadataController {
 //            userUuid = context.getUserUuid();
 //        }
         video.setId(videoId);
-        return streamMetadataService.mapStreamData(video, userUuid);
+        Video vid = streamMetadataService.mapStreamData(video, userUuid);
+        byte[] encodedUrl = Base64.getEncoder().encode(vid.getStreamUrl().getBytes());
+        vid.setEncodedStreamUrl(new String(encodedUrl));
+        return vid;
     }
-
 }

@@ -47,6 +47,7 @@ public class Video {
     @Column(name = "stream_url_expire_date")
     private Instant streamUrlExpireDate;
 
+    @JsonIgnore
     @Column(name = "stream_url", length = 1000)
     private String streamUrl;
 
@@ -66,5 +67,8 @@ public class Video {
     @Transient
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     private String viewCount;
+
+    @Transient
+    private String encodedStreamUrl;
 
 }
