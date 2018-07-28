@@ -9,11 +9,6 @@ server:
   publicAddress: http://localhost:4200
 
 spring:
-  servlet:
-    multipart:
-      max-file-size: -1
-      max-request-size: -1
-      max-swallow-size: -1
   jpa:
     hibernate:
       ddl-auto: update
@@ -22,22 +17,20 @@ spring:
     username: root
     password: root
 
-#cache
   cache:
     type: caffeine
-    cache-names: search, video. autocomplete, recommended
+    cache-names: search, video, autocomplete, recommended
     caffeine:
         spec: maximumSize=500, expireAfterAccess=1h
 
-#jackson config
   jackson:
     date-format: yyyy-MM-dd'T'HH:mm:ssZ
 
-# Dev config
-#spring.profiles: dev, local
+logging:
+  level:
+    org:
+      springframework:
+        web: INFO
+  file: spring-api.log
 
-logging.level.org.springframework.web: INFO
-
-# Prod config
-# spring.profiles: prod
 

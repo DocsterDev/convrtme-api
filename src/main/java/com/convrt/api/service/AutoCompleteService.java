@@ -17,22 +17,24 @@ import java.util.Arrays;
 public class AutoCompleteService {
 
     public JsonNode getAutoCompleteLookup(String input) {
-        log.info("Retrieving autocomplete lookup for input \"{}\"", input);
-
-        UriComponents uriComponents = UriComponentsBuilder.newInstance()
-                .scheme("http")
-                .host("suggestqueries.google.com")
-                .path("/complete/search")
-                .queryParam("client", "firefox")
-                .queryParam("ds", "yt")
-                .queryParam("q", input)
-                .build();
-
-        RestTemplate restTemplate = new RestTemplate();
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setSupportedMediaTypes(Arrays.asList(MediaType.ALL, MediaType.parseMediaType("text/javascript")));
-        restTemplate.getMessageConverters().add(converter);
-        return restTemplate.getForObject(uriComponents.toUriString(), JsonNode.class);
+        try {
+            UriComponents uriComponents = UriComponentsBuilder.newInstance()
+                    .scheme("http")
+                    .host("suggestqueries.google.com")
+                    .path("/complete/search")
+                    .queryParam("client", "firefox")
+                    .queryParam("ds", "yt")
+                    .queryParam("q", input)
+                    .build();
+            RestTemplate restTemplate = new RestTemplate();
+            MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+            converter.setSupportedMediaTypes(Arrays.asList(MediaType.ALL, MediaType.parseMediaType("text/javascript")));
+            restTemplate.getMessageConverters().add(converter);
+            return restTemplate.getForObject(uriComponents.toUriString(), JsonNode.class);
+        } catch (Exception e) {
+            log.error("Error parsing auto-recommendation results {}", input);
+            return null;
+        }
     }
 
 }

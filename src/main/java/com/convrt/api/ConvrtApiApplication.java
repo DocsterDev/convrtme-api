@@ -17,8 +17,6 @@ public class ConvrtApiApplication {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static void main(String[] args) {
-        System.getProperties().put("spring.http.multipart.max-file-size", "-1");
-        System.getProperties().put("spring.http.multipart.max-request-size", "-1");
         SpringApplication.run(ConvrtApiApplication.class, args);
     }
 
