@@ -86,7 +86,7 @@
                         <annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor
                         </annotationProcessor>
                     </annotationProcessors>
-                    <executable>false</executable>
+                    <executable>true</executable>
                 </configuration>
             </plugin>
             <plugin>

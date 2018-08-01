@@ -38,23 +38,24 @@ public class StreamMetadataService {
         log.info("Attempting to fetch existing valid stream url for video={}", videoId);
         Video videoPersistent = videoService.readVideoMetadata(videoId);
         if (videoPersistent == null) {
+            videoPersistent = video;
             log.info("No existing stream url available for video={}", videoId);
             String streamUrl = getStreamUrl(videoId);
             if (StringUtils.isNotBlank(streamUrl)){
                 MultiValueMap<String, String> parameters = UriComponentsBuilder.fromUriString(streamUrl).build().getQueryParams();
                 List<String> param1 = parameters.get("expire");
-                video.setStreamUrlExpireDate(Instant.ofEpochSecond(Long.valueOf(param1.get(0))));
-                video.setStreamUrl(streamUrl);
-                video.setStreamUrlDate(Instant.now());
+                videoPersistent.setStreamUrlExpireDate(Instant.ofEpochSecond(Long.valueOf(param1.get(0))));
+                videoPersistent.setStreamUrl(streamUrl);
+                videoPersistent.setStreamUrlDate(Instant.now());
             }
-            videoService.createVideo(video);
+            videoService.createVideo(videoPersistent);
         }
-        if (userUuid != null) {
-            User user = userService.readUser(userUuid);
-            user.iteratePlayCount(video);
-            userService.updateUser(user);
-        }
-        return video;
+//        if (userUuid != null) {
+//            User user = userService.readUser(userUuid);
+//            user.iteratePlayCount(video);
+//            userService.updateUser(user);
+//        }
+        return videoPersistent;
     }
 
     private String getStreamUrl(String videoId) {
