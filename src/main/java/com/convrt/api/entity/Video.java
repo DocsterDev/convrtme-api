@@ -71,4 +71,9 @@ public class Video {
     @Transient
     private String encodedStreamUrl;
 
+    @Transient
+    private Integer order;
+
+    @Transient
+    private boolean isNew;
 }

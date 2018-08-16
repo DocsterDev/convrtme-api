@@ -1,6 +1,7 @@
 package com.convrt.api.service;
 
 import com.convrt.api.entity.Video;
+import com.convrt.api.utils.MappingUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -37,7 +38,6 @@ public class RecommendedService {
             try {
                 Document doc = Jsoup.connect(uriComponents.toUriString()).get();
                 results = mapRecommendedFields(doc.body());
-                log.info("Iteration");
                 break;
             } catch (Exception e) {
                 if (retryCount == 2) {
@@ -70,6 +70,8 @@ public class RecommendedService {
                 searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchResult.setViewCount(next.get("viewCountText").get("simpleText").asText());
                 searchResult.setDuration(next.get("lengthText").get("simpleText").asText());
+                JsonNode badges = next.get("badges");
+                MappingUtils.findIsNew(next, searchResult, badges);
                 // searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
                 searchResults.add(searchResult);
             } catch (NullPointerException e) {

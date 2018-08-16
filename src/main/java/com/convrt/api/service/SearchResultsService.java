@@ -1,6 +1,7 @@
 package com.convrt.api.service;
 
 import com.convrt.api.entity.Video;
+import com.convrt.api.utils.MappingUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -28,6 +29,7 @@ public class SearchResultsService {
         Document doc = Jsoup.connect(url).get();
         List<Video> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = parseSearchResults(doc.body()).iterator();
+        int order = 0;
         while (iterator.hasNext()) {
             try {
                 Video searchVideo = new Video();
@@ -40,7 +42,12 @@ public class SearchResultsService {
                 searchVideo.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
                 searchVideo.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
                 searchVideo.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
+                JsonNode badges = next.get("badges");
+                MappingUtils.findIsNew(next, searchVideo, badges);
+                //searchVideo.setNew();
+                searchVideo.setOrder(order);
                 searchResults.add(searchVideo);
+                order++;
             } catch (NullPointerException e) {
                 log.error("Search result is null. Not including in results.");
             }
