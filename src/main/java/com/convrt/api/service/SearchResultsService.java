@@ -25,7 +25,10 @@ public class SearchResultsService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Cacheable("search")
-    public List<Video> mapSearchResultFields(String url, String userUuid) throws IOException {
+    public List<Video> mapSearchResultFields(String url, String userUuid, String userAgent) throws IOException {
+        if (userAgent == null) {
+            userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36";
+        }
         Document doc = Jsoup.connect(url).get();
         List<Video> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = parseSearchResults(doc.body()).iterator();
@@ -44,7 +47,6 @@ public class SearchResultsService {
                 searchVideo.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
                 JsonNode badges = next.get("badges");
                 MappingUtils.findIsNew(next, searchVideo, badges);
-                //searchVideo.setNew();
                 searchVideo.setOrder(order);
                 searchResults.add(searchVideo);
                 order++;
@@ -58,6 +60,7 @@ public class SearchResultsService {
     private JsonNode parseSearchResults(Element body) throws IOException {
         Elements scripts = body.select("script");
         String script = null;
+        log.info(body.html().toString());
         for (int i = 0; i < scripts.size(); i++) {
             String html = scripts.eq(i).html();
             if ( html.contains("window[\"ytInitialData\"]")) {

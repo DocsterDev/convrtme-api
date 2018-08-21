@@ -21,13 +21,13 @@ public class SearchController {
     private ContextService contextService;
 
     @GetMapping
-    public List<Video> getQuery(@RequestHeader(value = "token") String token, @RequestParam("q") String query) {
+    public List<Video> getQuery(@RequestHeader("User-Agent") String userAgent, @RequestHeader(value = "token") String token, @RequestParam("q") String query) {
         String userUuid = null;
         if (token != null) {
             Context context = contextService.validateContext(token);
             userUuid = context.getUser().getUuid();
         }
-        return searchService.getSearch(query, userUuid);
+        return searchService.getSearch(query, userUuid, userAgent);
     }
 
 }

@@ -28,8 +28,11 @@ public class RecommendedService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Cacheable("recommended")
-    public List<Video> getRecommended(String videoId) {
+    public List<Video> getRecommended(String videoId, String userAgent) {
         log.info("Received recommended request for video: {}", videoId);
+        if (userAgent == null) {
+            userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36";
+        }
         if (StringUtils.isBlank(videoId)) return new LinkedList<>();
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/watch").queryParam("v", videoId).build().encode();
         List<Video> results = Lists.newArrayList();
@@ -44,6 +47,7 @@ public class RecommendedService {
                     throw new RuntimeException("Error parsing json from YouTube recommended results after " + retryCount + 1 + " attempts", e);
                 }
                 log.warn("Failed parsing YouTube json. Retrying...", e);
+                try { Thread.sleep(1000); } catch (Exception ex) { }
                 retryCount++;
             }
         }
