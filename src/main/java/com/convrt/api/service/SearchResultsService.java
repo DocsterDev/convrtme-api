@@ -30,6 +30,8 @@ public class SearchResultsService {
             userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36";
         }
         Document doc = Jsoup.connect(url).get();
+        
+        log.info(doc.body().html());
         List<Video> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = parseSearchResults(doc.body()).iterator();
         int order = 0;
