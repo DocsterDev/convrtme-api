@@ -17,7 +17,7 @@ public class SearchService {
     @Autowired
     private SearchResultsService searchResultsService;
 
-    public List<Video> getSearch(String query, String userUuid, String userAgent) {
+    public List<Video> getSearch(String query, String userUuid) {
         log.info("Received search request for query: {}", query);
         if (query == null) return Lists.newLinkedList();
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/results").queryParam("q", query).build().encode();
@@ -25,7 +25,7 @@ public class SearchService {
         int retryCount = 0;
         while (retryCount <= 3) {
             try {
-                results = searchResultsService.mapSearchResultFields(uriComponents.toUriString(), userUuid, userAgent);
+                results = searchResultsService.mapSearchResultFields(uriComponents.toUriString(), userUuid);
                 break;
             } catch (Exception e) {
                 if (retryCount == 3) {

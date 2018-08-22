@@ -28,11 +28,8 @@ public class RecommendedService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Cacheable("recommended")
-    public List<Video> getRecommended(String videoId, String userAgent) {
+    public List<Video> getRecommended(String videoId) {
         log.info("Received recommended request for video: {}", videoId);
-        if (userAgent == null) {
-            userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36";
-        }
         if (StringUtils.isBlank(videoId)) return new LinkedList<>();
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/watch").queryParam("v", videoId).build().encode();
         List<Video> results = Lists.newArrayList();
@@ -68,8 +65,9 @@ public class RecommendedService {
                 }
                 Video searchResult = new Video();
                 searchResult.setId(next.get("videoId").asText());
-                int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
-                searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize - 1).get("url").asText());
+                // int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
+                // searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize - 1).get("url").asText());
+                searchResult.setThumbnailUrl(String.format("https://i.ytimg.com/vi/%s/maxresdefault.jpg", searchResult.getId()));
                 searchResult.setTitle(next.get("title").get("simpleText").asText());
                 searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchResult.setViewCount(next.get("viewCountText").get("simpleText").asText());
