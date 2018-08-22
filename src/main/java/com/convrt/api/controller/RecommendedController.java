@@ -21,7 +21,7 @@ public class RecommendedController {
         if (videoId == null) {
             throw new RuntimeException("No video ID provided for recommendation lookup");
         }
-        return recommendedService.getRecommended(videoId, userAgent);
+        return recommendedService.getRecommended(videoId);
     }
 
 }

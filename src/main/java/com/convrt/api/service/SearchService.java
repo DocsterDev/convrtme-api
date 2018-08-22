@@ -17,7 +17,7 @@ public class SearchService {
     @Autowired
     private SearchResultsService searchResultsService;
 
-    public List<Video> getSearch(String query, String userUuid, String userAgent) {
+    public List<Video> getSearch(String query, String userUuid) {
         log.info("Received search request for query: {}", query);
         if (query == null) return Lists.newLinkedList();
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/results").queryParam("q", query).build().encode();
@@ -25,14 +25,14 @@ public class SearchService {
         int retryCount = 0;
         while (retryCount <= 3) {
             try {
-                results = searchResultsService.mapSearchResultFields(uriComponents.toUriString(), userUuid, userAgent);
+                results = searchResultsService.mapSearchResultFields(uriComponents.toUriString(), userUuid);
                 break;
             } catch (Exception e) {
                 if (retryCount == 3) {
                     throw new RuntimeException("Error parsing json from YouTube search results after " + retryCount + " attempts", e);
                 }
                 log.warn("Failed parsing YouTube json. Retrying...", e);
-                try { Thread.sleep(1000); } catch (Exception ex) { }
+                try { Thread.sleep(100); } catch (Exception ex) { }
                 retryCount++;
             }
         }

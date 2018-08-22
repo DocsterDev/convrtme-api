@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -25,13 +26,9 @@ public class SearchResultsService {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Cacheable("search")
-    public List<Video> mapSearchResultFields(String url, String userUuid, String userAgent) throws IOException {
-        if (userAgent == null) {
-            userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36";
-        }
-        Document doc = Jsoup.connect(url).get();
-        
-        log.info(doc.body().html());
+    public List<Video> mapSearchResultFields(String url, String userUuid) throws IOException {
+        Connection connection = Jsoup.connect(url);
+        Document doc = connection.get();
         List<Video> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = parseSearchResults(doc.body()).iterator();
         int order = 0;
@@ -42,6 +39,11 @@ public class SearchResultsService {
                 searchVideo.setId(next.get("videoId").asText());
                 int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
                 searchVideo.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize-1).get("url").asText());
+//                if (thumbnailSize > 3) {
+//                    searchVideo.setThumbnailUrl(String.format("https://i.ytimg.com/vi/%s/maxresdefault.jpg", searchVideo.getId()));
+//                } else {
+//                    searchVideo.setThumbnailUrl(String.format("https://i.ytimg.com/vi/%s/default.jpg", searchVideo.getId()));
+//                }
                 searchVideo.setTitle(next.get("title").get("simpleText").asText());
                 searchVideo.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchVideo.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
