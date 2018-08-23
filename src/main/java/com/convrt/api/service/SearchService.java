@@ -32,7 +32,7 @@ public class SearchService {
                     throw new RuntimeException("Error parsing json from YouTube search results after " + retryCount + " attempts", e);
                 }
                 log.warn("Failed parsing YouTube json. Retrying...", e);
-                try { Thread.sleep(1000); } catch (Exception ex) { }
+                try { Thread.sleep(100); } catch (Exception ex) { }
                 retryCount++;
             }
         }

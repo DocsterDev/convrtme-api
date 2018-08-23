@@ -27,7 +27,7 @@ public class SearchController {
             Context context = contextService.validateContext(token);
             userUuid = context.getUser().getUuid();
         }
-        return searchService.getSearch(query, userUuid, userAgent);
+        return searchService.getSearch(query, userUuid);
     }
 
 }
