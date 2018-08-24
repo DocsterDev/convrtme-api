@@ -19,20 +19,20 @@
 8-23-18 - BUGS after a month of using it
 ----------------
 
-- Add query as part of the url and vise versa
+- Add query as part of the url and vise versa - DONE - 8/23
 - Make playlist autoplay through all search results by default
 - Make the previous / next buttons work when listening to search results
 - Put time elapsed on left of the bar and duration on the right
-- Limit title lines to two lines with ellipses
+- Limit title lines to two lines with ellipses - DONE - 8/23
 - Fix issue with safari not being able to play video on the spot (may have to have the stream server fetch the url)
-- Add number of views to each tile
-- Add "NEW" badge or indicator to each tile
+- Add number of views to each tile - DONE - 8/23
+- Add "NEW" badge or indicator to each tile - DONE - 8/23
 - Make search bar look nicer and perform better
-- Make auto complete box close on mobile when something is selected
+- Make auto complete box close on mobile when something is selected - DONE - 8/23
 - When player is active, push the UI up with it
 - Prevent event propagation when holding touch on iPhone when scrolling (andreis issue)
 - Add a title label to recommended videos
-- Also make sure that the order of the videos is reflected
+- Also make sure that the order of the videos is reflected - DONE - 8/23
 
 Backlog
 ---------------
