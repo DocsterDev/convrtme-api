@@ -16,3 +16,30 @@
 - Figure out how to serve webapp on a standalone server
 - Figure our how to serve spring boot app on standalone server
 
+8-23-18 - BUGS after a month of using it
+----------------
+
+- Add query as part of the url and vise versa
+- Make playlist autoplay through all search results by default
+- Make the previous / next buttons work when listening to search results
+- Put time elapsed on left of the bar and duration on the right
+- Limit title lines to two lines with ellipses
+- Fix issue with safari not being able to play video on the spot (may have to have the stream server fetch the url)
+- Add number of views to each tile
+- Add "NEW" badge or indicator to each tile
+- Make search bar look nicer and perform better
+- Make auto complete box close on mobile when something is selected
+- When player is active, push the UI up with it
+- Prevent event propagation when holding touch on iPhone when scrolling (andreis issue)
+- Add a title label to recommended videos
+- Also make sure that the order of the videos is reflected
+
+Backlog
+---------------
+- Add playlist image (now i can!)
+- Clean up playlist functionality (make it more prominent)
+
+
+Ideas
+-----------
+- Maybe put the navigation on the bottom (between playlist and search results)

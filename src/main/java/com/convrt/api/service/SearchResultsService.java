@@ -39,7 +39,7 @@ public class SearchResultsService {
                 searchVideo.setId(next.get("videoId").asText());
                 // int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
                 // searchVideo.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize-1).get("url").asText());
-                searchVideo.setThumbnailUrl(String.format("https://i.ytimg.com/vi/%s/mqdefault.jpg", searchVideo.getId()));
+                searchVideo.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", searchVideo.getId()));
                 searchVideo.setTitle(next.get("title").get("simpleText").asText());
                 searchVideo.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchVideo.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
