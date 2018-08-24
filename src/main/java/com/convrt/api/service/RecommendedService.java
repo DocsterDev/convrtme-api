@@ -11,6 +11,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
@@ -25,7 +26,8 @@ import java.util.List;
 @Service
 public class RecommendedService {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Cacheable("recommended")
     public List<Video> getRecommended(String videoId) {
@@ -97,7 +99,7 @@ public class RecommendedService {
         }
         String json = script.split("\r\n|\r|\n")[0];
         json = StringUtils.substring(json, 26, json.length() - 1);
-        JsonNode jsonNode = MAPPER.readTree(json);
+        JsonNode jsonNode = objectMapper.readTree(json);
         return jsonNode.get("contents").get("twoColumnWatchNextResults").get("secondaryResults").get("secondaryResults").get("results");
     }
 }

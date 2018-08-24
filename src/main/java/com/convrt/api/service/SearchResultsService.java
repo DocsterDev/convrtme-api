@@ -12,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,8 @@ import java.util.List;
 @Service
 public class SearchResultsService {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Cacheable("search")
     public List<Video> mapSearchResultFields(String url, String userUuid) throws IOException {
@@ -60,7 +62,6 @@ public class SearchResultsService {
     private JsonNode parseSearchResults(Element body) throws IOException {
         Elements scripts = body.select("script");
         String script = null;
-        log.info(body.html().toString());
         for (int i = 0; i < scripts.size(); i++) {
             String html = scripts.eq(i).html();
             if ( html.contains("window[\"ytInitialData\"]")) {
@@ -70,7 +71,7 @@ public class SearchResultsService {
         }
         String json = script.split("\r\n|\r|\n")[0];
         json = StringUtils.substring(json, 26, json.length() - 1);
-        JsonNode jsonNode = MAPPER.readTree(json);
+        JsonNode jsonNode = objectMapper.readTree(json);
         return jsonNode.get("contents").get("twoColumnSearchResultsRenderer").get("primaryContents").get("sectionListRenderer").get("contents").get(0).get("itemSectionRenderer").get("contents");
     }
 
