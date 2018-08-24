@@ -35,10 +35,6 @@ public class Video {
     @Column(name = "owner", length = 100, nullable = false)
     private String owner;
 
-    @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
-    @Column(name = "thumbnail_url", length = 300)
-    private String thumbnailUrl;
-
     @JsonIgnore
     @Column(name = "stream_url_date")
     private Instant streamUrlDate;
@@ -47,7 +43,6 @@ public class Video {
     @Column(name = "stream_url_expire_date")
     private Instant streamUrlExpireDate;
 
-    @JsonIgnore
     @Column(name = "stream_url", length = 1000)
     private String streamUrl;
 

@@ -69,7 +69,7 @@ public class RecommendedService {
                 searchResult.setId(next.get("videoId").asText());
                 // int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
                 // searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize - 1).get("url").asText());
-                searchResult.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", searchResult.getId()));
+                // searchResult.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", searchResult.getId()));
                 searchResult.setTitle(next.get("title").get("simpleText").asText());
                 searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchResult.setViewCount(next.get("viewCountText").get("simpleText").asText());
