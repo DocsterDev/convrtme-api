@@ -15,6 +15,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -28,12 +29,12 @@ public class SearchResultsService {
     private ObjectMapper objectMapper;
 
     @Cacheable("search")
+    @Transactional(readOnly = true)
     public List<Video> mapSearchResultFields(String url, String userUuid) throws IOException {
         Connection connection = Jsoup.connect(url);
         Document doc = connection.get();
         List<Video> searchResults = Lists.newArrayList();
         Iterator<JsonNode> iterator = parseSearchResults(doc.body()).iterator();
-        int order = 0;
         while (iterator.hasNext()) {
             try {
                 Video searchVideo = new Video();
@@ -49,7 +50,6 @@ public class SearchResultsService {
                 searchVideo.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
                 JsonNode badges = next.get("badges");
                 MappingUtils.findIsNew(next, searchVideo, badges);
-                searchVideo.setOrder(order);
                 searchResults.add(searchVideo);
                 order++;
             } catch (NullPointerException e) {

@@ -30,7 +30,7 @@
 - Make search bar look nicer and perform better
 - Make auto complete box close on mobile when something is selected - DONE - 8/23
 - When player is active, push the UI up with it
-- Prevent event propagation when holding touch on iPhone when scrolling (andreis issue)
+- Prevent event propagation when holding touch on iPhone when scrolling (andreis issue) - I THINK I FIXED IT
 - Add a title label to recommended videos
 - Also make sure that the order of the videos is reflected - DONE - 8/23
 
