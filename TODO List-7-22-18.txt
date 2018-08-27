@@ -4,9 +4,9 @@
 
 - Add unsubscribe to all observales in web app - DONE
 - Make it so when user is offline, they can save playlists - this will be in local storage - NO LONGER NEEDED
-- Make it easier to add videos to playlist on mobile / and desktop
+- Make it easier to add videos to playlist on mobile / and desktop - DONE
 - Move search bar to top - DONE
-- Make it so when you switch around views, the currently playing song is indicated - WORKING
+- Make it so when you switch around views, the currently playing song is indicated - DONE
 - See what i can do about saving the thumbnail on the server
 - Add on register fetch user ip and make that the username - DONE
 - Add loading indicator to search results
@@ -23,16 +23,23 @@
 - Make playlist autoplay through all search results by default
 - Make the previous / next buttons work when listening to search results
 - Put time elapsed on left of the bar and duration on the right
-- Limit title lines to two lines with ellipses - DONE - 8/23
-- Fix issue with safari not being able to play video on the spot (may have to have the stream server fetch the url)
+- Limit title lines to two lines with ellipses - DONE - 8/23 - STILL NEEDS WORK - Try MAX HEIGHT of 2 em to prevent going over 2 lines
+- Fix issue with safari not being able to play video on the spot (may have to have the stream server fetch the url) - WORKS BUT NEEDS TWEAKING
+    Need to do a check that browser is safari, and if so do not notify when there is an error loading.
+
 - Add number of views to each tile - DONE - 8/23
 - Add "NEW" badge or indicator to each tile - DONE - 8/23
 - Make search bar look nicer and perform better
-- Make auto complete box close on mobile when something is selected - DONE - 8/23
+- Make auto complete box close on mobile when something is selected - DONE - 8/23 - STILL NEEDS WORK
 - When player is active, push the UI up with it
-- Prevent event propagation when holding touch on iPhone when scrolling (andreis issue) - I THINK I FIXED IT
+- Prevent event propagation when holding touch on iPhone when scrolling (andreis issue) - STILL NEEDS WORK - NOT SURE WHAT THE ISSUE IS
 - Add a title label to recommended videos
 - Also make sure that the order of the videos is reflected - DONE - 8/23
+
+---- 8/27/2018 ------
+- Make it so title on tab is updated with video title
+- Make Video title in popup player does not wrap (maybe scrolls?)
+- Add endpoint on api to update video metadata - so we dont have to send the video information over the stream service which is really stupid
 
 Backlog
 ---------------
