@@ -8,9 +8,12 @@ import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 
 @Data
@@ -25,12 +28,10 @@ public class Video {
     @Column(name = "id", length = 20)
     private String id;
 
-    @NonNull
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     @Column(name = "title", length = 100, nullable = false)
     private String title;
 
-    @NonNull
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     @Column(name = "owner", length = 100, nullable = false)
     private String owner;
@@ -46,7 +47,6 @@ public class Video {
     @Column(name = "stream_url", length = 1000)
     private String streamUrl;
 
-    @NonNull
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     @Column(name = "duration", length = 15, nullable = false)
     private String duration;
@@ -68,4 +68,22 @@ public class Video {
 
     @Transient
     private boolean isNew;
+
+    public void setStreamUrl(String streamUrl) {
+        this.streamUrl = streamUrl;
+        if (streamUrl != null) {
+            MultiValueMap<String, String> parameters = UriComponentsBuilder.fromUriString(streamUrl).build().getQueryParams();
+            List<String> param1 = parameters.get("expire");
+            this.streamUrlExpireDate = Instant.ofEpochSecond(Long.valueOf(param1.get(0)));
+            this.streamUrlDate = Instant.now();
+        }
+    }
+
+    public String getEncodedStreamUrl() {
+        if (this.streamUrl != null) {
+            byte[] encodedUrl = Base64.getEncoder().encode(this.streamUrl.getBytes());
+            return new String(encodedUrl);
+        }
+        return null;
+    }
 }

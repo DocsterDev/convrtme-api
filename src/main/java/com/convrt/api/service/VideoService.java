@@ -21,8 +21,7 @@ public class VideoService {
     private VideoRepository videoRepository;
 
     @Transactional
-    public Video createVideo(Video video) {
-        video.setStreamUrlDate(Instant.now());
+    public Video createOrUpdateVideo(Video video) {
         return videoRepository.save(video);
     }
 

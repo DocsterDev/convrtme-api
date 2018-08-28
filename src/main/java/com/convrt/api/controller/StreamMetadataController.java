@@ -17,14 +17,14 @@ public class StreamMetadataController {
     @Autowired
     private StreamMetadataService streamMetadataService;
 
-    @PostMapping("{videoId}/metadata")
-    public Video getStreamMetadata(@PathVariable("videoId") String videoId, @RequestBody Video video) {
+    @GetMapping("{videoId}/metadata")
+    public Video getStreamMetadata(@PathVariable("videoId") String videoId) {
+        return streamMetadataService.fetchStreamUrl(videoId);
+    }
+
+    @PutMapping("{videoId}/metadata")
+    public Video updateVideoMetadata(@PathVariable("videoId") String videoId, @RequestBody Video video) {
         video.setId(videoId);
-        Video vid = streamMetadataService.mapStreamData(video);
-        if (vid.getStreamUrl() != null) {
-            byte[] encodedUrl = Base64.getEncoder().encode(vid.getStreamUrl().getBytes());
-            vid.setEncodedStreamUrl(new String(encodedUrl));
-        }
-        return vid;
+        return streamMetadataService.updateVideoMetadata(video);
     }
 }
