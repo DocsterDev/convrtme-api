@@ -67,6 +67,9 @@ public class Video {
     private String encodedStreamUrl;
 
     @Transient
+    private String thumbnailUrl;
+
+    @Transient
     private boolean isNew;
 
     public void setStreamUrl(String streamUrl) {

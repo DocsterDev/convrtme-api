@@ -39,7 +39,7 @@
 ---- 8/27/2018 ------
 - Make it so title on tab is updated with video title
 - Make Video title in popup player does not wrap (maybe scrolls?)
-- Add endpoint on api to update video metadata - so we dont have to send the video information over the stream service which is really stupid
+- Add endpoint on api to update video metadata - so we dont have to send the video information over the stream service which is really stupid - DONE
 
 Backlog
 ---------------
