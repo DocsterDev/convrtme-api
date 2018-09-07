@@ -72,7 +72,7 @@ public class RecommendedService {
                 searchResult.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", searchResult.getId()));
                 searchResult.setTitle(next.get("title").get("simpleText").asText());
                 searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
-                searchResult.setViewCount(next.get("viewCountText").get("simpleText").asText());
+                searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
                 searchResult.setDuration(next.get("lengthText").get("simpleText").asText());
                 JsonNode badges = next.get("badges");
                 MappingUtils.findIsNew(next, searchResult, badges);
