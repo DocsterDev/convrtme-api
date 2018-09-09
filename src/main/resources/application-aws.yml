@@ -4,7 +4,7 @@ server:
   contextPath: /
   port: 8083
   address: 172.31.10.241
-  publicAddress: http://convrt-me-ui.s3-website-us-west-1.amazonaws.com/
+  publicAddress: http://convrt-me-ui.s3-website-us-west-1.amazonaws.com
 
 spring:
   jpa:

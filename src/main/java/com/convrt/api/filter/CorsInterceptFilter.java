@@ -21,9 +21,7 @@ public class CorsInterceptFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		log.info("Value: {}", publicAddress);
-		// response.addHeader("Access-Control-Allow-Origin", "http://convrt-me-ui.s3-website-us-west-1.amazonaws.com");
-		response.addHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+		response.addHeader("Access-Control-Allow-Origin", publicAddress);
 		response.addHeader("Access-Control-Allow-Headers", "Content-Type, Token");
 		response.addHeader("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE,OPTIONS");
 		response.addHeader("Access-Control-Allow-Credentials", "true");
