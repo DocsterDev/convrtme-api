@@ -28,3 +28,4 @@ logging:
         web: INFO
   file: spring-api.log
 
+# WHEN CREATING A NEW DATABASE set the collation to: "utf8mb4 - default collation"
