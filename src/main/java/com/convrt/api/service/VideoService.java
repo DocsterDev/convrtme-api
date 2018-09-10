@@ -7,8 +7,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,7 +28,10 @@ public class VideoService {
     }
 
     @Transactional
+    @Async
     public void createAllVideos(List<Video> videoList) {
+        StopWatch sw = new StopWatch();
+        sw.start();
         List<Video> videos = Lists.newArrayList();
         videoList.forEach((v) -> {
             if (!existsByVideoId(v.getId())) {
@@ -39,6 +44,8 @@ public class VideoService {
             }
         });
         videoRepository.save(videos);
+        sw.stop();
+        log.info("Took {}ms to save videos", sw.getTotalTimeMillis());
     }
 
     @Transactional(readOnly = true)

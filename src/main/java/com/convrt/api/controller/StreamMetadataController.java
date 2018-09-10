@@ -21,10 +21,4 @@ public class StreamMetadataController {
     public Video getStreamMetadata(@PathVariable("videoId") String videoId) {
         return streamMetadataService.fetchStreamUrl(videoId);
     }
-
-    @PutMapping("{videoId}/metadata")
-    public Video updateVideoMetadata(@PathVariable("videoId") String videoId, @RequestBody Video video) {
-        video.setId(videoId);
-        return streamMetadataService.updateVideoMetadata(video);
-    }
 }

@@ -1,6 +1,7 @@
 package com.convrt.api.service;
 
 import com.convrt.api.entity.Video;
+import com.convrt.api.repository.VideoRepository;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
 import com.github.axet.vget.info.VideoFileInfo;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,22 +23,21 @@ public class StreamMetadataService {
 
     @Autowired
     private VideoService videoService;
+    @Autowired
+    private VideoRepository videoRepository;
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
 
     @Transactional
     public Video updateVideoMetadata(Video video) {
-        assert video.getTitle() != null;
-        assert video.getOwner() != null;
-        assert video.getDuration() != null;
         Video videoPersistent = videoService.readVideoByVideoId(video.getId());
         if (videoPersistent == null) {
             videoPersistent = new Video();
             videoPersistent.setId(UUID.randomUUID().toString());
         }
-        videoPersistent.setTitle(videoPersistent.getTitle() != null ? videoPersistent.getTitle() : video.getTitle());
-        videoPersistent.setOwner(videoPersistent.getOwner() != null ? videoPersistent.getOwner() : video.getOwner());
-        videoPersistent.setDuration(videoPersistent.getDuration() != null ? videoPersistent.getDuration() : video.getDuration());
+        videoPersistent.setTitle(video.getTitle());
+        videoPersistent.setOwner(video.getOwner());
+        videoPersistent.setDuration(video.getDuration());
         return videoService.createOrUpdateVideo(video);
     }
 
@@ -45,38 +46,17 @@ public class StreamMetadataService {
         if (videoId == null) {
             throw new RuntimeException("Cannot retrieve streamUrl when videoId is null.");
         }
-        String streamUrl = getStreamUrl(videoId);
-        log.info("Video stream URL found: {}", streamUrl);
-        Video video = videoService.readVideoMetadata(videoId);
+        Video video = videoRepository.findById(videoId);
         if (video == null) {
-            video = new Video();
-            video.setId(videoId);
-            video.setStreamUrl(streamUrl);
-            return videoService.createOrUpdateVideo(video);
+            throw new RuntimeException(String.format("VideoId %s not found in database", videoId));
         }
-        video.setStreamUrl(streamUrl);
+        if (video.getStreamUrl() == null || Instant.now().isAfter(video.getStreamUrlExpireDate())) {
+            log.info("Fetching new stream URL for videoId {}", videoId);
+            video.setStreamUrl(getStreamUrl(videoId));
+        } else {
+            log.info("Stream URL already exists and is valid for videoId {}", videoId);
+        }
         return video;
-    }
-
-    private Video mapStreamData(Video video) {
-        String videoId = video.getId();
-
-        Video videoPersistent = videoService.readVideoMetadata(videoId);
-        if (videoPersistent == null) {
-            videoPersistent = video;
-            log.info("No existing stream url available for video={}", videoId);
-            String streamUrl = getStreamUrl(videoId);
-//            if (StringUtils.isNotBlank(streamUrl)){
-//                MultiValueMap<String, String> parameters = UriComponentsBuilder.fromUriString(streamUrl).build().getQueryParams();
-//                List<String> param1 = parameters.get("expire");
-//                videoPersistent.setStreamUrlExpireDate(Instant.ofEpochSecond(Long.valueOf(param1.get(0))));
-//                videoPersistent.setStreamUrl(streamUrl);
-//                videoPersistent.setStreamUrlDate(Instant.now());
-//            }
-            //videoService.createVideo(videoPersistent);
-        }
-
-        return videoPersistent;
     }
 
     private String getStreamUrl(String videoId) {

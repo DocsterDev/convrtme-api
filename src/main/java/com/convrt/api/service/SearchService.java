@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -16,6 +17,8 @@ import java.util.List;
 public class SearchService {
     @Autowired
     private SearchResultsService searchResultsService;
+    @Autowired
+    private VideoService videoService;
 
     public List<Video> getSearch(String query) {
         log.info("Received search request for query: {}", query);
@@ -36,6 +39,11 @@ public class SearchService {
                 retryCount++;
             }
         }
+        StopWatch sw = new StopWatch();
+        sw.start();
+        videoService.createAllVideos(results);
+        sw.stop();
+        log.info("Took {}ms to save {} videos for search results", sw.getTotalTimeMillis(), results.size());
         return results;
     }
 

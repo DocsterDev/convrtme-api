@@ -29,11 +29,11 @@ public class Video {
     private String id;
 
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
-    @Column(name = "title", length = 100, nullable = false)
+    @Column(name = "title", length = 100)
     private String title;
 
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
-    @Column(name = "owner", length = 100, nullable = false)
+    @Column(name = "owner", length = 100)
     private String owner;
 
     @JsonIgnore
@@ -48,7 +48,7 @@ public class Video {
     private String streamUrl;
 
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
-    @Column(name = "duration", length = 15, nullable = false)
+    @Column(name = "duration", length = 15)
     private String duration;
 
     @JsonView(View.VideoWithPlaylist.class)
