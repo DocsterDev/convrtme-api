@@ -39,11 +39,11 @@ public class SearchService {
                 retryCount++;
             }
         }
-        StopWatch sw = new StopWatch();
-        sw.start();
-        videoService.createAllVideos(results);
-        sw.stop();
-        log.info("Took {}ms to save {} videos for search results", sw.getTotalTimeMillis(), results.size());
+//        StopWatch sw = new StopWatch();
+//        sw.start();
+//        videoService.createAllVideos(results);
+//        sw.stop();
+//        log.info("Took {}ms to save {} videos for search results", sw.getTotalTimeMillis(), results.size());
         return results;
     }
 
