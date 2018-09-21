@@ -21,4 +21,9 @@ public class StreamMetadataController {
     public Video getStreamMetadata(@PathVariable("videoId") String videoId) {
         return streamMetadataService.fetchStreamUrl(videoId);
     }
+
+    @GetMapping("{videoId}/validate")
+    public void validateStreamMetadata(@PathVariable("videoId") String videoId) {
+        streamMetadataService.fetchStreamUrl(videoId);
+    }
 }

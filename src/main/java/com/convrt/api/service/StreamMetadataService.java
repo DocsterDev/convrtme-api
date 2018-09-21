@@ -46,17 +46,18 @@ public class StreamMetadataService {
         if (videoId == null) {
             throw new RuntimeException("Cannot retrieve streamUrl when videoId is null.");
         }
-        Video video = videoRepository.findById(videoId);
-        if (video == null) {
-            throw new RuntimeException(String.format("VideoId %s not found in database", videoId));
+        Video videoPersistent = videoRepository.findById(videoId);
+        if (videoPersistent == null) {
+            videoPersistent = new Video();
+            videoPersistent.setId(UUID.randomUUID().toString());
         }
-        if (video.getStreamUrl() == null || Instant.now().isAfter(video.getStreamUrlExpireDate())) {
+        if (videoPersistent.getStreamUrl() == null || Instant.now().isAfter(videoPersistent.getStreamUrlExpireDate())) {
             log.info("Fetching new stream URL for videoId {}", videoId);
-            video.setStreamUrl(getStreamUrl(videoId));
+            videoPersistent.setStreamUrl(getStreamUrl(videoId));
         } else {
             log.info("Stream URL already exists and is valid for videoId {}", videoId);
         }
-        return video;
+        return videoPersistent;
     }
 
     private String getStreamUrl(String videoId) {
