@@ -2,6 +2,7 @@ package com.convrt.api.service;
 
 import com.convrt.api.entity.Video;
 import com.convrt.api.repository.VideoRepository;
+import com.convrt.api.view.Status;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
 import com.github.axet.vget.info.VideoFileInfo;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URL;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -39,6 +41,11 @@ public class StreamMetadataService {
         videoPersistent.setOwner(video.getOwner());
         videoPersistent.setDuration(video.getDuration());
         return videoService.createOrUpdateVideo(video);
+    }
+
+    @Transactional(readOnly = true)
+    public Status validateStreamUrl(String videoId) {
+       return new Status(Objects.nonNull(videoService.readVideoMetadata(videoId)));
     }
 
     @Transactional

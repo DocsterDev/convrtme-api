@@ -19,7 +19,7 @@ spring:
     type: caffeine
     cache-names: search, video, autocomplete, recommended
     caffeine:
-        spec: maximumSize=500, expireAfterAccess=1m
+        spec: maximumSize=500, expireAfterAccess=1h
 
 logging:
   level:
