@@ -56,7 +56,7 @@ public class StreamMetadataService {
         Video videoPersistent = videoRepository.findById(videoId);
         if (videoPersistent == null) {
             videoPersistent = new Video();
-            videoPersistent.setId(UUID.randomUUID().toString());
+            videoPersistent.setId(videoId);
         }
         if (videoPersistent.getStreamUrl() == null || Instant.now().isAfter(videoPersistent.getStreamUrlExpireDate())) {
             log.info("Fetching new stream URL for videoId {}", videoId);
@@ -64,7 +64,7 @@ public class StreamMetadataService {
         } else {
             log.info("Stream URL already exists and is valid for videoId {}", videoId);
         }
-        return videoPersistent;
+        return videoService.createOrUpdateVideo(videoPersistent);
     }
 
     private String getStreamUrl(String videoId) {
