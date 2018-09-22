@@ -19,11 +19,7 @@ spring:
     type: caffeine
     cache-names: search, video, autocomplete, recommended
     caffeine:
-<<<<<<< Updated upstream
         spec: maximumSize=500, expireAfterAccess=1h
-=======
-        spec: maximumSize=500, expireAfterAccess=5m
->>>>>>> Stashed changes
 
 logging:
   level:
