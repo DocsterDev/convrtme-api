@@ -1,7 +1,10 @@
 
 package com.convrt.api.controller;
 
+import com.convrt.api.entity.Context;
+import com.convrt.api.entity.User;
 import com.convrt.api.entity.Video;
+import com.convrt.api.service.ContextService;
 import com.convrt.api.service.StreamMetadataService;
 import com.convrt.api.view.Status;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +22,7 @@ public class StreamMetadataController {
     private StreamMetadataService streamMetadataService;
 
     @GetMapping("{videoId}/metadata")
-    public Video getStreamMetadata(@PathVariable("videoId") String videoId) {
-        return streamMetadataService.fetchStreamUrl(videoId);
-    }
-
-    @GetMapping("{videoId}/validate")
-    public Status validateStreamMetadata(@PathVariable("videoId") String videoId) {
-        return streamMetadataService.validateStreamUrl(videoId);
+    public Video getStreamMetadata(@PathVariable("videoId") String videoId, @RequestParam(value = "token", required = false) String token) {
+        return streamMetadataService.fetchStreamUrl(videoId, token);
     }
 }

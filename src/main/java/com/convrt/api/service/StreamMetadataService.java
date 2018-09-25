@@ -1,5 +1,7 @@
 package com.convrt.api.service;
 
+import com.convrt.api.entity.Context;
+import com.convrt.api.entity.User;
 import com.convrt.api.entity.Video;
 import com.convrt.api.repository.VideoRepository;
 import com.convrt.api.view.Status;
@@ -27,6 +29,8 @@ public class StreamMetadataService {
     private VideoService videoService;
     @Autowired
     private VideoRepository videoRepository;
+    @Autowired
+    private ContextService contextService;
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
 
@@ -49,7 +53,7 @@ public class StreamMetadataService {
     }
 
     @Transactional
-    public Video fetchStreamUrl(String videoId) {
+    public Video fetchStreamUrl(String videoId, String token) {
         if (videoId == null) {
             throw new RuntimeException("Cannot retrieve streamUrl when videoId is null.");
         }
@@ -64,7 +68,13 @@ public class StreamMetadataService {
         } else {
             log.info("Stream URL already exists and is valid for videoId {}", videoId);
         }
-        return videoService.createOrUpdateVideo(videoPersistent);
+        Video video = videoService.createOrUpdateVideo(videoPersistent);
+        if (token != null) {
+            Context context = contextService.validateContext(token);
+            User user = context.getUser();
+            user.getVideos().add(video);
+        }
+        return video;
     }
 
     private String getStreamUrl(String videoId) {

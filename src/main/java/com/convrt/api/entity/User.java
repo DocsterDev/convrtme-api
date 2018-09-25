@@ -60,6 +60,12 @@ public class User extends BaseEntity {
     private List<Context> contexts;
 
     @JsonIgnore
+    @OrderColumn
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_video", joinColumns = @JoinColumn(name = "user_uuid"), inverseJoinColumns = @JoinColumn(name = "video_id"))
+    private List<Video> videos = Lists.newArrayList();
+
+    @JsonIgnore
     public void iteratePlayCount(Video video) {
         for (PlayCount playCount: playCounts) {
             if (video.getId().equals(playCount.getVideo().getId())) {
