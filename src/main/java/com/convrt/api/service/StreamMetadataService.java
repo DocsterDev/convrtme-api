@@ -71,8 +71,10 @@ public class StreamMetadataService {
         Video video = videoService.createOrUpdateVideo(videoPersistent);
         if (token != null) {
             Context context = contextService.validateContext(token);
-            User user = context.getUser();
-            user.getVideos().add(video);
+            if (context != null) {
+                User user = context.getUser();
+                user.getVideos().add(video);
+            }
         }
         return video;
     }

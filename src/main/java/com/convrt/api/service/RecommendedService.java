@@ -29,8 +29,6 @@ public class RecommendedService {
 
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private VideoService videoService;
 
     @Cacheable("recommended")
     public List<Video> getRecommended(String videoId) {
@@ -41,7 +39,7 @@ public class RecommendedService {
         int retryCount = 0;
         while (retryCount <= 2) {
             try {
-                Document doc = Jsoup.connect(uriComponents.toUriString()).get();
+                Document doc = Jsoup.connect(uriComponents.toUriString()).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36").get();
                 results = mapRecommendedFields(doc.body());
                 break;
             } catch (Exception e) {

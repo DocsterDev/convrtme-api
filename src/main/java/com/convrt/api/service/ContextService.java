@@ -73,9 +73,9 @@ public class ContextService {
     public Context validateContext(String token) {
         log.info("Validating token {}", token);
         Context context = contextRepository.findByTokenAndValidIsTrue(token);
-        if(context == null) {
-            throw new RuntimeException("No user context found");
-        }
+//        if(context == null) {
+//            throw new RuntimeException("No user context found");
+//        }
         return context;
     }
 
