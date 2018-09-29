@@ -55,9 +55,9 @@ public class User extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<PlayCount> playCounts = Lists.newArrayList();
 
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    private List<Context> contexts;
+//    @JsonIgnore
+//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Context> contexts;
 
     @JsonIgnore
     // @OrderColumn

@@ -1,5 +1,6 @@
 package com.convrt.api.entity;
 
+import com.convrt.api.utils.UUIDUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 import lombok.Data;
@@ -10,11 +11,16 @@ import lombok.RequiredArgsConstructor;
 import javax.persistence.*;
 import java.util.List;
 
-@NoArgsConstructor @RequiredArgsConstructor
+@NoArgsConstructor
 @Data
 @Entity
 @Table(name = "channel")
 public class Channel extends BaseEntity {
+
+    public Channel(String name) {
+        this.uuid = UUIDUtils.generateUuid(name);
+        this.name = name;
+    }
 
     @NonNull
     @Column(name = "name", length = 100, unique = true)

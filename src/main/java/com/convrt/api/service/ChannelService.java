@@ -1,6 +1,8 @@
 package com.convrt.api.service;
 
 import com.convrt.api.entity.Channel;
+import com.convrt.api.entity.Context;
+import com.convrt.api.entity.User;
 import com.convrt.api.repository.ChannelRepository;
 import com.convrt.api.utils.UUIDUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -15,15 +17,21 @@ import java.util.List;
 public class ChannelService {
     @Autowired
     private ChannelRepository channelRepository;
+    @Autowired
+    private ContextService contextService;
 
     @Transactional
-    public Channel addChannel(String name){
-        if (name == null) {
-            throw new RuntimeException("Cannot add new channel for user. Name is null.");
+    public Channel addSubscription(String name, String token){
+        if (name == null || token == null) {
+            throw new RuntimeException("Cannot add new subscription for user. Channel name or token is null.");
         }
-        Channel channel = new Channel();
-        channel.setUuid(UUIDUtils.generateUuid(name));
-        channel.setName(name);
+        Context context = contextService.validateContext(token);
+        User user = context.getUser();
+        if (user == null) {
+            throw new RuntimeException("Cannot find user to add channel subscription.");
+        }
+        Channel channel = new Channel(name);
+        channel.getSubscribers().add(user);
         return channelRepository.save(channel);
     }
 
