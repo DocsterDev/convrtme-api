@@ -55,6 +55,11 @@ public class Video {
     @ManyToMany(mappedBy = "videos")
     private List<Playlist> addedByPlaylists = Lists.newArrayList();
 
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "channel_uuid", foreignKey = @ForeignKey(name = "fk_video_channel_uuid"))
+    private Channel channel;
+
     @Transient
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     private String publishedTimeAgo;

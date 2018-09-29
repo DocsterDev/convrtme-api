@@ -60,6 +60,12 @@ public class User extends BaseEntity {
     private List<Context> contexts;
 
     @JsonIgnore
+    // @OrderColumn
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_channel", joinColumns = @JoinColumn(name = "user_uuid"), inverseJoinColumns = @JoinColumn(name = "channel_uuid"))
+    private List<Channel> channels = Lists.newArrayList();
+
+    @JsonIgnore
     @OrderColumn
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "user_video", joinColumns = @JoinColumn(name = "user_uuid"), inverseJoinColumns = @JoinColumn(name = "video_id"))

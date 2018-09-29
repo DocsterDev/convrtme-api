@@ -6,15 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 @EnableCaching
+@EnableScheduling
 public class ConvrtApiApplication {
 
     @Autowired
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
 
     public static void main(String[] args) {
         SpringApplication.run(ConvrtApiApplication.class, args);

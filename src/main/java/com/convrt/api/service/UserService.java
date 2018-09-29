@@ -1,5 +1,6 @@
 package com.convrt.api.service;
 
+import com.convrt.api.entity.Channel;
 import com.convrt.api.repository.UserRepository;
 import com.convrt.api.entity.User;
 import com.google.common.collect.Lists;
@@ -56,6 +57,11 @@ public class UserService {
             throw new RuntimeException(String.format("User not found uuid %s", userUuid));
         }
         return user;
+    }
+
+    @Transactional
+    public Channel getChannelByUser(){
+        return null;
     }
 
     @Transactional

@@ -17,8 +17,6 @@ import java.util.List;
 public class SearchService {
     @Autowired
     private SearchResultsService searchResultsService;
-    @Autowired
-    private VideoService videoService;
 
     public List<Video> getSearch(String query) {
         log.info("Received search request for query: {}", query);
