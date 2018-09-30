@@ -1,37 +1,37 @@
 package com.convrt.api.entity;
 
-import com.convrt.api.utils.UUIDUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor
 @Data
 @Entity
 @Table(name = "channel")
-public class Channel extends BaseEntity {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Channel {
+    @Id
+    @Column(name = "uuid", length = 36)
+    private String uuid;
 
-    public Channel(String name) {
-        this.uuid = UUIDUtils.generateUuid(name);
-        this.name = name;
-    }
-
-    @NonNull
-    @Column(name = "name", length = 100, unique = true)
+    @Column(name = "name", length = 200)
     String name;
+
+    @Column(name = "avatar_url", length = 300)
+    String avatarUrl;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "channel", orphanRemoval = true)
-    private List<Video> videos;
+    private Map<String, Subscription> subscriptions = Maps.newHashMap();
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "channels", fetch = FetchType.LAZY)
-    private List<User> subscribers = Lists.newArrayList();
-
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "channel", orphanRemoval = true)
+    private List<Video> videos = Lists.newLinkedList();
 }

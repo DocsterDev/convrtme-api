@@ -1,15 +1,22 @@
 package com.convrt.api.service;
 
 import com.convrt.api.entity.Channel;
-import com.convrt.api.entity.Context;
-import com.convrt.api.entity.User;
+import com.convrt.api.entity.Subscription;
+import com.convrt.api.entity.Video;
 import com.convrt.api.repository.ChannelRepository;
+import com.convrt.api.repository.VideoRepository;
 import com.convrt.api.utils.UUIDUtils;
+import com.convrt.api.view.View;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -17,31 +24,20 @@ import java.util.List;
 public class ChannelService {
     @Autowired
     private ChannelRepository channelRepository;
-    @Autowired
-    private ContextService contextService;
-    @Autowired
-    private UserService userService;
 
     @Transactional
-    public Channel addSubscription(String name, String token){
-        if (name == null || token == null) {
-            throw new RuntimeException("Cannot add new subscription for user. Channel name or token is null.");
+    public Channel createChannel(Channel channel) {
+        String uuid = UUIDUtils.generateUuid(channel.getName());
+        Channel channelPersistent = readChannel(uuid);
+        if (channelPersistent == null) {
+            channel.setUuid(uuid);
+            channelPersistent = channelRepository.save(channel);
         }
-        Context context = contextService.validateContext(token);
-        // User user = context.getUser();
-        String userUuid = context.getUserUuid();
-        User user = userService.readUser(userUuid);
-        if (user == null) {
-            throw new RuntimeException("Cannot find user to add channel subscription.");
-        }
-        Channel channel = new Channel(name);
-        user.getChannels().add(channel);
-        return channel;
+        return channelPersistent;
     }
 
     @Transactional(readOnly = true)
-    public List<Channel> readAllChannels() {
-        return channelRepository.findAll();
+    public Channel readChannel(String uuid) {
+        return channelRepository.findOne(uuid);
     }
-
 }

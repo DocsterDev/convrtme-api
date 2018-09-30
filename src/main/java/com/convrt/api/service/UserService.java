@@ -1,9 +1,8 @@
 package com.convrt.api.service;
 
-import com.convrt.api.entity.Channel;
+import com.convrt.api.entity.Subscription;
 import com.convrt.api.repository.UserRepository;
 import com.convrt.api.entity.User;
-import com.google.common.collect.Lists;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +59,7 @@ public class UserService {
     }
 
     @Transactional
-    public Channel getChannelByUser(){
+    public Subscription getChannelByUser(){
         return null;
     }
 

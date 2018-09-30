@@ -38,7 +38,7 @@ public class VideoService {
                 Video video = new Video();
                 video.setId(v.getId());
                 video.setTitle(v.getTitle());
-                video.setOwner(v.getOwner());
+                video.setChannel(v.getChannel());
                 video.setDuration(v.getDuration());
                 videos.add(video);
             }

@@ -17,11 +17,6 @@ import java.util.UUID;
 @Table(name = "context", indexes = {@Index(name = "context_token_idx0", columnList = "token"), @Index(name = "context_user_agent_idx1", columnList = "user_agent"), @Index(name = "context_valid_idx2", columnList = "valid"),  @Index(name = "context_user_uuid_idx3", columnList = "user_uuid")})
 public class Context extends BaseEntity {
 
-//    @JsonIgnore
-//    @Transient
-//    @Autowired
-//    private UserService userService;
-
     public Context () {
         this.uuid = UUID.randomUUID().toString();
     }
@@ -52,14 +47,4 @@ public class Context extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_context_user_uuid"))
     private User user;
-
-//    public User getUser() {
-//        return userService.readUser(getUserUuid());
-//    }
-//
-//    public void setUser(User user) {
-//        setUserUuid(user.getUuid());
-//    }
-
-
 }

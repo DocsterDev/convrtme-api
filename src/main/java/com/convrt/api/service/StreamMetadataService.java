@@ -42,7 +42,7 @@ public class StreamMetadataService {
             videoPersistent.setId(UUID.randomUUID().toString());
         }
         videoPersistent.setTitle(video.getTitle());
-        videoPersistent.setOwner(video.getOwner());
+        videoPersistent.setChannel(video.getChannel());
         videoPersistent.setDuration(video.getDuration());
         return videoService.createOrUpdateVideo(video);
     }

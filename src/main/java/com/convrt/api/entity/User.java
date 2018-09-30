@@ -52,18 +52,12 @@ public class User extends BaseEntity {
 //    private List<Playlist> playlists;
 
 //    @JsonIgnore
-//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-//    private List<PlayCount> playCounts = Lists.newArrayList();
-
-//    @JsonIgnore
 //    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Context> contexts;
 
     @JsonIgnore
-    // @OrderColumn
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_channel", joinColumns = @JoinColumn(name = "user_uuid"), inverseJoinColumns = @JoinColumn(name = "channel_uuid"))
-    private List<Channel> channels = Lists.newArrayList();
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+    private List<Subscription> subscriptions;
 
     @JsonIgnore
     @OrderColumn

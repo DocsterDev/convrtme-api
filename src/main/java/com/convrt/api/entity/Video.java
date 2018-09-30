@@ -4,25 +4,21 @@ import com.convrt.api.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "video")
+@Table(name = "video", indexes = {@Index(name = "video_subscription_scanned_date_idx0", columnList = "subscription_scanned_date")})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Video {
-
     @Id
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     @Column(name = "id", length = 20)
@@ -31,10 +27,6 @@ public class Video {
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     @Column(name = "title", length = 100)
     private String title;
-
-    @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
-    @Column(name = "owner", length = 100)
-    private String owner;
 
     @JsonIgnore
     @Column(name = "stream_url_date")
@@ -50,6 +42,9 @@ public class Video {
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     @Column(name = "duration", length = 15)
     private String duration;
+
+    @Column(name = "subscription_scanned_date")
+    private Instant subscriptionScannedDate;
 
 //    @JsonView(View.VideoWithPlaylist.class)
 //    @ManyToMany(mappedBy = "videos")
@@ -67,6 +62,10 @@ public class Video {
     @Transient
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     private String viewCount;
+
+    @Transient
+    @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
+    private String owner;
 
     @Transient
     private String encodedStreamUrl;
