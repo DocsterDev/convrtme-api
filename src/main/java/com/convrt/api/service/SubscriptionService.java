@@ -38,17 +38,15 @@ public class SubscriptionService {
         sub.setUuid(UUID.randomUUID().toString());
         sub.setUser(user);
         sub.setChannel(channel);
+        if (subscriptionRepository.existsByChannelAndUser(channel, user)) {
+            throw new RuntimeException(String.format("You have already subscribed to %s", channel.getName()));
+        }
         subscriptionRepository.save(sub);
         return sub;
     }
 
     @Transactional(readOnly = true)
-    public List<Subscription> readAllSubscriptions() {
-        return subscriptionRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public List<String> readAllDistinctChannels() {
+    public List<Channel> readAllDistinctChannels() {
         return subscriptionRepository.findDistinctChannel();
     }
 

@@ -1,11 +1,13 @@
 package com.convrt.api.scheduler;
 
+import com.convrt.api.entity.Channel;
 import com.convrt.api.entity.Subscription;
 import com.convrt.api.entity.Video;
 import com.convrt.api.service.SubscriptionService;
 import com.convrt.api.service.SearchService;
 import com.convrt.api.service.VideoService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,27 +28,44 @@ public class SubscriptionScheduler {
 
     @Scheduled(fixedRate = 360000)
     @Transactional
-    public void testScheduler() {
-        log.info("Test here");
-//        subscriptionService.readAllDistinctChannels().stream().forEach((channel) -> {
-//            List<Video> channelVideoResults = searchService.getSearch(String.format("%s new videos", channel));
-//            channelVideoResults.stream().forEach((video) -> {
-//                if (video.getChannel().equals(channel) && video.isNew()) {
-//                    log.info("WOOOO New video for {} found! {}", channel, video.getTitle());
-//
-//                    // CHECK IS THIS VIDEO ALREADY EXISTS IN THE DB IF IT DOES, THEN FETCH IT AND APPEND IT WITH TITLE, CHANNEL, ETC and flag it as a subscription-found video
-//                    updateOrAddVideo(video);
-//                }
-//            });
-//        });
+    public void scanNewVideos() {
+        subscriptionService.readAllDistinctChannels().stream().forEach((channel) -> {
+            log.info("Running search : {}", String.format("%s new videos", channel.getName()));
+            List<Video> channelVideoResults = searchService.getSearch(String.format("%s new videos", channel.getName()));
+            channelVideoResults.stream().forEach((video) -> {
+                //log.info("Compare {} vs {} =? {}", video.getOwner(), channel.getName(), StringUtils.equalsAny(video.getOwner(), channel.getName()));
+                if (video.getOwner().equals(channel.getName()) && video.isNew()) {
+                    updateOrAddVideo(video, channel);
+                }
+            });
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+
+            }
+        });
     }
 
-    private void updateOrAddVideo(Video video){
-        Video videoPersistent = videoService.readVideo(video.getId());
+
+    @Transactional
+    public void updateOrAddVideo(Video video, Channel channel){
+        Video videoPersistent = videoService.readVideoByVideoId(video.getId());
         if (videoPersistent == null) {
-            videoPersistent = video;
+            videoPersistent = new Video();
+            videoPersistent.setId(video.getId());
+            log.info("Adding new video to lineup: {} by {}", video.getTitle(), video.getOwner());
         }
+        if (videoPersistent != null && videoPersistent.getSubscriptionScannedDate() != null) {
+            log.info("Video already added for subscription notification - {}", channel.getName());
+            return;
+        }
+        log.info("Update video for subscription notification - {}", channel.getName());
+        videoPersistent.setTitle(video.getTitle());
+        videoPersistent.setDuration(video.getDuration());
+        videoPersistent.setViewCount(video.getViewCount());
+        videoPersistent.setChannel(channel);
         videoPersistent.setSubscriptionScannedDate(Instant.now());
+        videoService.createOrUpdateVideo(videoPersistent);
     }
 
 }
