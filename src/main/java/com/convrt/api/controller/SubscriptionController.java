@@ -7,20 +7,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RestController
-@RequestMapping("/api/subscription/channels")
+@RequestMapping("/api/subscriptions")
 public class SubscriptionController {
     @Autowired
     private SubscriptionService subscriptionService;
 
     @PostMapping
-    public Channel addChannelSubscription(@RequestBody Channel channel, @RequestHeader("token") String token) {
-        return subscriptionService.addChannelSubscription(channel, token);
+    public Subscription addSubscription(@RequestBody Channel channel, @RequestHeader("token") String token) {
+        return subscriptionService.addSubscription(channel, token);
     }
 
     @DeleteMapping("/{uuid}")
-    public void deleteChannelSubscription(@PathVariable("uuid") String uuid, @RequestHeader("token") String token) {
+    public void deleteSubscription(@PathVariable("uuid") String uuid, @RequestHeader("token") String token) {
         subscriptionService.deleteSubscription(token, uuid);
+    }
+
+    @GetMapping
+    public List<Subscription> readSubscriptions(@RequestHeader("token") String token) {
+        return subscriptionService.readSubscriptions(token);
     }
 }

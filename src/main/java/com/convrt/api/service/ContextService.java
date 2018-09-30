@@ -72,6 +72,9 @@ public class ContextService {
     @Transactional(readOnly = true)
     public Context validateContext(String token) {
         log.info("Validating token {}", token);
+        if(token == null) {
+            throw new RuntimeException("Cannot validate token. Token is null.");
+        }
         Context context = contextRepository.findByTokenAndValidIsTrue(token);
 //        if(context == null) {
 //            throw new RuntimeException("No user context found");

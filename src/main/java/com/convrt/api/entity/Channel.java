@@ -29,7 +29,7 @@ public class Channel {
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "channel", orphanRemoval = true)
-    private Map<String, Subscription> subscriptions = Maps.newHashMap();
+    private List<Subscription> subscriptions = Lists.newLinkedList();
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "channel", orphanRemoval = true)
