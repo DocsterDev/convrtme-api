@@ -46,14 +46,14 @@ public class User extends BaseEntity {
     @Column(name = "region", length = 100)
     private String region;
 
-    @OrderColumn
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    private List<Playlist> playlists;
+//    @OrderColumn
+//    @JsonIgnore
+//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+//    private List<Playlist> playlists;
 
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
-    private List<PlayCount> playCounts = Lists.newArrayList();
+//    @JsonIgnore
+//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
+//    private List<PlayCount> playCounts = Lists.newArrayList();
 
 //    @JsonIgnore
 //    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -70,17 +70,4 @@ public class User extends BaseEntity {
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "user_video", joinColumns = @JoinColumn(name = "user_uuid"), inverseJoinColumns = @JoinColumn(name = "video_id"))
     private List<Video> videos = Lists.newArrayList();
-
-    @JsonIgnore
-    public void iteratePlayCount(Video video) {
-        for (PlayCount playCount: playCounts) {
-            if (video.getId().equals(playCount.getVideo().getId())) {
-                playCount.iterateNumPlays();
-                return;
-            }
-        }
-        PlayCount playCount = new PlayCount(video, this);
-        playCounts.add(playCount);
-    }
-
 }

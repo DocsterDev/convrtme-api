@@ -49,7 +49,7 @@ public class Context extends BaseEntity {
     private String userUuid;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_context_user_uuid"))
     private User user;
 

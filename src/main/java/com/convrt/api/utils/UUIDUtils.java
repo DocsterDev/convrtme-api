@@ -8,8 +8,7 @@ import java.util.UUID;
 public class UUIDUtils {
 
     public static String generateUuid(String input) {
-        List<String> inputs = Lists.newArrayList(input);
-        return generateUuid(input);
+        return UUID.nameUUIDFromBytes(input.getBytes()).toString();
     }
 
     public static String generateUuid(String... inputs) {

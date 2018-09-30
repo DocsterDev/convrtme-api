@@ -51,12 +51,12 @@ public class Video {
     @Column(name = "duration", length = 15)
     private String duration;
 
-    @JsonView(View.VideoWithPlaylist.class)
-    @ManyToMany(mappedBy = "videos")
-    private List<Playlist> addedByPlaylists = Lists.newArrayList();
+//    @JsonView(View.VideoWithPlaylist.class)
+//    @ManyToMany(mappedBy = "videos")
+//    private List<Playlist> addedByPlaylists = Lists.newArrayList();
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_uuid", foreignKey = @ForeignKey(name = "fk_video_channel_uuid"))
     private Channel channel;
 
@@ -85,13 +85,5 @@ public class Video {
             this.streamUrlExpireDate = Instant.ofEpochSecond(Long.valueOf(param1.get(0)));
             this.streamUrlDate = Instant.now();
         }
-    }
-
-    public String getEncodedStreamUrl() {
-        if (this.streamUrl != null) {
-            byte[] encodedUrl = Base64.getEncoder().encode(this.streamUrl.getBytes());
-            return new String(encodedUrl);
-        }
-        return null;
     }
 }

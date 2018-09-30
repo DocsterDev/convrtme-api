@@ -28,8 +28,8 @@ public class UserService {
             throw new RuntimeException("User already exists for email address " + user.getEmail());
         }
         user.setUuid(UUID.randomUUID().toString());
-        user.setPlaylists(Lists.newArrayList());
-        playlistService.generatePlaylists(user).forEach((e) -> user.getPlaylists().add(e));
+        // user.setPlaylists(Lists.newArrayList());
+        //playlistService.generatePlaylists(user).forEach((e) -> user.getPlaylists().add(e));
         return userRepository.save(user);
     }
 

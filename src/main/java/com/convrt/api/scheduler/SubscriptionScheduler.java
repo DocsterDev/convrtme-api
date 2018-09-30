@@ -19,7 +19,7 @@ public class SubscriptionScheduler {
     @Autowired
     private ChannelService channelService;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 360000)
     @Transactional
     public void testScheduler() {
         log.info("Test here");

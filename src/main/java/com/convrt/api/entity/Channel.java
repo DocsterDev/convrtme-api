@@ -31,7 +31,7 @@ public class Channel extends BaseEntity {
     private List<Video> videos;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "channels")
+    @ManyToMany(mappedBy = "channels", fetch = FetchType.LAZY)
     private List<User> subscribers = Lists.newArrayList();
 
 }

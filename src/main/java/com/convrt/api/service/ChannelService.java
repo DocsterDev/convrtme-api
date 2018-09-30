@@ -19,6 +19,8 @@ public class ChannelService {
     private ChannelRepository channelRepository;
     @Autowired
     private ContextService contextService;
+    @Autowired
+    private UserService userService;
 
     @Transactional
     public Channel addSubscription(String name, String token){
@@ -26,13 +28,15 @@ public class ChannelService {
             throw new RuntimeException("Cannot add new subscription for user. Channel name or token is null.");
         }
         Context context = contextService.validateContext(token);
-        User user = context.getUser();
+        // User user = context.getUser();
+        String userUuid = context.getUserUuid();
+        User user = userService.readUser(userUuid);
         if (user == null) {
             throw new RuntimeException("Cannot find user to add channel subscription.");
         }
         Channel channel = new Channel(name);
-        channel.getSubscribers().add(user);
-        return channelRepository.save(channel);
+        user.getChannels().add(channel);
+        return channel;
     }
 
     @Transactional(readOnly = true)
