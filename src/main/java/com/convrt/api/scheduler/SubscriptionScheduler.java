@@ -56,7 +56,7 @@ public class SubscriptionScheduler {
             log.info("Adding new video to lineup: {} by {}", video.getTitle(), video.getOwner());
         }
         if (videoPersistent != null && videoPersistent.getSubscriptionScannedDate() != null) {
-            log.info("Video already added for subscription notification - {}", channel.getName());
+            log.debug("Video already added for subscription notification - {}", channel.getName());
             return;
         }
         log.info("Update video for subscription notification - {}", channel.getName());

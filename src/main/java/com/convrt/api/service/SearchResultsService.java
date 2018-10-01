@@ -52,7 +52,7 @@ public class SearchResultsService {
                 MappingUtils.findIsNew(next, searchVideo, badges);
                 searchResults.add(searchVideo);
             } catch (NullPointerException e) {
-                log.error("Search result is null. Not including in results.");
+                log.debug("Search result is null. Not including in results.");
             }
         }
         return searchResults;
