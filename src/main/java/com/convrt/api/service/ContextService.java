@@ -70,6 +70,19 @@ public class ContextService {
     }
 
     @Transactional(readOnly = true)
+    public User validateAndGetUser(String token){
+        Context context = validateContext(token);
+        if(context == null) {
+            throw new RuntimeException(String.format("No user context found for token %s", token));
+        }
+        User user = context.getUser();
+        if (user == null) {
+            throw new RuntimeException("Cannot find user to add subscription subscription.");
+        }
+        return user;
+    }
+
+    @Transactional(readOnly = true)
     public Context validateContext(String token) {
         log.info("Validating token {}", token);
         if(token == null) {

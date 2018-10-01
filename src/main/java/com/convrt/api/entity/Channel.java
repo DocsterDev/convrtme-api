@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +23,10 @@ public class Channel {
     private String uuid;
 
     @Column(name = "name", length = 200)
-    String name;
+    private String name;
 
     @Column(name = "avatar_url", length = 300)
-    String avatarUrl;
+    private String avatarUrl;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "channel", orphanRemoval = true)

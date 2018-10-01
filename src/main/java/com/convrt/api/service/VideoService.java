@@ -1,5 +1,6 @@
 package com.convrt.api.service;
 
+import com.convrt.api.entity.Channel;
 import com.convrt.api.entity.Video;
 import com.convrt.api.repository.VideoRepository;
 import com.convrt.api.view.View;
@@ -77,6 +78,11 @@ public class VideoService {
             throw new RuntimeException(String.format("Cannot find video with video id %s. Video must exist first.", id));
         }
         return video;
+    }
+
+    @Transactional(readOnly=true)
+    public List<Video> findVideosByChannel(Channel channel, Instant subscribedDate){
+       return videoRepository.findVideosByChannelAndSubscriptionScannedDateIsAfter(channel, subscribedDate);
     }
 
     @JsonView(View.VideoWithPlaylist.class)

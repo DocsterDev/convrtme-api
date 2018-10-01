@@ -76,6 +76,9 @@ public class Video {
     @Transient
     private boolean isNew;
 
+    @Transient
+    private boolean hasViewed;
+
     public void setStreamUrl(String streamUrl) {
         this.streamUrl = streamUrl;
         if (streamUrl != null) {
