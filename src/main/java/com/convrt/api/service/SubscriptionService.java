@@ -80,8 +80,8 @@ public class SubscriptionService {
         User user = contextService.validateAndGetUser(token);
         List<Video> watchedVideos = user.getVideos();
         Map<String, List<Video>> newVideos = Maps.newLinkedHashMap();
-        for (Subscription subscription : subscriptionRepository.findByUser(user)) {
-            for (Video video : videoService.findVideosByChannel(subscription.getChannel(), subscription.getSubscribedDate())) {
+        user.getSubscriptions().stream().forEach((subscription) -> {
+            subscription.getChannel().getVideos().stream().forEach((video) -> {
                 if (!isVideoWatched(video, watchedVideos)) {
                     String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
                     if (!newVideos.containsKey(date)) {
@@ -89,8 +89,8 @@ public class SubscriptionService {
                     }
                     newVideos.get(date).add(video);
                 }
-            }
-        }
+            });
+        });
         sw.stop();
         log.info("Total time to scan for new subscribed videos {}ms", sw.getTotalTimeMillis());
         return newVideos;
@@ -106,32 +106,13 @@ public class SubscriptionService {
     }
 
     @Transactional(readOnly = true)
-    public Status pollSubscriptionVideos(String token) {
-        StopWatch sw = new StopWatch();
-        sw.start();
-        User user = contextService.validateAndGetUser(token);
-        List<Video> watchedVideos = user.getVideos();
-        for (Subscription subscription : subscriptionRepository.findByUser(user)) {
-            for (Video video : videoService.findVideosByChannel(subscription.getChannel(), subscription.getSubscribedDate())) {
-                for (Video watchedVideo : watchedVideos) {
-                    if (video.getId().equals(watchedVideo.getId())) {
-                        return new Status(true);
-                    }
-                }
-            }
-        }
-        sw.stop();
-        log.info("Total time to scan for new subscribed videos {}ms", sw.getTotalTimeMillis());
-//        subscriptionRepository.findByUser(user).forEach((subscription) -> {
-//            videoService.findVideosByChannel(subscription.getChannel(), subscription.getSubscribedDate()).forEach((video) -> {
-//                watchedVideos.forEach((watchedVideo) -> {
-//                    if (video.getId().equals(watchedVideo.getId())) {
-//                        return;
-//                    }
-//                });
-//            });
-//        });
-        return new Status(false);
+    public Integer pollSubscriptionVideos(String token) {
+        Map<String, List<Video>> videos = getSubscriptionVideos(token);
+        Integer count = 0;
+        videos.forEach((k,v) -> {
+            // count += v.size();// TODO figure out a way to count entities here
+        });
+        return 0;
     }
 
 }
