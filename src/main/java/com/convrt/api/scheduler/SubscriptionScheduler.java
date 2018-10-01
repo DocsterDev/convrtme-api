@@ -26,7 +26,7 @@ public class SubscriptionScheduler {
     @Autowired
     private VideoService videoService;
 
-    @Scheduled(fixedRate = 360000)
+    @Scheduled(fixedRate = 15000)
     @Transactional
     public void scanNewVideos() {
         subscriptionService.readAllDistinctChannels().stream().forEach((channel) -> {

@@ -79,6 +79,13 @@ public class Video {
     @Transient
     private boolean hasViewed;
 
+    public String getOwner() {
+        if (this.owner == null) {
+            this.owner = getChannel().getName();
+        }
+        return this.owner;
+    }
+
     public void setStreamUrl(String streamUrl) {
         this.streamUrl = streamUrl;
         if (streamUrl != null) {

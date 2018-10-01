@@ -82,20 +82,27 @@ public class SubscriptionService {
         Map<String, List<Video>> newVideos = Maps.newLinkedHashMap();
         for (Subscription subscription : subscriptionRepository.findByUser(user)) {
             for (Video video : videoService.findVideosByChannel(subscription.getChannel(), subscription.getSubscribedDate())) {
-                for (Video watchedVideo : watchedVideos) {
-                    if (video.getId().equals(watchedVideo.getId())) {
-                        String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
-                        if (!newVideos.containsKey(date)) {
-                            newVideos.put(date, Lists.newLinkedList());
-                        }
-                        newVideos.get(date).add(watchedVideo);
+                if (!isVideoWatched(video, watchedVideos)) {
+                    String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
+                    if (!newVideos.containsKey(date)) {
+                        newVideos.put(date, Lists.newLinkedList());
                     }
+                    newVideos.get(date).add(video);
                 }
             }
         }
         sw.stop();
         log.info("Total time to scan for new subscribed videos {}ms", sw.getTotalTimeMillis());
         return newVideos;
+    }
+
+    private boolean isVideoWatched(Video video, List<Video> watchedVideos) {
+        for (Video watchedVideo : watchedVideos) {
+            if (video.getId().equals(watchedVideo.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Transactional(readOnly = true)
