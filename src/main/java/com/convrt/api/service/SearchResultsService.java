@@ -40,8 +40,6 @@ public class SearchResultsService {
                 Video searchVideo = new Video();
                 JsonNode next = iterator.next().get("videoRenderer");
                 searchVideo.setId(next.get("videoId").asText());
-                // int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
-                // searchVideo.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize-1).get("url").asText());
                 searchVideo.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", searchVideo.getId()));
                 searchVideo.setTitle(next.get("title").get("simpleText").asText());
                 searchVideo.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());

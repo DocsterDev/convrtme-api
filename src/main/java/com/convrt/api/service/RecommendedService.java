@@ -14,7 +14,6 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -68,8 +67,6 @@ public class RecommendedService {
                 }
                 Video searchResult = new Video();
                 searchResult.setId(next.get("videoId").asText());
-                // int thumbnailSize = next.get("thumbnail").get("thumbnails").size();
-                // searchResult.setThumbnailUrl(next.get("thumbnail").get("thumbnails").get(thumbnailSize - 1).get("url").asText());
                 searchResult.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", searchResult.getId()));
                 searchResult.setTitle(next.get("title").get("simpleText").asText());
                 searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
@@ -77,7 +74,6 @@ public class RecommendedService {
                 searchResult.setDuration(next.get("lengthText").get("simpleText").asText());
                 JsonNode badges = next.get("badges");
                 MappingUtils.findIsNew(next, searchResult, badges);
-                // searchResult.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
                 searchResults.add(searchResult);
             } catch (NullPointerException e) {
                 log.error("Search result is null. Not including in results.");
