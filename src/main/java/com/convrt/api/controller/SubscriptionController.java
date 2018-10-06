@@ -42,6 +42,6 @@ public class SubscriptionController {
 
     @GetMapping("/poll")
     public Status pollSubscriptionVideos(@RequestHeader("token") String token) {
-        return subscriptionService.pollSubscriptionVideos(token);
+         return new Status(subscriptionService.pollSubscriptionVideos(token));
     }
 }

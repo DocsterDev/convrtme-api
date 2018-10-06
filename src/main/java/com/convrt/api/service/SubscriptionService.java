@@ -29,8 +29,6 @@ public class SubscriptionService {
     private ContextService contextService;
     @Autowired
     private ChannelService channelService;
-    @Autowired
-    private VideoService videoService;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd").withZone(ZoneOffset.UTC);
 
@@ -81,12 +79,14 @@ public class SubscriptionService {
         List<Video> watchedVideos = user.getVideos();
         Map<String, List<Video>> newVideos = Maps.newLinkedHashMap();
         user.getSubscriptions().stream().forEach((subscription) -> {
-            subscription.getChannel().getVideos().stream().forEach((video) -> {
+            subscription.getChannel().getVideos().stream().limit(2).forEach((video) -> {
                 if (!isVideoWatched(video, watchedVideos)) {
                     String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
                     if (!newVideos.containsKey(date)) {
+                        log.info("Stuff: {}", date);
                         newVideos.put(date, Lists.newLinkedList());
                     }
+                    video.setStreamUrl(null);
                     newVideos.get(date).add(video);
                 }
             });
@@ -106,13 +106,17 @@ public class SubscriptionService {
     }
 
     @Transactional(readOnly = true)
-    public Integer pollSubscriptionVideos(String token) {
+    public Long pollSubscriptionVideos(String token) {
         Map<String, List<Video>> videos = getSubscriptionVideos(token);
-        Integer count = 0;
-        videos.forEach((k,v) -> {
-            // count += v.size();// TODO figure out a way to count entities here
-        });
-        return 0;
+        Long count = 0L;
+        for (Map.Entry<String, List<Video>> entrySet : videos.entrySet()) {
+            count += entrySet.getValue().size();
+        }
+//        videos.entrySet().map().forEach((videoSet) -> {
+//            count += videoSet.getValue().stream().count();
+//            // count += v.size();// TODO figure out a way to count entities here
+//        });
+        return count;
     }
 
 }

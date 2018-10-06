@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
 import java.time.Instant;
 import java.util.List;
 
@@ -26,16 +27,18 @@ public class SubscriptionScheduler {
     @Autowired
     private VideoService videoService;
 
-    @Scheduled(fixedRate = 15000)
-    @Transactional
+    @Scheduled(fixedRate = 360000)
     public void scanNewVideos() {
         subscriptionService.readAllDistinctChannels().stream().forEach((channel) -> {
             log.info("Running search : {}", String.format("%s new videos", channel.getName()));
             List<Video> channelVideoResults = searchService.getSearch(String.format("%s new videos", channel.getName()));
             channelVideoResults.stream().forEach((video) -> {
-                //log.info("Compare {} vs {} =? {}", video.getOwner(), channel.getName(), StringUtils.equalsAny(video.getOwner(), channel.getName()));
                 if (video.getOwner().equals(channel.getName()) && video.isNew()) {
-                    updateOrAddVideo(video, channel);
+                    try {
+                        updateOrAddVideo(video, channel);
+                    } catch (Exception e) {
+                        log.error("Cannot copy video metadata to the database: {}", video.getTitle());
+                    }
                 }
             });
             try {
@@ -47,7 +50,6 @@ public class SubscriptionScheduler {
     }
 
 
-    @Transactional
     public void updateOrAddVideo(Video video, Channel channel){
         Video videoPersistent = videoService.readVideoByVideoId(video.getId());
         if (videoPersistent == null) {
