@@ -76,7 +76,7 @@ public class SubscriptionService {
         StopWatch sw = new StopWatch();
         sw.start();
         User user = contextService.validateAndGetUser(token);
-        Map<String, List<Video>> subscribedVideos = null;
+        Map<String, List<Video>> subscribedVideos;
         switch (groupBy) {
             case "date":
                 subscribedVideos = groupByDate(user);
@@ -104,6 +104,7 @@ public class SubscriptionService {
                     List<Video> videos = subscribedVideos.get(date);
                     if (videos.size() < 2) {
                         video.setStreamUrl(null);
+                        video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);
                     }
                 }
@@ -127,6 +128,7 @@ public class SubscriptionService {
                         String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
                         video.setStreamUrl(null);
                         video.setDateScanned(date);
+                        video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);
                     }
                 }
