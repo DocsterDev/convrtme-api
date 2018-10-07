@@ -1,19 +1,15 @@
 package com.convrt.api.scheduler;
 
 import com.convrt.api.entity.Channel;
-import com.convrt.api.entity.Subscription;
 import com.convrt.api.entity.Video;
-import com.convrt.api.service.SubscriptionService;
 import com.convrt.api.service.SearchService;
+import com.convrt.api.service.SubscriptionService;
 import com.convrt.api.service.VideoService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UnsupportedEncodingException;
 import java.time.Instant;
 import java.util.List;
 
@@ -27,7 +23,7 @@ public class SubscriptionScheduler {
     @Autowired
     private VideoService videoService;
 
-    @Scheduled(fixedRate = 360000)
+    @Scheduled(fixedRate = 60000)
     public void scanNewVideos() {
         subscriptionService.readAllDistinctChannels().stream().forEach((channel) -> {
             log.info("Running search : {}", String.format("%s new videos", channel.getName()));
@@ -49,7 +45,6 @@ public class SubscriptionScheduler {
         });
     }
 
-
     public void updateOrAddVideo(Video video, Channel channel){
         Video videoPersistent = videoService.readVideoByVideoId(video.getId());
         if (videoPersistent == null) {
@@ -69,5 +64,4 @@ public class SubscriptionScheduler {
         videoPersistent.setSubscriptionScannedDate(Instant.now());
         videoService.createOrUpdateVideo(videoPersistent);
     }
-
 }

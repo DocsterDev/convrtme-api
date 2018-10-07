@@ -36,8 +36,8 @@ public class SubscriptionController {
     }
 
     @GetMapping("/videos")
-    public Map<String, List<Video>> getSubscriptionVideos(@RequestHeader("token") String token) {
-        return subscriptionService.getSubscriptionVideos(token);
+    public Map<String, List<Video>> getSubscriptionVideos(@RequestHeader("token") String token, @RequestParam("groupBy") String groupBy) {
+        return subscriptionService.getSubscriptionVideos(token, groupBy);
     }
 
     @GetMapping("/poll")

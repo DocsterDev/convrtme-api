@@ -72,28 +72,67 @@ public class SubscriptionService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, List<Video>> getSubscriptionVideos(String token) {
+    public Map<String, List<Video>> getSubscriptionVideos(String token, String groupBy) {
         StopWatch sw = new StopWatch();
         sw.start();
         User user = contextService.validateAndGetUser(token);
-        List<Video> watchedVideos = user.getVideos();
-        Map<String, List<Video>> newVideos = Maps.newLinkedHashMap();
+        Map<String, List<Video>> subscribedVideos = null;
+        switch (groupBy) {
+            case "date":
+                subscribedVideos = groupByDate(user);
+                break;
+            case "channel":
+                subscribedVideos = groupByChannel(user);
+                break;
+            default:
+                throw new RuntimeException(String.format("Unknown group by type: %s", groupBy));
+        }
+        sw.stop();
+        log.info("Total time to scan for new subscribed videos {}ms", sw.getTotalTimeMillis());
+        return subscribedVideos;
+    }
+
+    private Map<String, List<Video>> groupByDate(User user) {
+        Map<String, List<Video>> subscribedVideos = Maps.newLinkedHashMap();
         user.getSubscriptions().stream().forEach((subscription) -> {
-            subscription.getChannel().getVideos().stream().limit(2).forEach((video) -> {
-                if (!isVideoWatched(video, watchedVideos)) {
+            subscription.getChannel().getVideos().stream().forEach((video) -> {
+                if (!isVideoWatched(video, user.getVideos())) {
                     String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
-                    if (!newVideos.containsKey(date)) {
-                        log.info("Stuff: {}", date);
-                        newVideos.put(date, Lists.newLinkedList());
+                    if (!subscribedVideos.containsKey(date)) {
+                        subscribedVideos.put(date, Lists.newLinkedList());
                     }
-                    video.setStreamUrl(null);
-                    newVideos.get(date).add(video);
+                    List<Video> videos = subscribedVideos.get(date);
+                    if (videos.size() < 2) {
+                        video.setStreamUrl(null);
+                        videos.add(video);
+                    }
                 }
             });
         });
-        sw.stop();
-        log.info("Total time to scan for new subscribed videos {}ms", sw.getTotalTimeMillis());
-        return newVideos;
+        return subscribedVideos;
+    }
+
+    private Map<String, List<Video>> groupByChannel(User user) {
+        Map<String, List<Video>> subscribedVideos = Maps.newLinkedHashMap();
+        user.getSubscriptions().stream().forEach((subscription) -> {
+            Channel channel = subscription.getChannel();
+            String channelName = channel.getName();
+            channel.getVideos().stream().forEach((video) -> {
+                if (!isVideoWatched(video, user.getVideos())) {
+                    if (!subscribedVideos.containsKey(channelName)) {
+                        subscribedVideos.put(channelName, Lists.newLinkedList());
+                    }
+                    List<Video> videos = subscribedVideos.get(channelName);
+                    if (videos.size() < 2) {
+                        String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
+                        video.setStreamUrl(null);
+                        video.setDateScanned(date);
+                        videos.add(video);
+                    }
+                }
+            });
+        });
+        return subscribedVideos;
     }
 
     private boolean isVideoWatched(Video video, List<Video> watchedVideos) {
@@ -107,7 +146,7 @@ public class SubscriptionService {
 
     @Transactional(readOnly = true)
     public Long pollSubscriptionVideos(String token) {
-        Map<String, List<Video>> videos = getSubscriptionVideos(token);
+        Map<String, List<Video>> videos = getSubscriptionVideos(token, "date");
         Long count = 0L;
         for (Map.Entry<String, List<Video>> entrySet : videos.entrySet()) {
             count += entrySet.getValue().size();

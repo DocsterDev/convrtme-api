@@ -43,12 +43,9 @@ public class Video {
     @Column(name = "duration", length = 15)
     private String duration;
 
+    @JsonIgnore
     @Column(name = "subscription_scanned_date")
     private Instant subscriptionScannedDate;
-
-//    @JsonView(View.VideoWithPlaylist.class)
-//    @ManyToMany(mappedBy = "videos")
-//    private List<Playlist> addedByPlaylists = Lists.newArrayList();
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,6 +69,9 @@ public class Video {
 
     @Transient
     private String thumbnailUrl;
+
+    @Transient
+    private String dateScanned;
 
     @Transient
     private boolean isNew;
