@@ -30,7 +30,7 @@ public class SubscriptionService {
     @Autowired
     private ChannelService channelService;
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd").withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMM d, uuuu").withZone(ZoneOffset.UTC);
 
     @Transactional
     public Subscription addSubscription(Channel channel, String token) {
