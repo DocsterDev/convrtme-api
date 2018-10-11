@@ -102,7 +102,7 @@ public class SubscriptionService {
                         subscribedVideos.put(date, Lists.newLinkedList());
                     }
                     List<Video> videos = subscribedVideos.get(date);
-                    if (videos.size() < 2) {
+                    if (videos.size() < 3) {
                         video.setStreamUrl(null);
                         video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);
@@ -124,7 +124,7 @@ public class SubscriptionService {
                         subscribedVideos.put(channelName, Lists.newLinkedList());
                     }
                     List<Video> videos = subscribedVideos.get(channelName);
-                    if (videos.size() < 2) {
+                    if (videos.size() < 3) {
                         String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
                         video.setStreamUrl(null);
                         video.setDateScanned(date);
@@ -153,10 +153,6 @@ public class SubscriptionService {
         for (Map.Entry<String, List<Video>> entrySet : videos.entrySet()) {
             count += entrySet.getValue().size();
         }
-//        videos.entrySet().map().forEach((videoSet) -> {
-//            count += videoSet.getValue().stream().count();
-//            // count += v.size();// TODO figure out a way to count entities here
-//        });
         return count;
     }
 
