@@ -3,6 +3,7 @@ package com.convrt.api.controller;
 
 import com.convrt.api.entity.Video;
 import com.convrt.api.service.StreamMetadataService;
+import com.convrt.api.view.VideoWS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,11 @@ public class StreamMetadataController {
     private StreamMetadataService streamMetadataService;
 
     @GetMapping("{videoId}/metadata")
-    public Video getStreamMetadata(@PathVariable("videoId") String videoId, @RequestParam(value = "token", required = false) String token) {
-        return streamMetadataService.fetchStreamUrl(videoId, token);
+    public VideoWS getStreamMetadata(@PathVariable("videoId") String videoId, @RequestParam(value = "token", required = false) String token) {
+        Video video = streamMetadataService.fetchStreamUrl(videoId, token);
+        VideoWS videoWs = new VideoWS();
+        videoWs.setId(videoId);
+        videoWs.setStreamUrl(video.getStreamUrl());
+        return videoWs;
     }
 }

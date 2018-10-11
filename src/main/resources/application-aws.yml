@@ -11,9 +11,9 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:mysql://convrt-me-aws.csx1pzmrhuek.us-west-1.rds.amazonaws.com:3306/convrt_me_aws
+    url: jdbc:mysql://moup-aws.csx1pzmrhuek.us-west-1.rds.amazonaws.com:3306/moup_aws
     username: admin
-    password: aipas169+
+    password: admin1234
 
   cache:
     type: caffeine
