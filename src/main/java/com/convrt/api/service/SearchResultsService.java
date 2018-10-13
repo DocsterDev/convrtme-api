@@ -46,6 +46,7 @@ public class SearchResultsService {
                 searchVideo.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
                 searchVideo.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
                 searchVideo.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
+                searchVideo.setChannelThumbnailUrl(next.get("channelThumbnail").get("thumbnails").get(0).get("url").asText());
                 JsonNode badges = next.get("badges");
                 MappingUtils.findIsNew(next, searchVideo, badges);
                 searchResults.add(searchVideo);
