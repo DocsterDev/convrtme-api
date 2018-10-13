@@ -102,11 +102,11 @@ public class SubscriptionService {
                         subscribedVideos.put(date, Lists.newLinkedList());
                     }
                     List<Video> videos = subscribedVideos.get(date);
-                    if (videos.size() < 3) {
+                  //  if (videos.size() < 3) {
                         video.setStreamUrl(null);
                         video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);
-                    }
+                 //   }
                 }
             });
         });
@@ -124,13 +124,13 @@ public class SubscriptionService {
                         subscribedVideos.put(channelName, Lists.newLinkedList());
                     }
                     List<Video> videos = subscribedVideos.get(channelName);
-                    if (videos.size() < 3) {
+                    //if (videos.size() < 3) {
                         String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
                         video.setStreamUrl(null);
                         video.setDateScanned(date);
                         video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);
-                    }
+                   // }
                 }
             });
         });

@@ -79,6 +79,9 @@ public class Video {
     @Transient
     private boolean hasViewed;
 
+    @Transient
+    private String channelThumbnailUrl;
+
     public String getOwner() {
         if (this.owner == null) {
             this.owner = getChannel().getName();
