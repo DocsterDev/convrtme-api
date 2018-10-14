@@ -4,6 +4,7 @@ import com.convrt.api.entity.Channel;
 import com.convrt.api.repository.ChannelRepository;
 import com.convrt.api.utils.UUIDUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,8 @@ public class ChannelService {
         if (channelPersistent == null) {
             channel.setUuid(uuid);
             channelPersistent = channelRepository.save(channel);
+        } else {
+            channelPersistent.setAvatarUrl(StringUtils.isNotBlank(channel.getAvatarUrl())? channel.getAvatarUrl() : channelPersistent.getAvatarUrl());
         }
         return channelPersistent;
     }
