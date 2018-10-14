@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -64,7 +65,11 @@ public class ContextService {
         log.info("Validating token {}", token);
         Context context = contextRepository.findByTokenAndUserAgentAndValidIsTrue(token, userAgent);
         if(context == null) {
-            throw new RuntimeException("Uh Oh :( It looks like this session is no longer valid");
+            log.warn("User context not found. Generating new context.");
+            User user = new User();
+            user.setEmail(String.format("%s@moup.io", UUID.randomUUID().toString()));
+            user.setPin("1234");
+            context = userRegister(user, userAgent);
         }
         return context;
     }
