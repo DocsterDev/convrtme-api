@@ -9,16 +9,24 @@ import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
 import com.github.axet.vget.info.VideoFileInfo;
 import com.github.axet.vget.info.VideoInfo;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.CharSet;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -52,6 +60,11 @@ public class StreamMetadataService {
        return new Status(Objects.nonNull(videoService.readVideoMetadata(videoId)));
     }
 
+    public void prefetchStreamUrl(String videoId) {
+        log.info("Pre-fetching stream URL for video id {}", videoId);
+        fetchStreamUrl(videoId, null);
+    }
+
     @Transactional
     public Video fetchStreamUrl(String videoId, String token) {
         if (videoId == null) {
@@ -63,8 +76,21 @@ public class StreamMetadataService {
             videoPersistent.setId(videoId);
         }
         if (videoPersistent.getStreamUrl() == null || Instant.now().isAfter(videoPersistent.getStreamUrlExpireDate())) {
-            log.info("Fetching new stream URL for videoId {}", videoId);
-            videoPersistent.setStreamUrl(getStreamUrl(videoId));
+            log.info("Fetching new stream URL for video id {}", videoId);
+            StopWatch totalTime = StopWatch.createStarted();
+            try {
+                StopWatch vgetTime = StopWatch.createStarted();
+                videoPersistent.setStreamUrl(getStreamUrl(videoId));
+                log.info("Fetch Stream URL - VGET took {}ms", vgetTime.getTime(TimeUnit.MILLISECONDS));
+            } catch (Exception e) {
+                log.info("Fetch Stream URL - VGET failed after {}ms", totalTime.getTime(TimeUnit.MILLISECONDS));
+                log.warn("Failed using VGET to fetch video stream url. Retrying with YouTube-DL.");
+                StopWatch youtubeDLTime = StopWatch.createStarted();
+                videoPersistent.setStreamUrl(getStreamUrlFromYouTubeDL(videoId));
+                log.info("Fetch Stream URL - youtube-dl took {}ms", youtubeDLTime.getTime(TimeUnit.MILLISECONDS));
+            }
+            log.info("Fetch Stream URL - Total time took {}ms", totalTime.getTime(TimeUnit.MILLISECONDS));
+            log.info("Successfully fetched video stream URL: {}", videoPersistent.getStreamUrl());
         } else {
             log.info("Stream URL already exists and is valid for videoId {}", videoId);
         }
@@ -114,4 +140,33 @@ public class StreamMetadataService {
         throw new RuntimeException("Could not extract media stream url.");
     }
 
+    private String getStreamUrlFromYouTubeDL(String videoId){
+        ProcessBuilder pb = extractorProcess(videoId);
+        try {
+            Process p = pb.start();
+            try (InputStream is = p.getInputStream(); InputStream es = p.getErrorStream();) {
+                String error = IOUtils.toString(es, "UTF-8");
+                String output = IOUtils.toString(is, "UTF-8");
+                if (StringUtils.isBlank(output) && StringUtils.isNotBlank(error)) {
+                    throw new RuntimeException(String.format("Extracted stream URL is null for video id %s: %s", videoId, error));
+                }
+                String[] urlArray = StringUtils.split(output, "\r\n");
+                return urlArray.length > 1 ? urlArray[1] : urlArray[0];
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Error executing YouTube-DL to extract video id for %s", videoId), e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Error starting process to extract url", videoId), e);
+        }
+    }
+
+    private ProcessBuilder extractorProcess(String videoId) {
+        return new ProcessBuilder("youtube-dl",
+                "--quiet",
+                "--simulate",
+                "--get-url",
+                "--",
+                videoId
+        );
+    }
 }

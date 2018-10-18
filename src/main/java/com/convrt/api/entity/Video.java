@@ -71,7 +71,7 @@ public class Video {
     private String thumbnailUrl;
 
     @Transient
-    private Instant dateScanned;
+    private String dateScanned;
 
     @Transient
     private boolean isNew;

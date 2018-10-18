@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +32,7 @@ public class SubscriptionService {
     private ChannelService channelService;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMM d, uuuu").withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter ISO_INSTANT = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC);
 
     @Transactional
     public Subscription addSubscription(Channel channel, String token) {
@@ -127,14 +129,19 @@ public class SubscriptionService {
                     //if (videos.size() < 3) {
                         // String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).toString();
                         video.setStreamUrl(null);
-                        video.setDateScanned(video.getSubscriptionScannedDate());
+                        video.setDateScanned(DateTimeFormatter.ISO_INSTANT.format(video.getSubscriptionScannedDate()));
                         video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);
                    // }
                 }
             });
         });
-        return subscribedVideos;
+        Map<String, List<Video>> sortedSubscribedVideos = Maps.newLinkedHashMap();
+        subscribedVideos.keySet().stream().forEach((key) -> {
+            List<Video> sortedPlaylist = subscribedVideos.get(key).stream().sorted((o1, o2) -> o2.getSubscriptionScannedDate().compareTo(o1.getSubscriptionScannedDate())).collect(Collectors.toList());
+            sortedSubscribedVideos.put(key, sortedPlaylist);
+        }); // - Heres where i can sort the keys out before building a new map
+        return sortedSubscribedVideos;
     }
 
     private boolean isVideoWatched(Video video, List<Video> watchedVideos) {
@@ -155,5 +162,4 @@ public class SubscriptionService {
         }
         return count;
     }
-
 }
