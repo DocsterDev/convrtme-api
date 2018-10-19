@@ -39,6 +39,9 @@ public class Video {
     @Column(name = "stream_url", length = 1000)
     private String streamUrl;
 
+    @Column(name = "is_audio_only")
+    private Boolean audioOnly;
+
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     @Column(name = "duration", length = 15)
     private String duration;

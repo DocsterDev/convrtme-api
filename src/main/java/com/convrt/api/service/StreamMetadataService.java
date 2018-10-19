@@ -5,6 +5,7 @@ import com.convrt.api.entity.User;
 import com.convrt.api.entity.Video;
 import com.convrt.api.repository.VideoRepository;
 import com.convrt.api.view.Status;
+import com.convrt.api.view.VideoWS;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
 import com.github.axet.vget.info.VideoFileInfo;
@@ -12,6 +13,7 @@ import com.github.axet.vget.info.VideoInfo;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.CharSet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -66,7 +68,7 @@ public class StreamMetadataService {
     }
 
     @Transactional
-    public Video fetchStreamUrl(String videoId, String token) {
+    public VideoWS fetchStreamUrl(String videoId, String token) {
         if (videoId == null) {
             throw new RuntimeException("Cannot retrieve streamUrl when videoId is null.");
         }
@@ -80,13 +82,13 @@ public class StreamMetadataService {
             StopWatch totalTime = StopWatch.createStarted();
             try {
                 StopWatch vgetTime = StopWatch.createStarted();
-                videoPersistent.setStreamUrl(getStreamUrl(videoId));
+                getStreamUrlFromVGet(videoId, videoPersistent);
                 log.info("Fetch Stream URL - VGET took {}ms", vgetTime.getTime(TimeUnit.MILLISECONDS));
             } catch (Exception e) {
                 log.info("Fetch Stream URL - VGET failed after {}ms", totalTime.getTime(TimeUnit.MILLISECONDS));
                 log.warn("Failed using VGET to fetch video stream url. Retrying with YouTube-DL.");
                 StopWatch youtubeDLTime = StopWatch.createStarted();
-                videoPersistent.setStreamUrl(getStreamUrlFromYouTubeDL(videoId));
+                getStreamUrlFromYouTubeDL(videoId, videoPersistent);
                 log.info("Fetch Stream URL - youtube-dl took {}ms", youtubeDLTime.getTime(TimeUnit.MILLISECONDS));
             }
             log.info("Fetch Stream URL - Total time took {}ms", totalTime.getTime(TimeUnit.MILLISECONDS));
@@ -102,10 +104,13 @@ public class StreamMetadataService {
                 user.getVideos().add(video);
             }
         }
-        return video;
+        VideoWS videoWS = new VideoWS();
+        videoWS.setStreamUrl(videoPersistent.getStreamUrl());
+        videoWS.setAudioOnly(BooleanUtils.toBoolean(videoPersistent.getAudioOnly()));
+        return videoWS;
     }
 
-    private String getStreamUrl(String videoId) {
+    private void getStreamUrlFromVGet(String videoId, Video video) {
         log.info("Attempting to fetch existing valid stream url for video={}", videoId);
         try {
             final AtomicBoolean stop = new AtomicBoolean(false);
@@ -115,7 +120,7 @@ public class StreamMetadataService {
             new VGet(videoinfo).extract(user, stop, () -> {
             });
             List<VideoFileInfo> list = videoinfo.getInfo();
-            return findAudioStreamUrl(list);
+            findAudioStreamUrl(list, video);
         } catch (NullPointerException e) {
             throw new RuntimeException("Sorry bruh, looks like we couldn't find this video!", e);
         } catch (Exception e) {
@@ -123,24 +128,28 @@ public class StreamMetadataService {
         }
     }
 
-    private String findAudioStreamUrl(List<VideoFileInfo> list) {
+    private void findAudioStreamUrl(List<VideoFileInfo> list, Video video) {
         VideoFileInfo videoFileInfo = null;
         if (list != null) {
             for (VideoFileInfo d : list) {
                 log.info("Found content-type: " + d.getContentType());
                 if (d.getContentType().contains("audio")) {
                     log.info("Dedicated audio url found");
-                    return d.getSource().toString();
+                    video.setAudioOnly(true);
+                    video.setStreamUrl(d.getSource().toString());
+                    return;
                 }
                 videoFileInfo = d;
             }
             log.info("No dedicated audio url found. Returning full video url.");
-            return videoFileInfo.getSource().toString();
+            video.setAudioOnly(false);
+            video.setStreamUrl(videoFileInfo.getSource().toString());
+            return;
         }
         throw new RuntimeException("Could not extract media stream url.");
     }
 
-    private String getStreamUrlFromYouTubeDL(String videoId){
+    private void getStreamUrlFromYouTubeDL(String videoId, Video video){
         ProcessBuilder pb = extractorProcess(videoId);
         try {
             Process p = pb.start();
@@ -151,7 +160,10 @@ public class StreamMetadataService {
                     throw new RuntimeException(String.format("Extracted stream URL is null for video id %s: %s", videoId, error));
                 }
                 String[] urlArray = StringUtils.split(output, "\r\n");
-                return urlArray.length > 1 ? urlArray[1] : urlArray[0];
+                boolean audioStreamExist = (urlArray.length > 1);
+                video.setStreamUrl(audioStreamExist ? urlArray[1] : urlArray[0]);
+                video.setAudioOnly(audioStreamExist);
+                return;
             } catch (IOException e) {
                 throw new RuntimeException(String.format("Error executing YouTube-DL to extract video id for %s", videoId), e);
             }

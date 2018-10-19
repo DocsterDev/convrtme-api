@@ -8,4 +8,5 @@ import lombok.NoArgsConstructor;
 public class VideoWS {
     private String id;
     private String streamUrl;
+    private boolean audioOnly;
 }

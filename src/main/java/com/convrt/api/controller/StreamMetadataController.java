@@ -1,7 +1,6 @@
 
 package com.convrt.api.controller;
 
-import com.convrt.api.entity.Video;
 import com.convrt.api.service.StreamMetadataService;
 import com.convrt.api.view.VideoWS;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +17,7 @@ public class StreamMetadataController {
 
     @GetMapping("{videoId}/metadata")
     public VideoWS getStreamMetadata(@PathVariable("videoId") String videoId, @RequestParam(value = "token", required = false) String token) {
-        Video video = streamMetadataService.fetchStreamUrl(videoId, token);
-        VideoWS videoWs = new VideoWS();
-        videoWs.setId(videoId);
-        videoWs.setStreamUrl(video.getStreamUrl());
-        return videoWs;
+        return streamMetadataService.fetchStreamUrl(videoId, token);
     }
 
     @GetMapping("{videoId}/metadata/prefetch")
