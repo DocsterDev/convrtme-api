@@ -19,9 +19,9 @@ spring:
 
   cache:
     type: caffeine
-    cache-names: search, video, autocomplete, recommended
+    cache-names: search, video, autocomplete, recommended, streamUrl
     caffeine:
-        spec: maximumSize=500, expireAfterAccess=1m
+        spec: maximumSize=500, expireAfterAccess=6h
 
   jackson:
     date-format: yyyy-MM-dd'T'HH:mm:ssZ
