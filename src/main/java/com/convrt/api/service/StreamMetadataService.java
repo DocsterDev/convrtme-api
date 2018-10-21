@@ -62,9 +62,9 @@ public class StreamMetadataService {
        return new Status(Objects.nonNull(videoService.readVideoMetadata(videoId)));
     }
 
-    public void prefetchStreamUrl(String videoId) {
+    public VideoWS prefetchStreamUrl(String videoId) {
         log.info("Pre-fetching stream URL for video id {}", videoId);
-        fetchStreamUrl(videoId, null);
+        return fetchStreamUrl(videoId, null);
     }
 
     @Transactional
@@ -181,4 +181,15 @@ public class StreamMetadataService {
                 videoId
         );
     }
+
+    private ProcessBuilder extractBestDashAudio(String videoId) {
+        return new ProcessBuilder("youtube-dl",
+                "--quiet",
+                "--simulate",
+                "--json-info",
+                "--",
+                videoId
+        );
+    }
+
 }

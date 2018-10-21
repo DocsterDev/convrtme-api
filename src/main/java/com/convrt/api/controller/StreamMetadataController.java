@@ -21,7 +21,7 @@ public class StreamMetadataController {
     }
 
     @GetMapping("{videoId}/metadata/prefetch")
-    public void prefetchMediaStreamUrl(@PathVariable("videoId") String videoId) {
-        streamMetadataService.prefetchStreamUrl(videoId);
+    public VideoWS prefetchMediaStreamUrl(@PathVariable("videoId") String videoId) {
+       return streamMetadataService.prefetchStreamUrl(videoId);
     }
 }
