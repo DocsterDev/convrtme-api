@@ -72,11 +72,7 @@ public class StreamMetadataService {
         if (videoId == null) {
             throw new RuntimeException("Cannot retrieve streamUrl when videoId is null.");
         }
-        Video videoPersistent = videoRepository.findById(videoId);
-        if (videoPersistent == null) {
-            videoPersistent = new Video();
-            videoPersistent.setId(videoId);
-        }
+        Video videoPersistent = updateVideoWatched(videoId, token);
         if (videoPersistent.getStreamUrl() == null || Instant.now().isAfter(videoPersistent.getStreamUrlExpireDate())) {
             log.info("Fetching new stream URL for video id {}", videoId);
             StopWatch totalTime = StopWatch.createStarted();
@@ -96,6 +92,20 @@ public class StreamMetadataService {
         } else {
             log.info("Stream URL already exists and is valid for videoId {}", videoId);
         }
+        VideoWS videoWS = new VideoWS();
+        videoWS.setId(videoId);
+        videoWS.setStreamUrl(videoPersistent.getStreamUrl());
+        videoWS.setAudioOnly(BooleanUtils.toBoolean(videoPersistent.getAudioOnly()));
+        return videoWS;
+    }
+
+    @Transactional
+    public Video updateVideoWatched(String videoId, String token) {
+        Video videoPersistent = videoRepository.findById(videoId);
+        if (videoPersistent == null) {
+            videoPersistent = new Video();
+            videoPersistent.setId(videoId);
+        }
         Video video = videoService.createOrUpdateVideo(videoPersistent);
         if (token != null) {
             Context context = contextService.validateContext(token);
@@ -103,11 +113,9 @@ public class StreamMetadataService {
                 User user = context.getUser();
                 user.getVideos().add(video);
             }
+            log.info("Updating video as watch for user");
         }
-        VideoWS videoWS = new VideoWS();
-        videoWS.setStreamUrl(videoPersistent.getStreamUrl());
-        videoWS.setAudioOnly(BooleanUtils.toBoolean(videoPersistent.getAudioOnly()));
-        return videoWS;
+        return videoPersistent;
     }
 
     private void getStreamUrlFromVGet(String videoId, Video video) {
@@ -135,6 +143,7 @@ public class StreamMetadataService {
                 log.info("Found content-type: " + d.getContentType());
                 if (d.getContentType().contains("audio")) {
                     log.info("Dedicated audio url found");
+                    video.setId(video.getId());
                     video.setAudioOnly(true);
                     video.setStreamUrl(d.getSource().toString());
                     return;
@@ -161,6 +170,7 @@ public class StreamMetadataService {
                 }
                 String[] urlArray = StringUtils.split(output, "\r\n");
                 boolean audioStreamExist = (urlArray.length > 1);
+                video.setId(videoId);
                 video.setStreamUrl(audioStreamExist ? urlArray[1] : urlArray[0]);
                 video.setAudioOnly(audioStreamExist);
                 return;
@@ -177,16 +187,6 @@ public class StreamMetadataService {
                 "--quiet",
                 "--simulate",
                 "--get-url",
-                "--",
-                videoId
-        );
-    }
-
-    private ProcessBuilder extractBestDashAudio(String videoId) {
-        return new ProcessBuilder("youtube-dl",
-                "--quiet",
-                "--simulate",
-                "--json-info",
                 "--",
                 videoId
         );
