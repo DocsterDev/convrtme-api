@@ -23,10 +23,13 @@ public class AudioExtractorService {
             try (InputStream is = p.getInputStream(); InputStream es = p.getErrorStream();) {
                 String error = IOUtils.toString(es, "UTF-8");
                 output = IOUtils.toString(is, "UTF-8");
-                if (StringUtils.isBlank(output) && StringUtils.isNotBlank(error)) {
-                    throw new RuntimeException(String.format("Extracted stream URL is null for video id %s: %s", videoId, error));
-                }
                 VideoWS videoWS = new VideoWS();
+                if (StringUtils.isBlank(output)) {
+                    videoWS.setId(videoId);
+                    videoWS.setSuccess(false);
+                    videoWS.setAudioOnly(false);
+                    return videoWS;
+                }
                 videoWS.setId(videoId);
                 videoWS.setStreamUrl(output);
                 videoWS.setSuccess(true);
