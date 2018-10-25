@@ -1,6 +1,8 @@
 package com.convrt.api.service;
 
 import com.convrt.api.entity.Channel;
+import com.convrt.api.entity.Context;
+import com.convrt.api.entity.User;
 import com.convrt.api.entity.Video;
 import com.convrt.api.repository.VideoRepository;
 import com.convrt.api.view.View;
@@ -15,6 +17,7 @@ import org.springframework.util.StopWatch;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -22,6 +25,8 @@ public class VideoService {
 
     @Autowired
     private VideoRepository videoRepository;
+    @Autowired
+    private ContextService contextService;
 
     @Transactional
     public Video createOrUpdateVideo(Video video) {
@@ -94,6 +99,39 @@ public class VideoService {
     @Transactional(readOnly = true)
     public boolean existsByVideoId(String videoId) {
         return videoRepository.exists(videoId);
+    }
+
+    @Async
+    @Transactional
+    public Video updateVideoWatched(String videoId, String token) {
+        Video videoPersistent = videoRepository.findById(videoId);
+        if (videoPersistent == null) {
+            videoPersistent = new Video();
+            videoPersistent.setId(videoId);
+        }
+        Video video = createOrUpdateVideo(videoPersistent);
+        if (token != null) {
+            Context context = contextService.validateContext(token);
+            if (context != null) {
+                User user = context.getUser();
+                user.getVideos().add(video);
+            }
+            log.info("Updating video as watch for user");
+        }
+        return videoPersistent;
+    }
+
+    @Transactional
+    public Video updateVideoMetadata(Video video) {
+        Video videoPersistent = readVideoByVideoId(video.getId());
+        if (videoPersistent == null) {
+            videoPersistent = new Video();
+            videoPersistent.setId(UUID.randomUUID().toString());
+        }
+        videoPersistent.setTitle(video.getTitle());
+        videoPersistent.setChannel(video.getChannel());
+        videoPersistent.setDuration(video.getDuration());
+        return createOrUpdateVideo(video);
     }
 
 }

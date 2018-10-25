@@ -1,6 +1,6 @@
 package com.convrt.api.service;
 
-import com.convrt.api.view.VideoWS;
+import com.convrt.api.view.StreamWS;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +15,7 @@ import java.io.InputStream;
 public class AudioExtractorService {
 
     @Cacheable("streamUrl")
-    public VideoWS extractAudio(String videoId, String ext) {
+    public StreamWS extractAudio(String videoId, String ext) {
         ProcessBuilder pb = buildProcess(videoId, ext);
         String output = null;
         try {
@@ -23,7 +23,7 @@ public class AudioExtractorService {
             try (InputStream is = p.getInputStream(); InputStream es = p.getErrorStream();) {
                 String error = IOUtils.toString(es, "UTF-8");
                 output = IOUtils.toString(is, "UTF-8");
-                VideoWS videoWS = new VideoWS();
+                StreamWS videoWS = new StreamWS();
                 if (StringUtils.isBlank(output)) {
                     videoWS.setId(videoId);
                     videoWS.setSuccess(false);
@@ -40,7 +40,7 @@ public class AudioExtractorService {
             }
         } catch (Exception e) {
             log.error("Error fetching audio url for videoId {} and file extension {}: {}", videoId, ext, output);
-            VideoWS videoWS = new VideoWS();
+            StreamWS videoWS = new StreamWS();
             videoWS.setId(videoId);
             videoWS.setStreamUrl(null);
             videoWS.setSuccess(false);

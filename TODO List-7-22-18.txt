@@ -41,6 +41,18 @@
 - Make Video title in popup player does not wrap (maybe scrolls?)
 - Add endpoint on api to update video metadata - so we dont have to send the video information over the stream service which is really stupid - DONE
 
+
+--- 10/24/2018 -----
+- Make an endpoint to retrieve stream url
+- Fork / Join the two calls and wait for both responses
+- Add a way to store stream urls (make a new table without video content)
+- Test the new "timeout" functionality for waiting for the video to load
+- Add "up next" feature
+- Add feature where it automatically runs the "recommended" search and fetches a playlist worth of "YouTube" recommended videos
+
+
+
+
 Backlog
 ---------------
 - Add playlist image (now i can!)

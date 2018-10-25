@@ -6,12 +6,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -92,13 +89,4 @@ public class Video {
         return this.owner;
     }
 
-    public void setStreamUrl(String streamUrl) {
-        this.streamUrl = streamUrl;
-        if (streamUrl != null) {
-            MultiValueMap<String, String> parameters = UriComponentsBuilder.fromUriString(streamUrl).build().getQueryParams();
-            List<String> param1 = parameters.get("expire");
-            this.streamUrlExpireDate = Instant.ofEpochSecond(Long.valueOf(param1.get(0)));
-            this.streamUrlDate = Instant.now();
-        }
-    }
 }
