@@ -29,7 +29,7 @@ public class StreamMetadataController {
     @GetMapping("{videoId}/metadata/prefetch")
     public VideoWS prefetchMediaStreamUrl(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId) {
         userAgentService.parseUserAgent(userAgent);
-        return audioExtractorService.extractAudio(videoId, userAgentService.isChrome() ? "" : "m4a");
+        return audioExtractorService.extractAudio(videoId, userAgentService.isChrome() ? "webm" : "m4a");
     }
 
     @PutMapping("{videoId}/metadata")

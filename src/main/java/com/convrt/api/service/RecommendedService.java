@@ -29,7 +29,7 @@ public class RecommendedService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Cacheable("recommended")
+    // @Cacheable("recommended")
     public List<Video> getRecommended(String videoId) {
         log.info("Received recommended request for video: {}", videoId);
         if (StringUtils.isBlank(videoId)) return new LinkedList<>();
