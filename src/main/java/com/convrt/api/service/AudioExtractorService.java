@@ -14,7 +14,6 @@ import java.io.InputStream;
 @Service
 public class AudioExtractorService {
 
-    @Cacheable("streamUrl")
     public StreamWS extractAudio(String videoId, String ext) {
         ProcessBuilder pb = buildProcess(videoId, ext);
         String output = null;
@@ -44,13 +43,13 @@ public class AudioExtractorService {
             videoWS.setId(videoId);
             videoWS.setStreamUrl(null);
             videoWS.setSuccess(false);
-            videoWS.setAudioOnly(true);
+            videoWS.setAudioOnly(false);
             return videoWS;
             //throw new RuntimeException(String.format("Error fetching audio url for videoId %s and file extension %s: %s", videoId, ext, output));
         }
     }
 
-    private ProcessBuilder buildProcess(String videoId, String ext) {
+    public ProcessBuilder buildProcess(String videoId, String ext) {
         return new ProcessBuilder("youtube-dl",
                 "--quiet",
                 "--simulate",

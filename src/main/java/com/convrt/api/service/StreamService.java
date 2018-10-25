@@ -4,9 +4,11 @@ import com.convrt.api.entity.Stream;
 import com.convrt.api.entity.Video;
 import com.convrt.api.repository.StreamRepository;
 import com.convrt.api.repository.VideoRepository;
+import com.convrt.api.utils.URLUtils;
 import com.convrt.api.utils.UUIDUtils;
 import com.convrt.api.view.Status;
 import com.convrt.api.view.StreamWS;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.axet.vget.VGet;
 import com.github.axet.vget.info.VGetParser;
 import com.github.axet.vget.info.VideoFileInfo;
@@ -39,19 +41,23 @@ public class StreamService {
     private ContextService contextService;
     @Autowired
     private StreamRepository streamRepository;
+    @Autowired
+    private AudioExtractorService audioExtractorService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
 
 
-    @Transactional(readOnly = true)
-    public Status validateStreamUrl(String videoId) {
-       return new Status(Objects.nonNull(videoService.readVideoMetadata(videoId)));
-    }
+//    @Transactional(readOnly = true)
+//    public Status validateStreamUrl(String videoId) {
+//       return new Status(Objects.nonNull(videoService.readVideoMetadata(videoId)));
+//    }
 
-    public StreamWS prefetchStreamUrl(String videoId) {
-        log.info("Pre-fetching stream URL for video id {}", videoId);
-        return fetchStreamUrl(videoId, null);
-    }
+//    public StreamWS prefetchStreamUrl(String videoId) {
+//        log.info("Pre-fetching stream URL for video id {}", videoId);
+//        return fetchStreamUrl(videoId, null);
+//    }
 
 
     @Transactional
@@ -60,42 +66,81 @@ public class StreamService {
     }
 
     @Transactional
-    public Stream createOrUpdate(Stream stream) {
-        String videoId = stream.getVideoId();
-        String extension = stream.getExtension();
+    public Stream createOrUpdate(String videoId, String extension, String streamUrl) {
         Stream streamPersistent = readStream(videoId, extension);
-        if (streamPersistent == null) {
-            streamPersistent = new Stream();
-            streamPersistent.setUuid(UUIDUtils.generateUuid(videoId, extension));
-        }
-        streamPersistent.setVideoId(stream.getVideoId());
-        streamPersistent.setStreamUrl(stream.getStreamUrl());
-        streamPersistent.setAudioOnly(stream.getAudioOnly());
+
+        streamPersistent.setVideoId(videoId);
+        streamPersistent.setExtension(extension);
+        streamPersistent.setStreamUrl(streamUrl);
         return streamRepository.save(streamPersistent);
+    }
+
+    private StreamWS getStreamObject(String videoId, String extension){
+        boolean hasVideoUrl = false;
+
+        log.info("Vget fetch start");
+        StreamWS vgetStream = getVGetStream(videoId);
+        try {
+            log.info(objectMapper.writeValueAsString(vgetStream));
+        } catch (Exception e) {
+            log.error("Error reading vget object", e);
+        }
+        if (vgetStream.isSuccess() && vgetStream.isAudioOnly() && vgetStream.isMatchesExtension()) {
+            return vgetStream;
+        }
+        log.info("Vget fetch end");
+        log.info("YouTubeDL fetch start");
+        StreamWS youtubeDlStream = getYoutubeDLStream(videoId, extension);
+        try {
+            log.info(objectMapper.writeValueAsString(youtubeDlStream));
+        } catch (Exception e) {
+            log.error("Error reading youtubedl object", e);
+        }
+        log.info("YouTubeDL fetch end");
+        if (!vgetStream.isSuccess() && !youtubeDlStream.isSuccess()) {
+            return StreamWS.ERROR;
+        }
+        if (vgetStream.isSuccess() && !youtubeDlStream.isSuccess()) {
+            return vgetStream;
+        }
+        if (!vgetStream.isSuccess() && youtubeDlStream.isSuccess()) {
+            return youtubeDlStream;
+        }
+        if (youtubeDlStream.isAudioOnly()) {
+            return youtubeDlStream;
+        }
+        return vgetStream;
     }
 
     @Transactional
     public StreamWS fetchStreamUrl(String videoId, String extension, String token) {
-        Stream stream = readStream(videoId, extension);
-        if (Objects.nonNull(stream)) {
-            boolean isExpired = Instant.now().isAfter(stream.getStreamUrlExpireDate());
+        Stream streamPersistent = readStream(videoId, extension);
+        boolean success = false;
+        StreamWS gblStreamWS = null;
+        if (Objects.isNull(streamPersistent) || streamPersistent.getStreamUrl() == null || Instant.now().isAfter(streamPersistent.getStreamUrlExpireDate())) {
+            // Fork join the two calls
+            streamPersistent = new Stream();
+            streamPersistent.setUuid(UUIDUtils.generateUuid(videoId, extension));
+            streamPersistent.setVideoId(videoId);
+            streamPersistent.setExtension(extension);
 
+            gblStreamWS = getStreamObject(videoId, extension);
+
+            streamPersistent.setStreamUrl(gblStreamWS.getStreamUrl());
+            streamPersistent.setSource(gblStreamWS.getSource());
+            // Get both StreamWS and then figure out which one is better. If neither one finds a url then send back false success
+            streamRepository.save(streamPersistent);
         }
-
-
-
-        // Fork join the two calls
-
-
-
-        StreamWS videoWS = new StreamWS();
-        videoWS.setId(videoId);
-        videoWS.setStreamUrl(videoPersistent.getStreamUrl());
-        videoWS.setAudioOnly(BooleanUtils.toBoolean(videoPersistent.getAudioOnly()));
-        return videoWS;
+        StreamWS streamWS = new StreamWS();
+        streamWS.setId(streamPersistent.getVideoId());
+        streamWS.setExtension(streamPersistent.getExtension());
+        streamWS.setStreamUrl(streamPersistent.getStreamUrl());
+        streamWS.setAudioOnly(streamPersistent.isAudioOnly());
+        streamWS.setSource(streamPersistent.getSource());
+        streamWS.setMatchesExtension(streamPersistent.isMatchesExtension());
+        streamWS.setSuccess(StringUtils.isNotBlank(streamPersistent.getStreamUrl()));
+        return streamWS;
     }
-
-
 
     private StreamWS getVGetStream(String videoId) {
         log.info("Attempting to fetch existing valid stream url for video={}", videoId);
@@ -115,15 +160,19 @@ public class StreamService {
                     if (d.getContentType().contains("audio")) {
                         log.info("Dedicated audio url found");
                         streamWS.setId(videoId);
-                        streamWS.setAudioOnly(true);
-                        streamWS.setStreamUrl(d.getSource().toString());
+                        String streamUrl = d.getSource().toString();
+                        streamWS.setStreamUrl(streamUrl);
+                        streamWS.setAudioOnly(URLUtils.isAudioOnly(streamUrl));
+                        streamWS.setSuccess(true);
                         return streamWS;
                     }
                     videoFileInfo = d;
                 }
                 log.info("No dedicated audio url found. Returning full video url.");
-                streamWS.setAudioOnly(false);
-                streamWS.setStreamUrl(videoFileInfo.getSource().toString());
+                String streamUrl = videoFileInfo.getSource().toString();
+                streamWS.setStreamUrl(streamUrl);
+                streamWS.setAudioOnly(URLUtils.isAudioOnly(streamUrl));
+                streamWS.setSuccess(true);
                 return streamWS;
             }
             return StreamWS.ERROR;
@@ -133,8 +182,8 @@ public class StreamService {
         }
     }
 
-    private StreamWS getYoutubeDLStream(String videoId){
-        ProcessBuilder pb = extractorProcess(videoId);
+    private StreamWS getYoutubeDLStream(String videoId, String extension){
+        ProcessBuilder pb = audioExtractorService.buildProcess(videoId, extension);
         try {
             Process p = pb.start();
             try (InputStream is = p.getInputStream(); InputStream es = p.getErrorStream();) {
@@ -148,8 +197,10 @@ public class StreamService {
                 boolean audioStreamExist = (urlArray.length > 1);
                 StreamWS streamWS = new StreamWS();
                 streamWS.setId(videoId);
-                streamWS.setStreamUrl(audioStreamExist ? urlArray[1] : urlArray[0]);
-                streamWS.setAudioOnly(audioStreamExist);
+                String streamUrl = audioStreamExist ? urlArray[1] : urlArray[0];
+                streamWS.setStreamUrl(streamUrl);
+                streamWS.setAudioOnly(URLUtils.isAudioOnly(streamUrl));
+                streamWS.setSuccess(true);
                 return streamWS;
             } catch (IOException e) {
                 log.error("Error executing YouTube-DL to extract video id for {}", videoId, e);
@@ -161,15 +212,15 @@ public class StreamService {
         }
     }
 
-    private ProcessBuilder extractorProcess(String videoId) {
-        return new ProcessBuilder("youtube-dl",
-                "--quiet",
-                "--simulate",
-                "--get-url",
-                "--",
-                videoId
-        );
-    }
+//    private ProcessBuilder extractorProcess(String videoId) {
+//        return new ProcessBuilder("youtube-dl",
+//                "--quiet",
+//                "--simulate",
+//                "--get-url",
+//                "--",
+//                videoId
+//        );
+//    }
 
 
 

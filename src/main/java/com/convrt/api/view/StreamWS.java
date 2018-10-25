@@ -1,5 +1,6 @@
 package com.convrt.api.view;
 
+import com.convrt.api.utils.URLUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,9 +17,9 @@ public class StreamWS {
     private String id;
     private String extension;
     private String streamUrl;
-    private Instant streamUrlDate;
-    private Instant streamUrlExpireDate;
+    private String source;
     private boolean audioOnly;
+    private boolean matchesExtension;
     private boolean success;
 
     public StreamWS(boolean success) {
