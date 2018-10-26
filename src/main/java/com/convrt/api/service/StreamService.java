@@ -113,7 +113,7 @@ public class StreamService {
     }
 
     @Transactional
-    public StreamWS fetchStreamUrl(String videoId, String extension, String token) {
+    public StreamWS fetchStreamUrl(String videoId, String extension) {
         Stream streamPersistent = readStream(videoId, extension);
         boolean success = false;
         StreamWS gblStreamWS = null;

@@ -28,7 +28,7 @@ public class StreamController {
     public StreamWS getStreamMetadata(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId, @RequestParam(value = "token", required = false) String token) {
         userAgentService.parseUserAgent(userAgent);
         String extension = userAgentService.isChrome() ? "webm" : "m4a";
-        return streamService.fetchStreamUrl(videoId, extension, token);
+        return streamService.fetchStreamUrl(videoId, extension);
     }
 
     @GetMapping("{videoId}/metadata/prefetch")

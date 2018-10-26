@@ -2,6 +2,7 @@ package com.convrt.api.service;
 
 import com.convrt.api.entity.Video;
 import com.convrt.api.utils.MappingUtils;
+import com.convrt.api.view.NowPlayingVideoWS;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -30,17 +31,15 @@ public class RecommendedService {
     private ObjectMapper objectMapper;
 
     // @Cacheable("recommended")
-    public List<Video> getRecommended(String videoId) {
+    public NowPlayingVideoWS getRecommended(String videoId) {
         log.info("Received recommended request for video: {}", videoId);
-        if (StringUtils.isBlank(videoId)) return new LinkedList<>();
+        if (StringUtils.isBlank(videoId)) return new NowPlayingVideoWS();
         UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("https").host("www.youtube.com").path("/watch").queryParam("v", videoId).build().encode();
-        List<Video> results = Lists.newArrayList();
         int retryCount = 0;
         while (retryCount <= 2) {
             try {
                 Document doc = Jsoup.connect(uriComponents.toUriString()).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36").get();
-                results = mapRecommendedFields(doc.body());
-                break;
+                return mapRecommendedFields(doc.body());
             } catch (Exception e) {
                 if (retryCount == 2) {
                     throw new RuntimeException("Error parsing json from YouTube recommended results after " + retryCount + 1 + " attempts", e);
@@ -50,12 +49,12 @@ public class RecommendedService {
                 retryCount++;
             }
         }
-        return results;
+        return new NowPlayingVideoWS();
     }
 
-    private List<Video> mapRecommendedFields(Element body) throws IOException {
-        List<Video> searchResults = Lists.newArrayList();
+    private NowPlayingVideoWS mapRecommendedFields(Element body) throws IOException {
         Iterator<JsonNode> iterator = parseRecommendedResults(body).iterator();
+        NowPlayingVideoWS nowPlayingVideoWS = new NowPlayingVideoWS();
         int i = 0;
         while (iterator.hasNext()) {
             try {
@@ -75,13 +74,17 @@ public class RecommendedService {
                 searchResult.setChannelThumbnailUrl(next.get("channelThumbnail").get("thumbnails").get(0).get("url").asText());
                 JsonNode badges = next.get("badges");
                 MappingUtils.findIsNew(next, searchResult, badges);
-                searchResults.add(searchResult);
+                if (i == 0){
+                    nowPlayingVideoWS.setNextUpVideo(searchResult);
+                } else {
+                    nowPlayingVideoWS.getRecommendedVideos().add(searchResult);
+                }
             } catch (NullPointerException e) {
                 log.error("Search result is null. Not including in results.");
             }
             i++;
         }
-        return searchResults;
+        return nowPlayingVideoWS;
     }
 
     private JsonNode parseRecommendedResults(Element body) throws IOException {
