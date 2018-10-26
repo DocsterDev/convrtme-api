@@ -12,8 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NowPlayingVideoWS {
+    private String title;
     private String description;
     private String publishedDate;
+    private String viewCount;
+    private String shortViewCount;
+    private String category;
     private Video nextUpVideo = new Video();
     private List<Video> recommendedVideos = Lists.newLinkedList();
 }

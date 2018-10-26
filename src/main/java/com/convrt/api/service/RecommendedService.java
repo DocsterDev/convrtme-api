@@ -53,8 +53,25 @@ public class RecommendedService {
     }
 
     private NowPlayingVideoWS mapRecommendedFields(Element body) throws IOException {
-        Iterator<JsonNode> iterator = parseRecommendedResults(body).iterator();
+        JsonNode watchNextResults = parseRecommendedResults(body);
+        Iterator<JsonNode> iterator = watchNextResults.get("secondaryResults").get("secondaryResults").get("results").iterator();
+        JsonNode nowPlayingVideoPrimaryDetails = watchNextResults.get("results").get("results").get("contents");
+        log.info(nowPlayingVideoPrimaryDetails.asText());
+        JsonNode primaryVideoDetails = nowPlayingVideoPrimaryDetails.get(0).get("videoPrimaryInfoRenderer");
+        JsonNode secondaryVideoDetails = nowPlayingVideoPrimaryDetails.get(1).get("videoSecondaryInfoRenderer");
         NowPlayingVideoWS nowPlayingVideoWS = new NowPlayingVideoWS();
+        nowPlayingVideoWS.setTitle(primaryVideoDetails.get("title").get("simpleText").asText());
+        nowPlayingVideoWS.setViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("viewCount").get("simpleText").asText());
+        nowPlayingVideoWS.setShortViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("shortViewCount").get("simpleText").asText());
+        nowPlayingVideoWS.setCategory(secondaryVideoDetails.get("metadataRowContainer").get("metadataRowContainerRenderer").get("rows").get(0).get("metadataRowRenderer").get("contents").get(0).get("runs").get(0).get("text").asText());
+        nowPlayingVideoWS.setPublishedDate(secondaryVideoDetails.get("dateText").get("simpleText").asText());
+        StringBuilder sb = new StringBuilder();
+        Iterator<JsonNode> descriptionIterator = secondaryVideoDetails.get("description").get("runs").iterator();
+        while (descriptionIterator.hasNext()) {
+            JsonNode next = descriptionIterator.next();
+            sb.append(next.get("text").asText());
+        }
+        nowPlayingVideoWS.setDescription(sb.toString());
         int i = 0;
         while (iterator.hasNext()) {
             try {
@@ -101,6 +118,6 @@ public class RecommendedService {
         String json = script.split("\r\n|\r|\n")[0];
         json = StringUtils.substring(json, 26, json.length() - 1);
         JsonNode jsonNode = objectMapper.readTree(json);
-        return jsonNode.get("contents").get("twoColumnWatchNextResults").get("secondaryResults").get("secondaryResults").get("results");
+        return jsonNode.get("contents").get("twoColumnWatchNextResults");
     }
 }
