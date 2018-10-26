@@ -19,6 +19,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ContextService {
 
+    private static final String ANONYMOUS_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
+
     @Autowired
     private ContextRepository contextRepository;
     @Autowired
@@ -64,25 +66,29 @@ public class ContextService {
     public Context validateContext(String token, String userAgent) {
         log.info("Validating token {}", token);
         Context context = contextRepository.findByTokenAndUserAgentAndValidIsTrue(token, userAgent);
-        if(context == null) {
-            log.warn("User context not found. Generating new context.");
-            User user = new User();
-            user.setEmail(String.format("%s@moup.io", UUID.randomUUID().toString()));
-            user.setPin("1234");
-            context = userRegister(user, userAgent);
+        if (context == null) {
+            context = createAnonymousContext(userAgent);
         }
         return context;
+    }
+
+    private Context createAnonymousContext(String userAgent) {
+        log.warn("User context not found. Generating new context.");
+        User user = new User();
+        user.setEmail(String.format("%s@moup.io", UUID.randomUUID().toString()));
+        user.setPin("1234");
+        return userRegister(user, userAgent);
     }
 
     @Transactional(readOnly = true)
     public User validateAndGetUser(String token){
         Context context = validateContext(token);
-        if(context == null) {
-            throw new RuntimeException(String.format("No user context found for token %s", token));
+        if (context == null) {
+            context = createAnonymousContext(ANONYMOUS_USER_AGENT);
         }
         User user = context.getUser();
         if (user == null) {
-            throw new RuntimeException("Cannot find user to add subscription subscription.");
+            throw new RuntimeException("Cannot find user to add subscription.");
         }
         return user;
     }
@@ -93,11 +99,7 @@ public class ContextService {
         if(token == null) {
             throw new RuntimeException("Cannot validate token. Token is null.");
         }
-        Context context = contextRepository.findByTokenAndValidIsTrue(token);
-//        if(context == null) {
-//            throw new RuntimeException("No user context found");
-//        }
-        return context;
+        return contextRepository.findByTokenAndValidIsTrue(token);
     }
 
     @Transactional

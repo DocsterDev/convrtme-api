@@ -18,6 +18,7 @@ public class NowPlayingVideoWS {
     private String viewCount;
     private String shortViewCount;
     private String category;
+    private StreamWS streamInfo;
     private Video nextUpVideo = new Video();
     private List<Video> recommendedVideos = Lists.newLinkedList();
 }

@@ -2,9 +2,11 @@
 package com.convrt.api.controller;
 
 import com.convrt.api.service.AudioExtractorService;
+import com.convrt.api.service.RecommendedService;
 import com.convrt.api.service.StreamService;
 import com.convrt.api.service.VideoService;
 import com.convrt.api.utils.UserAgentService;
+import com.convrt.api.view.NowPlayingVideoWS;
 import com.convrt.api.view.StreamWS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +25,17 @@ public class StreamController {
     private AudioExtractorService audioExtractorService;
     @Autowired
     private VideoService videoService;
+    @Autowired
+    private RecommendedService recommendedService;
 
     @GetMapping("{videoId}/metadata")
-    public StreamWS getStreamMetadata(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId, @RequestParam(value = "token", required = false) String token) {
+    public NowPlayingVideoWS getStreamMetadata(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId, @RequestParam(value = "token", required = false) String token) {
         userAgentService.parseUserAgent(userAgent);
         String extension = userAgentService.isChrome() ? "webm" : "m4a";
-        return streamService.fetchStreamUrl(videoId, extension);
+        StreamWS streamInfo = streamService.fetchStreamUrl(videoId, extension);
+        NowPlayingVideoWS nowPlayingVideoWS = recommendedService.getRecommended(videoId);
+        nowPlayingVideoWS.setStreamInfo(streamInfo);
+        return nowPlayingVideoWS;
     }
 
     @GetMapping("{videoId}/metadata/prefetch")
