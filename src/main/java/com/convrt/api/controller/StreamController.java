@@ -28,23 +28,21 @@ public class StreamController {
     @Autowired
     private RecommendedService recommendedService;
 
-    @GetMapping("{videoId}/metadata")
-    public NowPlayingVideoWS getStreamMetadata(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId, @RequestParam(value = "token", required = false) String token) {
+    @GetMapping("/{videoId}/stream")
+    public StreamWS fetchMediaStreamUrl(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId) {
         userAgentService.parseUserAgent(userAgent);
+        log.info("User Agent: {}", userAgent);
         String extension = userAgentService.isChrome() ? "webm" : "m4a";
-        StreamWS streamInfo = streamService.fetchStreamUrl(videoId, extension);
-        NowPlayingVideoWS nowPlayingVideoWS = recommendedService.getRecommended(videoId);
-        nowPlayingVideoWS.setStreamInfo(streamInfo);
-        return nowPlayingVideoWS;
+        return streamService.fetchStreamUrl(videoId, extension);
     }
 
-    @GetMapping("{videoId}/metadata/prefetch")
+    @GetMapping("/{videoId}/metadata/prefetch")
     public StreamWS prefetchMediaStreamUrl(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId) {
         userAgentService.parseUserAgent(userAgent);
         return audioExtractorService.extractAudio(videoId, userAgentService.isChrome() ? "webm" : "m4a");
     }
 
-    @PutMapping("{videoId}/metadata")
+    @PutMapping("/{videoId}/metadata")
     public void updateVideoWatched(@PathVariable("videoId") String videoId, @RequestHeader("token") String token) {
         videoService.updateVideoWatched(videoId, token);
     }

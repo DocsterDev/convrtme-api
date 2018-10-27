@@ -62,7 +62,7 @@ public class ContextService {
         return contextRepository.findByTokenAndValidIsTrue(token);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Context validateContext(String token, String userAgent) {
         log.info("Validating token {}", token);
         Context context = contextRepository.findByTokenAndUserAgentAndValidIsTrue(token, userAgent);
@@ -80,7 +80,7 @@ public class ContextService {
         return userRegister(user, userAgent);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public User validateAndGetUser(String token){
         Context context = validateContext(token);
         if (context == null) {

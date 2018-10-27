@@ -76,27 +76,11 @@ public class StreamService {
     }
 
     private StreamWS getStreamObject(String videoId, String extension){
-        boolean hasVideoUrl = false;
-
-        log.info("Vget fetch start");
         StreamWS vgetStream = getVGetStream(videoId);
-        try {
-            log.info(objectMapper.writeValueAsString(vgetStream));
-        } catch (Exception e) {
-            log.error("Error reading vget object", e);
-        }
         if (vgetStream.isSuccess() && vgetStream.isAudioOnly() && vgetStream.isMatchesExtension()) {
             return vgetStream;
         }
-        log.info("Vget fetch end");
-        log.info("YouTubeDL fetch start");
         StreamWS youtubeDlStream = getYoutubeDLStream(videoId, extension);
-        try {
-            log.info(objectMapper.writeValueAsString(youtubeDlStream));
-        } catch (Exception e) {
-            log.error("Error reading youtubedl object", e);
-        }
-        log.info("YouTubeDL fetch end");
         if (!vgetStream.isSuccess() && !youtubeDlStream.isSuccess()) {
             return StreamWS.ERROR;
         }
@@ -142,7 +126,7 @@ public class StreamService {
         return streamWS;
     }
 
-    private StreamWS getVGetStream(String videoId) {
+    public StreamWS getVGetStream(String videoId) {
         log.info("Attempting to fetch existing valid stream url for video={}", videoId);
         try {
             StreamWS streamWS = new StreamWS();
@@ -182,7 +166,7 @@ public class StreamService {
         }
     }
 
-    private StreamWS getYoutubeDLStream(String videoId, String extension){
+    public StreamWS getYoutubeDLStream(String videoId, String extension){
         ProcessBuilder pb = audioExtractorService.buildProcess(videoId, extension);
         try {
             Process p = pb.start();
