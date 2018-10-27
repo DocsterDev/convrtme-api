@@ -1,12 +1,10 @@
 package com.convrt.api.service;
 
 import com.convrt.api.entity.Stream;
-import com.convrt.api.entity.Video;
 import com.convrt.api.repository.StreamRepository;
 import com.convrt.api.repository.VideoRepository;
 import com.convrt.api.utils.URLUtils;
 import com.convrt.api.utils.UUIDUtils;
-import com.convrt.api.view.Status;
 import com.convrt.api.view.StreamWS;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.axet.vget.VGet;
@@ -15,7 +13,6 @@ import com.github.axet.vget.info.VideoFileInfo;
 import com.github.axet.vget.info.VideoInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 @Service
 public class StreamService {
-
     @Autowired
     private VideoService videoService;
     @Autowired
@@ -47,18 +43,6 @@ public class StreamService {
     private ObjectMapper objectMapper;
 
     static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
-
-
-//    @Transactional(readOnly = true)
-//    public Status validateStreamUrl(String videoId) {
-//       return new Status(Objects.nonNull(videoService.readVideoMetadata(videoId)));
-//    }
-
-//    public StreamWS prefetchStreamUrl(String videoId) {
-//        log.info("Pre-fetching stream URL for video id {}", videoId);
-//        return fetchStreamUrl(videoId, null);
-//    }
-
 
     @Transactional
     public Stream readStream(String videoId, String extension) {
@@ -195,44 +179,4 @@ public class StreamService {
             return StreamWS.ERROR;
         }
     }
-
-//    private ProcessBuilder extractorProcess(String videoId) {
-//        return new ProcessBuilder("youtube-dl",
-//                "--quiet",
-//                "--simulate",
-//                "--get-url",
-//                "--",
-//                videoId
-//        );
-//    }
-
-
-
-
-    /*
-
-
-    if (videoPersistent.getStreamUrl() == null || Instant.now().isAfter(videoPersistent.getStreamUrlExpireDate())) {
-    log.info("Fetching new stream URL for video id {}", videoId);
-    StopWatch totalTime = StopWatch.createStarted();
-    try {
-    StopWatch vgetTime = StopWatch.createStarted();
-    getStreamUrlFromVGet(videoId, videoPersistent);
-    log.info("Fetch Stream URL - VGET took {}ms", vgetTime.getTime(TimeUnit.MILLISECONDS));
-    } catch (Exception e) {
-    log.info("Fetch Stream URL - VGET failed after {}ms", totalTime.getTime(TimeUnit.MILLISECONDS));
-    log.warn("Failed using VGET to fetch video stream url. Retrying with YouTube-DL.");
-    StopWatch youtubeDLTime = StopWatch.createStarted();
-    getStreamUrlFromYouTubeDL(videoId, videoPersistent);
-    log.info("Fetch Stream URL - youtube-dl took {}ms", youtubeDLTime.getTime(TimeUnit.MILLISECONDS));
-    }
-    log.info("Fetch Stream URL - Total time took {}ms", totalTime.getTime(TimeUnit.MILLISECONDS));
-    log.info("Successfully fetched video stream URL: {}", videoPersistent.getStreamUrl());
-    } else {
-    log.info("Stream URL already exists and is valid for videoId {}", videoId);
-    }
-
-
-    */
-
 }
