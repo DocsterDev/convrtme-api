@@ -1,23 +1,21 @@
 package com.convrt.api.entity;
 
-import com.convrt.api.service.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Fetch;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
 @Slf4j
 @Entity
-@Table(name = "context", indexes = {@Index(name = "context_token_idx0", columnList = "token"), @Index(name = "context_user_agent_idx1", columnList = "user_agent"), @Index(name = "context_valid_idx2", columnList = "valid"),  @Index(name = "context_user_uuid_idx3", columnList = "user_uuid")})
+@Table(name = "context", indexes = {@Index(name = "context_token_idx0", columnList = "token"), @Index(name = "context_user_agent_idx1", columnList = "user_agent")})
 public class Context extends BaseEntity {
 
-    public Context () {
+    public Context() {
         this.uuid = UUID.randomUUID().toString();
     }
 
@@ -27,21 +25,44 @@ public class Context extends BaseEntity {
     @Column(name = "user_agent", length = 200)
     private String userAgent;
 
-    @JsonIgnore
-    @Column(name = "valid")
-    private boolean valid;
+    @Column(name = "ip", length = 50)
+    private String ip;
 
-    @JsonIgnore
-    @Column(name = "last_login")
-    private Instant lastLogin;
+    @Column(name = "isp", length = 50)
+    private String isp;
 
-    @JsonIgnore
+    @Column(name = "city", length = 50)
+    private String city;
+
+    @Column(name = "region", length = 50)
+    private String region;
+
+    @Column(name = "regionName", length = 50)
+    private String regionName;
+
+    @Column(name = "country", length = 50)
+    private String country;
+
+    @Column(name = "countryCode", length = 10)
+    private String countryCode;
+
+    @Column(name = "latitude", length = 20)
+    private String latitude;
+
+    @Column(name = "longitude", length = 20)
+    private String longitude;
+
+    @Column(name = "timezone", length = 50)
+    private String timezone;
+
+    @Column(name = "zip", length = 20)
+    private String zip;
+
     @Column(name = "expire_date")
     private Instant expireDate;
 
-    @JsonIgnore
-    @Column(name = "user_uuid", length = 36, insertable = false, updatable = false)
-    private String userUuid;
+    @Column(name = "valid")
+    private boolean valid;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

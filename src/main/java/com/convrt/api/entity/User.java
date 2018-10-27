@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +30,7 @@ public class User extends BaseEntity {
     }
 
     @NonNull
-    @Column(name = "email", length = 50)
+    @Column(name = "email", length = 50, unique = true)
     private String email;
 
     @NonNull
@@ -37,14 +38,8 @@ public class User extends BaseEntity {
     @Column(name = "pin", length = 4) // TODO: encrypt this
     private String pin;
 
-    @Column(name = "ip", length = 50)
-    private String ip;
-
-    @Column(name = "city", length = 100)
-    private String city;
-
-    @Column(name = "region", length = 100)
-    private String region;
+    @Column(name = "last_accessed")
+    private Instant lastAccessed;
 
 //    @OrderColumn
 //    @JsonIgnore

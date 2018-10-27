@@ -39,7 +39,7 @@ public class SubscriptionService {
         if (channel == null) {
             throw new RuntimeException("Cannot add new subscription for user. Subscription body is null.");
         }
-        User user = contextService.validateAndGetUser(token);
+        User user = contextService.validateUserByToken(token);
         channel = channelService.createChannel(channel);
         Subscription sub = new Subscription();
         sub.setUuid(UUID.randomUUID().toString());
@@ -63,13 +63,13 @@ public class SubscriptionService {
         if (uuid == null) {
             throw new RuntimeException("Cannot delete subscription for user. Subscription uuid is null.");
         }
-        User user = contextService.validateAndGetUser(token);
+        User user = contextService.validateUserByToken(token);
         subscriptionRepository.deleteByUuidAndUser(uuid, user);
     }
 
     @Transactional(readOnly = true)
     public List<Subscription> readSubscriptions(String token) {
-        User user = contextService.validateAndGetUser(token);
+        User user = contextService.validateUserByToken(token);
         return subscriptionRepository.findByUser(user);
     }
 
@@ -77,7 +77,7 @@ public class SubscriptionService {
     public Map<String, List<Video>> getSubscriptionVideos(String token, String groupBy) {
         StopWatch sw = new StopWatch();
         sw.start();
-        User user = contextService.validateAndGetUser(token);
+        User user = contextService.validateUserByToken(token);
         Map<String, List<Video>> subscribedVideos;
         switch (groupBy) {
             case "date":

@@ -59,11 +59,6 @@ public class UserService {
     }
 
     @Transactional
-    public Subscription getChannelByUser(){
-        return null;
-    }
-
-    @Transactional
     public User updateUser(User user) {
         User userPersistent = userRepository.findOne(user.getUuid());
         if (userPersistent == null) {
