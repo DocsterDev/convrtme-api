@@ -42,6 +42,13 @@ public class ContextService {
     }
 
     @Transactional
+    public Context userLogin(String email, String pin, String userAgent, UserLocationWS userLocation) {
+        log.info("Logging in user with email {}", email);
+        User user = userService.getUserByPinAndEmail(pin, email);
+        return createNewContext(user, userAgent, userLocation);
+    }
+
+    @Transactional
     public Context userAuthenticate(String token, String userAgent, UserLocationWS userLocation){
         Context context = validateContext(token);
         if (context == null) {
@@ -86,27 +93,6 @@ public class ContextService {
         return contextRepository.save(context);
     }
 
-    @Transactional
-    public Context userLogin(String email, String pin) {
-        log.info("Logging in user with email {}", email);
-        User user = userService.getUserByPinAndEmail(pin, email);
-        Context contextPersistent = contextRepository.findByUserAndValidIsTrue(user);
-        if (contextPersistent != null) {
-            throw new RuntimeException(String.format("User email %s is already logged in", email));
-        }
-        String token = RandomStringUtils.randomAlphanumeric(100);
-        Context context = new Context();
-        context.setToken(token);
-        context.setUser(user);
-        context.setValid(true);
-        return contextRepository.save(context);
-    }
-
-    @Transactional(readOnly = true)
-    public Context readContext(String token, String userAgent) {
-        log.info("Looking up existing user session for token {}", token);
-        return contextRepository.findByTokenAndValidIsTrue(token);
-    }
 
     @Transactional
     public Context validateContext(String token, String userAgent) {

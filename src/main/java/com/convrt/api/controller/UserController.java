@@ -27,8 +27,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Context loginUser(@RequestHeader("email") String email, @RequestHeader("pin") String pin) {
-        return contextService.userLogin(email, pin);
+    public Context loginUser(@RequestHeader("User-Agent") String userAgent, @RequestParam("email") String email, @RequestParam("pin") String pin, @RequestBody UserLocationWS userLocation) {
+        return contextService.userLogin(email, pin, userAgent, userLocation);
     }
 
 }
