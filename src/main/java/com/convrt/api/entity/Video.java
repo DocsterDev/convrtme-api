@@ -25,20 +25,6 @@ public class Video {
     @Column(name = "title", length = 100)
     private String title;
 
-    @JsonIgnore
-    @Column(name = "stream_url_date")
-    private Instant streamUrlDate;
-
-    @JsonIgnore
-    @Column(name = "stream_url_expire_date")
-    private Instant streamUrlExpireDate;
-
-    @Column(name = "stream_url", length = 1000)
-    private String streamUrl;
-
-    @Column(name = "is_audio_only")
-    private Boolean audioOnly;
-
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     @Column(name = "duration", length = 15)
     private String duration;
@@ -65,9 +51,6 @@ public class Video {
     private String owner;
 
     @Transient
-    private String encodedStreamUrl;
-
-    @Transient
     private String thumbnailUrl;
 
     @Transient
@@ -83,10 +66,10 @@ public class Video {
     private String channelThumbnailUrl;
 
     public String getOwner() {
-        if (this.owner == null) {
-            this.owner = getChannel().getName();
+        if (this.channel != null) {
+            return this.channel.getName();
         }
-        return this.owner;
+        return "Unknown";
     }
 
 }

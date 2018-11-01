@@ -18,7 +18,7 @@ public class RecommendedController {
     private RecommendedService recommendedService;
 
     @GetMapping
-    public NowPlayingVideoWS getRecommended(@RequestHeader("User-Agent") String userAgent, @RequestParam("v") String videoId) {
+    public NowPlayingVideoWS getRecommended(@RequestParam("v") String videoId) {
         if (videoId == null) {
             throw new RuntimeException("No video ID provided for recommendation lookup");
         }

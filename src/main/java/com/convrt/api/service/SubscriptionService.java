@@ -105,7 +105,6 @@ public class SubscriptionService {
                     }
                     List<Video> videos = subscribedVideos.get(date);
                   //  if (videos.size() < 3) {
-                        video.setStreamUrl(null);
                         video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);
                  //   }
@@ -128,7 +127,6 @@ public class SubscriptionService {
                     List<Video> videos = subscribedVideos.get(channelName);
                     //if (videos.size() < 3) {
                         // String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).toString();
-                        video.setStreamUrl(null);
                         video.setDateScanned(DateTimeFormatter.ISO_INSTANT.format(video.getSubscriptionScannedDate()));
                         video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);

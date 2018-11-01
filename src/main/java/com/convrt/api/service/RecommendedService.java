@@ -54,15 +54,15 @@ public class RecommendedService {
     }
 
     private NowPlayingVideoWS mapRecommendedFields(Element body) throws IOException {
-        JsonNode watchNextResults = parseRecommendedResults(body);
-        Iterator<JsonNode> iterator = watchNextResults.get("secondaryResults").get("secondaryResults").get("results").iterator();
-        JsonNode nowPlayingVideoPrimaryDetails = watchNextResults.get("results").get("results").get("contents");
-        JsonNode primaryVideoDetails = nowPlayingVideoPrimaryDetails.get(0).get("videoPrimaryInfoRenderer");
-        JsonNode secondaryVideoDetails = nowPlayingVideoPrimaryDetails.get(1).get("videoSecondaryInfoRenderer");
+        JsonNode results = parseRecommendedResults(body);
+        Iterator<JsonNode> iterator = results.get("secondaryResults").get("secondaryResults").get("results").iterator();
+        JsonNode contents = results.get("results").get("results").get("contents");
+        JsonNode primaryVideoDetails = contents.get(0).get("videoPrimaryInfoRenderer");
+        JsonNode secondaryVideoDetails = contents.get(1).get("videoSecondaryInfoRenderer");
         NowPlayingVideoWS nowPlayingVideoWS = new NowPlayingVideoWS();
         if (Objects.nonNull(primaryVideoDetails)) {
-            nowPlayingVideoWS.setTitle(primaryVideoDetails.get("title").get("simpleText").asText());
-            nowPlayingVideoWS.setViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("viewCount").get("simpleText").asText());
+            nowPlayingVideoWS.getNowPlayingVideo().setTitle(primaryVideoDetails.get("title").get("simpleText").asText());
+            nowPlayingVideoWS.getNowPlayingVideo().setViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("viewCount").get("simpleText").asText());
             nowPlayingVideoWS.setShortViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("shortViewCount").get("simpleText").asText());
         }
         if (Objects.nonNull(secondaryVideoDetails)) {

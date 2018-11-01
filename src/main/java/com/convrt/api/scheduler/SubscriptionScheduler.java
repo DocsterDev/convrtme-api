@@ -23,7 +23,7 @@ public class SubscriptionScheduler {
     @Autowired
     private VideoService videoService;
 
-    @Scheduled(fixedRate = 3600000)
+    //@Scheduled(fixedRate = 3600000)
     public void scanNewVideos() {
         subscriptionService.readAllDistinctChannels().stream().forEach((channel) -> {
             log.info("Running search : {}", String.format("%s new videos", channel.getName()));

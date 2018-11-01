@@ -54,6 +54,7 @@ public class VideoService {
         log.info("Took {}ms to save videos", sw.getTotalTimeMillis());
     }
 
+    /*
     @Transactional(readOnly = true)
     public Video readVideoMetadata(String id) {
         Video video = videoRepository.findByIdAndStreamUrlExpireDateNotNull(id);
@@ -66,6 +67,7 @@ public class VideoService {
         }
         return null;
     }
+    */
 
     @Transactional
     public Video updateVideo(Video video) {
