@@ -66,10 +66,10 @@ public class Video {
     private String channelThumbnailUrl;
 
     public String getOwner() {
-        if (this.channel != null) {
-            return this.channel.getName();
+        if (this.owner == null) {
+            this.owner = getChannel().getName();
         }
-        return "Unknown";
+        return this.owner;
     }
 
 }

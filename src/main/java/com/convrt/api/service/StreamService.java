@@ -1,5 +1,6 @@
 package com.convrt.api.service;
 
+import com.convrt.api.entity.Channel;
 import com.convrt.api.entity.Stream;
 import com.convrt.api.repository.StreamRepository;
 import com.convrt.api.repository.VideoRepository;
@@ -24,17 +25,14 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Service
 public class StreamService {
     @Autowired
-    private VideoService videoService;
-    @Autowired
-    private VideoRepository videoRepository;
-    @Autowired
-    private ContextService contextService;
+    private ChannelService channelService;
     @Autowired
     private StreamRepository streamRepository;
     @Autowired
@@ -80,23 +78,17 @@ public class StreamService {
         return vgetStream;
     }
 
-    @Transactional
     public StreamWS fetchStreamUrl(String videoId, String extension) {
         Stream streamPersistent = readStream(videoId, extension);
-        boolean success = false;
-        StreamWS gblStreamWS = null;
+        StreamWS gblStreamWS;
         if (Objects.isNull(streamPersistent) || streamPersistent.getStreamUrl() == null || Instant.now().isAfter(streamPersistent.getStreamUrlExpireDate())) {
-            // Fork join the two calls
             streamPersistent = new Stream();
             streamPersistent.setUuid(UUIDUtils.generateUuid(videoId, extension));
             streamPersistent.setVideoId(videoId);
             streamPersistent.setExtension(extension);
-
             gblStreamWS = getStreamObject(videoId, extension);
-
             streamPersistent.setStreamUrl(gblStreamWS.getStreamUrl());
             streamPersistent.setSource(gblStreamWS.getSource());
-            // Get both StreamWS and then figure out which one is better. If neither one finds a url then send back false success
             streamRepository.save(streamPersistent);
         }
         StreamWS streamWS = new StreamWS();

@@ -40,7 +40,7 @@ public class RecommendedService {
         while (retryCount <= 2) {
             try {
                 Document doc = Jsoup.connect(uriComponents.toUriString()).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36").get();
-                return mapRecommendedFields(doc.body());
+                return mapRecommendedFields(videoId, doc.body());
             } catch (Exception e) {
                 if (retryCount == 2) {
                     throw new RuntimeException("Error parsing json from YouTube recommended results after " + retryCount + 1 + " attempts", e);
@@ -53,21 +53,32 @@ public class RecommendedService {
         return new NowPlayingVideoWS();
     }
 
-    private NowPlayingVideoWS mapRecommendedFields(Element body) throws IOException {
+    private NowPlayingVideoWS mapRecommendedFields(String videoId, Element body) throws IOException {
         JsonNode results = parseRecommendedResults(body);
+        //log.info(results.toString());
         Iterator<JsonNode> iterator = results.get("secondaryResults").get("secondaryResults").get("results").iterator();
         JsonNode contents = results.get("results").get("results").get("contents");
         JsonNode primaryVideoDetails = contents.get(0).get("videoPrimaryInfoRenderer");
         JsonNode secondaryVideoDetails = contents.get(1).get("videoSecondaryInfoRenderer");
         NowPlayingVideoWS nowPlayingVideoWS = new NowPlayingVideoWS();
         if (Objects.nonNull(primaryVideoDetails)) {
+            nowPlayingVideoWS.getNowPlayingVideo().setId(videoId);
             nowPlayingVideoWS.getNowPlayingVideo().setTitle(primaryVideoDetails.get("title").get("simpleText").asText());
-            nowPlayingVideoWS.getNowPlayingVideo().setViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("viewCount").get("simpleText").asText());
-            nowPlayingVideoWS.setShortViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("shortViewCount").get("simpleText").asText());
+            nowPlayingVideoWS.getNowPlayingVideo().setViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("shortViewCount").get("simpleText").asText());
+            nowPlayingVideoWS.getNowPlayingVideo().setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", videoId));
+            nowPlayingVideoWS.setShortViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("viewCount").get("simpleText").asText());
         }
         if (Objects.nonNull(secondaryVideoDetails)) {
+            JsonNode videoRenderer = secondaryVideoDetails.get("owner").get("videoOwnerRenderer");
+            JsonNode thumbnail = videoRenderer.get("thumbnail").get("thumbnails");
+            int thumbnailSize = thumbnail.size();
+            if (thumbnailSize > 0) {
+                nowPlayingVideoWS.getNowPlayingVideo().setChannelThumbnailUrl(thumbnail.get(thumbnailSize - 1).get("url").asText());
+            }
+            nowPlayingVideoWS.getNowPlayingVideo().setOwner(videoRenderer.get("title").get("runs").get(0).get("text").asText());
             nowPlayingVideoWS.setCategory(secondaryVideoDetails.get("metadataRowContainer").get("metadataRowContainerRenderer").get("rows").get(0).get("metadataRowRenderer").get("contents").get(0).get("runs").get(0).get("text").asText());
             nowPlayingVideoWS.setPublishedDate(secondaryVideoDetails.get("dateText").get("simpleText").asText());
+            nowPlayingVideoWS.getNowPlayingVideo().setPublishedTimeAgo(secondaryVideoDetails.get("dateText").get("simpleText").asText());
             JsonNode description = secondaryVideoDetails.get("description");
             if (description != null) {
                 if (description.get("runs") != null) {

@@ -1,6 +1,8 @@
 
 package com.convrt.api.controller;
 
+import com.convrt.api.entity.Channel;
+import com.convrt.api.entity.Video;
 import com.convrt.api.service.AudioExtractorService;
 import com.convrt.api.service.RecommendedService;
 import com.convrt.api.service.StreamService;
