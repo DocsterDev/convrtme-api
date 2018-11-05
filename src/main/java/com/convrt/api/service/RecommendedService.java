@@ -55,11 +55,10 @@ public class RecommendedService {
 
     private NowPlayingVideoWS mapRecommendedFields(String videoId, Element body) throws IOException {
         JsonNode results = parseRecommendedResults(body);
-        //log.info(results.toString());
         Iterator<JsonNode> iterator = results.get("secondaryResults").get("secondaryResults").get("results").iterator();
         JsonNode contents = results.get("results").get("results").get("contents");
-        JsonNode primaryVideoDetails = contents.get(0).get("videoPrimaryInfoRenderer");
-        JsonNode secondaryVideoDetails = contents.get(1).get("videoSecondaryInfoRenderer");
+        JsonNode primaryVideoDetails = contents.findValue("videoPrimaryInfoRenderer");
+        JsonNode secondaryVideoDetails = contents.findValue("videoSecondaryInfoRenderer");
         NowPlayingVideoWS nowPlayingVideoWS = new NowPlayingVideoWS();
         if (Objects.nonNull(primaryVideoDetails)) {
             nowPlayingVideoWS.getNowPlayingVideo().setId(videoId);
@@ -132,7 +131,6 @@ public class RecommendedService {
         for (int i = 0; i < scripts.size(); i++) {
             String html = scripts.eq(i).html();
             if ( html.contains("window[\"ytInitialData\"]")) {
-                log.info("Found Recommended at: " + i);
                 script = html;
                break;
             }

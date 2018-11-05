@@ -79,7 +79,8 @@ public class StreamService {
     }
 
     public StreamWS fetchStreamUrl(String videoId, String extension) {
-        Stream streamPersistent = readStream(videoId, extension);
+        //Stream streamPersistent = readStream(videoId, extension);
+        Stream streamPersistent = null;
         StreamWS gblStreamWS;
         if (Objects.isNull(streamPersistent) || streamPersistent.getStreamUrl() == null || Instant.now().isAfter(streamPersistent.getStreamUrlExpireDate())) {
             streamPersistent = new Stream();
