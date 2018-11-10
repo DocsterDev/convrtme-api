@@ -28,7 +28,7 @@ public class SearchResultsService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Cacheable("search")
+    //@Cacheable("search")
     @Transactional(readOnly = true)
     public List<Video> mapSearchResultFields(String url) throws IOException {
         Connection connection = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
@@ -46,12 +46,12 @@ public class SearchResultsService {
                 searchVideo.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
                 searchVideo.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
                 searchVideo.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
-                searchVideo.setChannelThumbnailUrl(next.get("channelThumbnail").get("thumbnails").get(0).get("url").asText());
+                searchVideo.setChannelThumbnailUrl(next.get("channelThumbnailSupportedRenderers").get("channelThumbnailWithLinkRenderer").get("thumbnail").get("thumbnails").get(0).get("url").asText());
                 JsonNode badges = next.get("badges");
                 MappingUtils.findIsNew(next, searchVideo, badges);
                 searchResults.add(searchVideo);
             } catch (NullPointerException e) {
-                log.debug("Search result is null. Not including in results.");
+                log.info("Search result is null. Not including in results.", e);
             }
         }
         return searchResults;
