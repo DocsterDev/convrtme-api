@@ -13,13 +13,13 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:mysql://localhost:3306/convrt_me_dev
+    url: jdbc:mysql://localhost:3306/moup_dev
     username: root
     password: root
 
   cache:
     type: caffeine
-    cache-names: video, autocomplete, streamUrl
+    cache-names: video, autocomplete
     caffeine:
         spec: maximumSize=500, expireAfterAccess=15m
 

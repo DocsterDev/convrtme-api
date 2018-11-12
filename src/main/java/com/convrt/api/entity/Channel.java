@@ -1,5 +1,6 @@
 package com.convrt.api.entity;
 
+import com.convrt.api.utils.UUIDUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
@@ -15,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "channel")
+@Table(name = "channel", indexes = {@Index(name = "channel_name_idx0", columnList = "name")})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Channel {
     @Id
@@ -35,4 +36,9 @@ public class Channel {
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "channel", orphanRemoval = true)
     private List<Video> videos = Lists.newLinkedList();
+
+    public Channel(String name) {
+        this.name = name;
+        this.uuid = UUIDUtils.generateUuid(name);
+    }
 }

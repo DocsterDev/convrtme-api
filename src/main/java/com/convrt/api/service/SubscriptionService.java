@@ -32,7 +32,6 @@ public class SubscriptionService {
     private ChannelService channelService;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMM d, uuuu").withZone(ZoneOffset.UTC);
-    private static final DateTimeFormatter ISO_INSTANT = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC);
 
     @Transactional
     public Subscription addSubscription(Channel channel, String token) {

@@ -46,12 +46,16 @@ public class SearchResultsService {
                 searchVideo.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
                 searchVideo.setDuration(next.get("thumbnailOverlays").get(0).get("thumbnailOverlayTimeStatusRenderer").get("text").get("simpleText").asText());
                 searchVideo.setPublishedTimeAgo(next.get("publishedTimeText").get("simpleText").asText());
-                searchVideo.setChannelThumbnailUrl(next.get("channelThumbnailSupportedRenderers").get("channelThumbnailWithLinkRenderer").get("thumbnail").get("thumbnails").get(0).get("url").asText());
+                if (next.hasNonNull("channelThumbnail")) {
+                    searchVideo.setChannelThumbnailUrl(next.get("channelThumbnail").get("thumbnails").get(0).get("url").asText());
+                } else if (next.hasNonNull("channelThumbnailSupportedRenderers")) {
+                    searchVideo.setChannelThumbnailUrl(next.get("channelThumbnailSupportedRenderers").get("channelThumbnailWithLinkRenderer").get("thumbnail").get("thumbnails").get(0).get("url").asText());
+                }
                 JsonNode badges = next.get("badges");
                 MappingUtils.findIsNew(next, searchVideo, badges);
                 searchResults.add(searchVideo);
             } catch (NullPointerException e) {
-                log.info("Search result is null. Not including in results.", e);
+                log.info("Search result is null. Not including in results.");
             }
         }
         return searchResults;

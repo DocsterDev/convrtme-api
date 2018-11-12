@@ -109,7 +109,11 @@ public class RecommendedService {
                 searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
                 searchResult.setDuration(next.get("lengthText").get("simpleText").asText());
-                searchResult.setChannelThumbnailUrl(next.get("channelThumbnail").get("thumbnails").get(0).get("url").asText());
+                if (next.hasNonNull("channelThumbnail")) {
+                    searchResult.setChannelThumbnailUrl(next.get("channelThumbnail").get("thumbnails").get(0).get("url").asText());
+                } else if (next.hasNonNull("channelThumbnailSupportedRenderers")) {
+                    searchResult.setChannelThumbnailUrl(next.get("channelThumbnailSupportedRenderers").get("channelThumbnailWithLinkRenderer").get("thumbnail").get("thumbnails").get(0).get("url").asText());
+                }
                 JsonNode badges = next.get("badges");
                 MappingUtils.findIsNew(next, searchResult, badges);
                 if (i == 0){

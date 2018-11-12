@@ -10,7 +10,7 @@ import java.util.List;
 @Slf4j
 public class URLUtils {
 
-    public static boolean isAudioOnly(String streamUrl) {
+    public static boolean isAudioOnlyNope(String streamUrl) {
         boolean audioOnly = false;
         if (streamUrl != null) {
             MultiValueMap<String, String> parameters = UriComponentsBuilder.fromUriString(streamUrl).build().getQueryParams();

@@ -4,11 +4,15 @@ import com.convrt.api.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -26,12 +30,21 @@ public class Video {
     private String title;
 
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
-    @Column(name = "duration", length = 15)
+    @Column(name = "duration")
     private String duration;
+
+    @Column(name = "duration_sec")
+    private Long durationSec;
+
+    @Column(name = "description", length = 1000)
+    private String description;
 
     @JsonIgnore
     @Column(name = "subscription_scanned_date")
     private Instant subscriptionScannedDate;
+
+    @Column(name = "upload_date")
+    private LocalDate uploadDate;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,6 +62,10 @@ public class Video {
     @Transient
     @JsonView({View.PlaylistWithVideo.class, View.VideoWithPlaylist.class})
     private String owner;
+
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "video", orphanRemoval = true)
+    private Map<String, Stream> streams = Maps.newHashMap();
 
     @Transient
     private String thumbnailUrl;

@@ -1,5 +1,6 @@
 package com.convrt.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,11 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -23,8 +22,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Stream extends BaseEntity{
 
-    @Column(name = "video_id", length = 20)
-    private String videoId;
+
 
     @Column(name = "stream_url_date")
     private Instant streamUrlDate;
@@ -38,14 +36,16 @@ public class Stream extends BaseEntity{
     @Column(name = "extension", length = 5)
     private String extension;
 
-    @Column(name = "source", length = 36)
-    private String source;
-
     @Column(name = "is_audio_only")
     private boolean audioOnly;
 
     @Column(name = "is_matches_extension")
     private boolean matchesExtension;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_id", foreignKey = @ForeignKey(name = "fk_stream_video_id"))
+    private Video video;
 
     public void setStreamUrl(String streamUrl) {
         this.streamUrl = streamUrl;

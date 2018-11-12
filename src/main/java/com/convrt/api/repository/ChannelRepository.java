@@ -10,4 +10,6 @@ public interface ChannelRepository extends JpaRepository<Channel, String> {
 
     List<Channel> findChannelsBy(User user);
 
+    Channel findChannelByName(String name);
+
 }

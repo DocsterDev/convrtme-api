@@ -14,8 +14,8 @@ import java.io.InputStream;
 @Service
 public class AudioExtractorService {
 
-    public StreamWS extractAudio(String videoId, String ext) {
-        ProcessBuilder pb = buildProcess(videoId, ext);
+    public StreamWS extractAudio(String videoId, String ext, String userAgent) {
+        ProcessBuilder pb = buildProcess(videoId, ext, userAgent);
         String output = null;
         try {
             Process p = pb.start();
@@ -49,17 +49,22 @@ public class AudioExtractorService {
         }
     }
 
-    public ProcessBuilder buildProcess(String videoId, String ext) {
-        return new ProcessBuilder("youtube-dl",
+    public ProcessBuilder buildProcess(String videoId, String ext, String userAgent) {
+        ext = null;
+        ProcessBuilder pb = new ProcessBuilder("youtube-dl",
                 "--quiet",
                 "--simulate",
-                "--get-url",
+                "--user-agent",
+                userAgent,
+                "--dump-single-json",
                 "-f",
                 "bestaudio" + (StringUtils.isNotBlank(ext) ? "[ext=" + ext + "]" : StringUtils.EMPTY),
                 "--",
                 videoId
         );
+        log.info("Command ::: {}", StringUtils.join(pb.command(), StringUtils.SPACE));
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectOutput(ProcessBuilder.Redirect.PIPE);
+        return pb;
     }
-
-
 }

@@ -33,15 +33,14 @@ public class StreamController {
     @GetMapping("/{videoId}/stream")
     public StreamWS fetchMediaStreamUrl(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId) {
         userAgentService.parseUserAgent(userAgent);
-        log.info("User Agent: {}", userAgent);
         String extension = userAgentService.isChrome() ? "webm" : "m4a";
-        return streamService.fetchStreamUrl(videoId, extension);
+        return streamService.fetchStreamUrl(videoId, extension, userAgent);
     }
 
     @GetMapping("/{videoId}/metadata/prefetch")
     public StreamWS prefetchMediaStreamUrl(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId) {
         userAgentService.parseUserAgent(userAgent);
-        return audioExtractorService.extractAudio(videoId, userAgentService.isChrome() ? "webm" : "m4a");
+        return audioExtractorService.extractAudio(videoId, userAgentService.isChrome() ? "webm" : "m4a", userAgent);
     }
 
     @PutMapping("/{videoId}/metadata")

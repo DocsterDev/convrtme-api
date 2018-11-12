@@ -2,16 +2,13 @@ package com.convrt.api.service;
 
 import com.convrt.api.entity.Channel;
 import com.convrt.api.entity.Stream;
+import com.convrt.api.entity.Video;
+import com.convrt.api.repository.ChannelRepository;
 import com.convrt.api.repository.StreamRepository;
-import com.convrt.api.repository.VideoRepository;
-import com.convrt.api.utils.URLUtils;
 import com.convrt.api.utils.UUIDUtils;
 import com.convrt.api.view.StreamWS;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.axet.vget.VGet;
-import com.github.axet.vget.info.VGetParser;
-import com.github.axet.vget.info.VideoFileInfo;
-import com.github.axet.vget.info.VideoInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,154 +18,146 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.time.Instant;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Service
 public class StreamService {
     @Autowired
+    private StreamRepository streamRepository;
+    @Autowired
     private ChannelService channelService;
     @Autowired
-    private StreamRepository streamRepository;
+    private VideoService videoService;
     @Autowired
     private AudioExtractorService audioExtractorService;
     @Autowired
     private ObjectMapper objectMapper;
 
-    static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=%s";
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuuMMdd");
 
     @Transactional
     public Stream readStream(String videoId, String extension) {
         return streamRepository.findByVideoIdAndExtension(videoId, extension);
     }
 
+    /*
     @Transactional
-    public Stream createOrUpdate(String videoId, String extension, String streamUrl) {
-        Stream streamPersistent = readStream(videoId, extension);
+    public Stream createOrUpdate(Video video, String extension, String streamUrl) {
+        Stream streamPersistent = readStream(video.getId(), extension);
 
-        streamPersistent.setVideoId(videoId);
+        streamPersistent.setVideo(video);
         streamPersistent.setExtension(extension);
         streamPersistent.setStreamUrl(streamUrl);
         return streamRepository.save(streamPersistent);
     }
+    */
 
-    private StreamWS getStreamObject(String videoId, String extension){
-        StreamWS vgetStream = getVGetStream(videoId);
-        if (vgetStream.isSuccess() && vgetStream.isAudioOnly() && vgetStream.isMatchesExtension()) {
-            return vgetStream;
+    public StreamWS fetchStreamUrl(String videoId, String extension, String userAgent) {
+       Stream streamPersistent = readStream(videoId, extension);
+        //Stream streamPersistent = null;
+        Video videoPersistent = null;
+        if (streamPersistent != null) {
+            videoPersistent = videoService.readVideoByVideoId(videoId);
+            streamPersistent = videoPersistent.getStreams().get(extension);
         }
-        StreamWS youtubeDlStream = getYoutubeDLStream(videoId, extension);
-        if (!vgetStream.isSuccess() && !youtubeDlStream.isSuccess()) {
-            return StreamWS.ERROR;
-        }
-        if (vgetStream.isSuccess() && !youtubeDlStream.isSuccess()) {
-            return vgetStream;
-        }
-        if (!vgetStream.isSuccess() && youtubeDlStream.isSuccess()) {
-            return youtubeDlStream;
-        }
-        if (youtubeDlStream.isAudioOnly()) {
-            return youtubeDlStream;
-        }
-        return vgetStream;
-    }
-
-    public StreamWS fetchStreamUrl(String videoId, String extension) {
-        //Stream streamPersistent = readStream(videoId, extension);
-        Stream streamPersistent = null;
-        StreamWS gblStreamWS;
+        StreamWS gblStreamWS = null;
         if (Objects.isNull(streamPersistent) || streamPersistent.getStreamUrl() == null || Instant.now().isAfter(streamPersistent.getStreamUrlExpireDate())) {
+            gblStreamWS = getYoutubeDLStream(videoId, extension, userAgent);
+            if (!gblStreamWS.isSuccess()) {
+                return StreamWS.ERROR;
+            }
+
+            if (Objects.isNull(videoPersistent)) {
+                videoPersistent = new Video();
+                videoPersistent.setId(gblStreamWS.getId());
+                videoPersistent.setTitle(gblStreamWS.getTitle());
+                Channel channel = channelService.createChannel(gblStreamWS.getOwner());
+                videoPersistent.setChannel(channel);
+                //videoPersistent.setDescription(gblStreamWS.getDescription());
+                videoPersistent.setDurationSec(gblStreamWS.getDuration());
+                videoPersistent.setUploadDate(gblStreamWS.getUploadDate());
+            }
+
             streamPersistent = new Stream();
-            streamPersistent.setUuid(UUIDUtils.generateUuid(videoId, extension));
-            streamPersistent.setVideoId(videoId);
-            streamPersistent.setExtension(extension);
-            gblStreamWS = getStreamObject(videoId, extension);
+            streamPersistent.setUuid(UUIDUtils.generateUuid(gblStreamWS.getId(), gblStreamWS.getExtension()));
+            String extn = gblStreamWS.getExtension();
+            streamPersistent.setExtension(extn);
             streamPersistent.setStreamUrl(gblStreamWS.getStreamUrl());
-            streamPersistent.setSource(gblStreamWS.getSource());
-            streamRepository.save(streamPersistent);
+            streamPersistent.setAudioOnly(gblStreamWS.isAudioOnly());
+            streamPersistent.setMatchesExtension(gblStreamWS.isMatchesExtension());
+            videoPersistent.getStreams().put(extension, streamPersistent);
+            videoService.createOrUpdateVideo(videoPersistent);
         }
         StreamWS streamWS = new StreamWS();
-        streamWS.setId(streamPersistent.getVideoId());
+        streamWS.setId(videoPersistent.getId());
+        streamWS.setTitle(videoPersistent.getTitle());
+        streamWS.setOwner(videoPersistent.getChannel().getName());
+        streamWS.setDescription(videoPersistent.getDescription());
+        streamWS.setDuration(videoPersistent.getDurationSec());
+        streamWS.setUploadDate(videoPersistent.getUploadDate());
         streamWS.setExtension(streamPersistent.getExtension());
         streamWS.setStreamUrl(streamPersistent.getStreamUrl());
         streamWS.setAudioOnly(streamPersistent.isAudioOnly());
-        streamWS.setSource(streamPersistent.getSource());
+        streamWS.setData(gblStreamWS.getData());
         streamWS.setMatchesExtension(streamPersistent.isMatchesExtension());
         streamWS.setSuccess(StringUtils.isNotBlank(streamPersistent.getStreamUrl()));
         return streamWS;
     }
 
-    public StreamWS getVGetStream(String videoId) {
-        log.info("Attempting to fetch existing valid stream url for video={}", videoId);
-        try {
-            StreamWS streamWS = new StreamWS();
-            final AtomicBoolean stop = new AtomicBoolean(false);
-            URL web = new URL(String.format(YOUTUBE_URL, videoId));
-            VGetParser user = VGet.parser(web);
-            VideoInfo videoinfo = user.info(web);
-            new VGet(videoinfo).extract(user, stop, () -> {
-            });
-            List<VideoFileInfo> list = videoinfo.getInfo();
-            VideoFileInfo videoFileInfo = null;
-            if (list != null) {
-                for (VideoFileInfo d : list) {
-                    log.info("Found content-type: " + d.getContentType());
-                    if (d.getContentType().contains("audio")) {
-                        log.info("Dedicated audio url found");
-                        streamWS.setId(videoId);
-                        String streamUrl = d.getSource().toString();
-                        streamWS.setStreamUrl(streamUrl);
-                        streamWS.setAudioOnly(URLUtils.isAudioOnly(streamUrl));
-                        streamWS.setSuccess(true);
-                        return streamWS;
-                    }
-                    videoFileInfo = d;
-                }
-                log.info("No dedicated audio url found. Returning full video url.");
-                String streamUrl = videoFileInfo.getSource().toString();
-                streamWS.setStreamUrl(streamUrl);
-                streamWS.setAudioOnly(URLUtils.isAudioOnly(streamUrl));
-                streamWS.setSuccess(true);
-                return streamWS;
-            }
-            return StreamWS.ERROR;
-        } catch (Exception e) {
-            log.error("Error retrieving stream url video id {} from VGET", videoId, e);
-            return StreamWS.ERROR;
-        }
-    }
-
-    public StreamWS getYoutubeDLStream(String videoId, String extension){
-        ProcessBuilder pb = audioExtractorService.buildProcess(videoId, extension);
+    public StreamWS getYoutubeDLStream(String videoId, String extension, String userAgent){
+        ProcessBuilder pb = audioExtractorService.buildProcess(videoId, extension, userAgent);
         try {
             Process p = pb.start();
-            try (InputStream is = p.getInputStream(); InputStream es = p.getErrorStream();) {
+            try (InputStream is = p.getInputStream(); InputStream es = p.getErrorStream()) {
                 String error = IOUtils.toString(es, "UTF-8");
                 String output = IOUtils.toString(is, "UTF-8");
-                if (StringUtils.isBlank(output) && StringUtils.isNotBlank(error)) {
+                if (StringUtils.isBlank(output) || StringUtils.isNotBlank(error)) {
                     log.error("Extracted stream URL is null for video id {}: {}", videoId, error);
                     return StreamWS.ERROR;
                 }
-                String[] urlArray = StringUtils.split(output, "\r\n");
-                boolean audioStreamExist = (urlArray.length > 1);
-                StreamWS streamWS = new StreamWS();
-                streamWS.setId(videoId);
-                String streamUrl = audioStreamExist ? urlArray[1] : urlArray[0];
-                streamWS.setStreamUrl(streamUrl);
-                streamWS.setAudioOnly(URLUtils.isAudioOnly(streamUrl));
-                streamWS.setSuccess(true);
-                return streamWS;
+                return parseVideoInfo(output, extension);
             } catch (IOException e) {
                 log.error("Error executing YouTube-DL to extract video id for {}", videoId, e);
                 return StreamWS.ERROR;
             }
         } catch (Exception e) {
             log.error("Error starting process to extract url for video id {}", videoId, e);
+            return StreamWS.ERROR;
+        }
+    }
+
+
+    private StreamWS parseVideoInfo(String videoInfoJson, String extension) {
+        try {
+            if (StringUtils.isNotBlank(videoInfoJson)) {
+                JsonNode videoInfo = objectMapper.readTree(videoInfoJson);
+                StreamWS streamWS = new StreamWS();
+                streamWS.setData(videoInfo);
+                streamWS.setId(videoInfo.get("id").asText());
+                streamWS.setTitle(videoInfo.get("title").asText());
+                streamWS.setDuration(videoInfo.get("duration").asLong());
+                streamWS.setOwner(videoInfo.get("uploader").asText());
+                streamWS.setDescription(videoInfo.get("description").asText());
+                String uploadDateStr = videoInfo.get("upload_date").asText();
+                LocalDate uploadDate = LocalDate.parse(uploadDateStr, DATE_FORMATTER);
+                streamWS.setUploadDate(uploadDate);
+                String ext = videoInfo.get("ext").asText();
+                streamWS.setExtension(ext);
+                streamWS.setMatchesExtension(StringUtils.equalsIgnoreCase(extension, ext));
+                String streamUrl = videoInfo.get("url").asText();
+                streamWS.setStreamUrl(streamUrl);
+                String format = videoInfo.get("format_note").asText();
+                streamWS.setAudioOnly(StringUtils.contains(format, "DASH audio"));
+                streamWS.setSuccess(true);
+                return streamWS;
+            }
+            return StreamWS.ERROR;
+        } catch (Exception e) {
+            log.info("Error parsing video json extract", e);
             return StreamWS.ERROR;
         }
     }
