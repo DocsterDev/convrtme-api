@@ -102,7 +102,7 @@ public class StreamService {
         streamWS.setExtension(streamPersistent.getExtension());
         streamWS.setStreamUrl(streamPersistent.getStreamUrl());
         streamWS.setAudioOnly(streamPersistent.isAudioOnly());
-        streamWS.setData(gblStreamWS.getData());
+        // streamWS.setData(gblStreamWS.getData());
         streamWS.setMatchesExtension(streamPersistent.isMatchesExtension());
         streamWS.setSuccess(StringUtils.isNotBlank(streamPersistent.getStreamUrl()));
         return streamWS;
@@ -116,8 +116,9 @@ public class StreamService {
                 String error = IOUtils.toString(es, "UTF-8");
                 String output = IOUtils.toString(is, "UTF-8");
                 if (StringUtils.isBlank(output) || StringUtils.isNotBlank(error)) {
-                    log.error("Extracted stream URL is null for video id {}: {}", videoId, error);
-                    return StreamWS.ERROR;
+                    throw new RuntimeException(String.format("No stream found for video %s", videoId));
+//                    log.error("Extracted stream URL is null for video id {}: {}", videoId, error);
+//                    return StreamWS.ERROR;
                 }
                 return parseVideoInfo(output, extension);
             } catch (IOException e) {

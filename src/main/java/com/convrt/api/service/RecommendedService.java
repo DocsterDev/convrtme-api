@@ -75,7 +75,7 @@ public class RecommendedService {
                 nowPlayingVideoWS.getNowPlayingVideo().setChannelThumbnailUrl(thumbnail.get(thumbnailSize - 1).get("url").asText());
             }
             nowPlayingVideoWS.getNowPlayingVideo().setOwner(videoRenderer.get("title").get("runs").get(0).get("text").asText());
-            nowPlayingVideoWS.setCategory(secondaryVideoDetails.get("metadataRowContainer").get("metadataRowContainerRenderer").get("rows").get(0).get("metadataRowRenderer").get("contents").get(0).get("runs").get(0).get("text").asText());
+            //nowPlayingVideoWS.setCategory(secondaryVideoDetails.get("metadataRowContainer").get("metadataRowContainerRenderer").get("rows").get(0).get("metadataRowRenderer").get("contents").get(0).get("runs").get(0).get("text").asText());
             nowPlayingVideoWS.setPublishedDate(secondaryVideoDetails.get("dateText").get("simpleText").asText());
             nowPlayingVideoWS.getNowPlayingVideo().setPublishedTimeAgo(secondaryVideoDetails.get("dateText").get("simpleText").asText());
             JsonNode description = secondaryVideoDetails.get("description");
