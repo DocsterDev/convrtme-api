@@ -27,20 +27,17 @@ public class StreamController {
     private AudioExtractorService audioExtractorService;
     @Autowired
     private VideoService videoService;
-    @Autowired
-    private RecommendedService recommendedService;
 
     @GetMapping("/{videoId}/stream")
     public StreamWS fetchMediaStreamUrl(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId) {
         userAgentService.parseUserAgent(userAgent);
-        String extension = userAgentService.isChrome() ? "webm" : "m4a";
-        return streamService.fetchStreamUrl(videoId, extension, userAgent);
+        return streamService.fetchStreamUrl(videoId, userAgentService.isChrome());
     }
 
     @GetMapping("/{videoId}/metadata/prefetch")
     public StreamWS prefetchMediaStreamUrl(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId) {
         userAgentService.parseUserAgent(userAgent);
-        return audioExtractorService.extractAudio(videoId, userAgentService.isChrome() ? "webm" : "m4a", userAgent);
+        return audioExtractorService.extractAudio(videoId, userAgentService.isChrome());
     }
 
     @PutMapping("/{videoId}/metadata")

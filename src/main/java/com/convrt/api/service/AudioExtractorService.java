@@ -14,8 +14,8 @@ import java.io.InputStream;
 @Service
 public class AudioExtractorService {
 
-    public StreamWS extractAudio(String videoId, String ext, String userAgent) {
-        ProcessBuilder pb = buildProcess(videoId, ext, userAgent);
+    public StreamWS extractAudio(String videoId, boolean isChrome) {
+        ProcessBuilder pb = buildProcess(videoId, isChrome);
         String output = null;
         try {
             Process p = pb.start();
@@ -38,7 +38,7 @@ public class AudioExtractorService {
                 throw new RuntimeException(String.format("Error executing YouTube-DL to extract video id for %s", videoId), e);
             }
         } catch (Exception e) {
-            log.error("Error fetching audio url for videoId {} and file extension {}: {}", videoId, ext, output);
+            log.error("Error fetching audio url for videoId {} and isChrome? {}: {}", videoId, isChrome, output);
             StreamWS videoWS = new StreamWS();
             videoWS.setId(videoId);
             videoWS.setStreamUrl(null);
@@ -49,16 +49,13 @@ public class AudioExtractorService {
         }
     }
 
-    public ProcessBuilder buildProcess(String videoId, String ext, String userAgent) {
-        ext = null;
+    public ProcessBuilder buildProcess(String videoId, boolean isChrome) {
         ProcessBuilder pb = new ProcessBuilder("youtube-dl",
                 "--quiet",
                 "--simulate",
-//                "--user-agent",
-//                userAgent,
                 "--dump-single-json",
                 "-f",
-                "bestaudio" + (StringUtils.isNotBlank(ext) ? "[ext=" + ext + "]" : StringUtils.EMPTY),
+                "bestaudio" + (isChrome ? "[ext=webm]" : StringUtils.EMPTY),
                 "--",
                 videoId
         );

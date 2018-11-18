@@ -56,17 +56,17 @@ public class StreamService {
     }
     */
 
-    public StreamWS fetchStreamUrl(String videoId, String extension, String userAgent) {
+    public StreamWS fetchStreamUrl(String videoId, boolean isChrome) {
+        String extension = isChrome ? "webm" : "m4a";
        Stream streamPersistent = readStream(videoId, extension);
-        //Stream streamPersistent = null;
         Video videoPersistent = null;
         if (streamPersistent != null) {
             videoPersistent = videoService.readVideoByVideoId(videoId);
             streamPersistent = videoPersistent.getStreams().get(extension);
         }
-        StreamWS gblStreamWS = null;
+        StreamWS gblStreamWS;
         if (Objects.isNull(streamPersistent) || streamPersistent.getStreamUrl() == null || Instant.now().isAfter(streamPersistent.getStreamUrlExpireDate())) {
-            gblStreamWS = getYoutubeDLStream(videoId, extension, userAgent);
+            gblStreamWS = getYoutubeDLStream(videoId, isChrome);
             if (!gblStreamWS.isSuccess()) {
                 return StreamWS.ERROR;
             }
@@ -108,8 +108,8 @@ public class StreamService {
         return streamWS;
     }
 
-    public StreamWS getYoutubeDLStream(String videoId, String extension, String userAgent){
-        ProcessBuilder pb = audioExtractorService.buildProcess(videoId, extension, userAgent);
+    public StreamWS getYoutubeDLStream(String videoId, boolean isChrome){
+        ProcessBuilder pb = audioExtractorService.buildProcess(videoId, isChrome);
         try {
             Process p = pb.start();
             try (InputStream is = p.getInputStream(); InputStream es = p.getErrorStream()) {
@@ -117,17 +117,14 @@ public class StreamService {
                 String output = IOUtils.toString(is, "UTF-8");
                 if (StringUtils.isBlank(output) || StringUtils.isNotBlank(error)) {
                     throw new RuntimeException(String.format("No stream found for video %s", videoId));
-//                    log.error("Extracted stream URL is null for video id {}: {}", videoId, error);
-//                    return StreamWS.ERROR;
                 }
+                String extension = isChrome ? "webm" : "m4a";
                 return parseVideoInfo(output, extension);
             } catch (IOException e) {
-                log.error("Error executing YouTube-DL to extract video id for {}", videoId, e);
-                return StreamWS.ERROR;
+                throw new RuntimeException(String.format("No stream found for video %s", videoId));
             }
         } catch (Exception e) {
-            log.error("Error starting process to extract url for video id {}", videoId, e);
-            return StreamWS.ERROR;
+            throw new RuntimeException(String.format("No stream found for video %s", videoId));
         }
     }
 
