@@ -42,6 +42,9 @@ public class Stream extends BaseEntity{
     @Column(name = "is_matches_extension")
     private boolean matchesExtension;
 
+    @Column(name = "abr")
+    private float abr;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id", foreignKey = @ForeignKey(name = "fk_stream_video_id"))

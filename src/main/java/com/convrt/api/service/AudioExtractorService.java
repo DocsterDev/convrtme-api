@@ -22,30 +22,18 @@ public class AudioExtractorService {
             try (InputStream is = p.getInputStream(); InputStream es = p.getErrorStream();) {
                 String error = IOUtils.toString(es, "UTF-8");
                 output = IOUtils.toString(is, "UTF-8");
-                StreamWS videoWS = new StreamWS();
+                StreamWS streamWS = new StreamWS();
                 if (StringUtils.isBlank(output)) {
-                    videoWS.setId(videoId);
-                    videoWS.setSuccess(false);
-                    videoWS.setAudioOnly(false);
-                    return videoWS;
+                    streamWS.setId(videoId);
+                    return streamWS;
                 }
-                videoWS.setId(videoId);
-                videoWS.setStreamUrl(output);
-                videoWS.setSuccess(true);
-                videoWS.setAudioOnly(true);
-                return videoWS;
+                streamWS.setId(videoId);
+                return streamWS;
             } catch (IOException e) {
                 throw new RuntimeException(String.format("Error executing YouTube-DL to extract video id for %s", videoId), e);
             }
         } catch (Exception e) {
-            log.error("Error fetching audio url for videoId {} and isChrome? {}: {}", videoId, isChrome, output);
-            StreamWS videoWS = new StreamWS();
-            videoWS.setId(videoId);
-            videoWS.setStreamUrl(null);
-            videoWS.setSuccess(false);
-            videoWS.setAudioOnly(false);
-            return videoWS;
-            //throw new RuntimeException(String.format("Error fetching audio url for videoId %s and file extension %s: %s", videoId, ext, output));
+            throw new RuntimeException(String.format("Error extracting audio", e));
         }
     }
 
@@ -54,8 +42,8 @@ public class AudioExtractorService {
                 "--quiet",
                 "--simulate",
                 "--dump-single-json",
-                "-f",
-                "bestaudio" + (isChrome ? "[ext=webm]" : StringUtils.EMPTY),
+                 "-f",
+                 "bestaudio",
                 "--",
                 videoId
         );

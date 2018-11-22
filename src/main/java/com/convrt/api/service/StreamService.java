@@ -1,14 +1,17 @@
 package com.convrt.api.service;
 
 import com.convrt.api.entity.Channel;
-import com.convrt.api.entity.Stream;
+//import com.convrt.api.entity.Stream;
 import com.convrt.api.entity.Video;
 import com.convrt.api.repository.ChannelRepository;
 import com.convrt.api.repository.StreamRepository;
 import com.convrt.api.utils.UUIDUtils;
+import com.convrt.api.view.StreamFormatWS;
 import com.convrt.api.view.StreamWS;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +24,12 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -39,56 +47,47 @@ public class StreamService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuuMMdd");
 
-    @Transactional
-    public Stream readStream(String videoId, String extension) {
-        return streamRepository.findByVideoIdAndExtension(videoId, extension);
+//    @Transactional
+//    public Stream readStream(String videoId, String extension) {
+//        return streamRepository.findByVideoIdAndExtension(videoId, extension);
+//    }
+
+    public StreamWS fetchStreamUrl(String videoId, boolean isChrome) {
+        log.info("Fetching video url for id {}", videoId);
+        StreamWS streamWS = getYoutubeDLStream(videoId, isChrome);
+        return streamWS;
     }
 
     /*
-    @Transactional
-    public Stream createOrUpdate(Video video, String extension, String streamUrl) {
-        Stream streamPersistent = readStream(video.getId(), extension);
-
-        streamPersistent.setVideo(video);
-        streamPersistent.setExtension(extension);
-        streamPersistent.setStreamUrl(streamUrl);
-        return streamRepository.save(streamPersistent);
-    }
-    */
-
     public StreamWS fetchStreamUrl(String videoId, boolean isChrome) {
-        String extension = isChrome ? "webm" : "m4a";
+       String extension = isChrome ? "webm" : "m4a";
        Stream streamPersistent = readStream(videoId, extension);
         Video videoPersistent = null;
         if (streamPersistent != null) {
             videoPersistent = videoService.readVideoByVideoId(videoId);
             streamPersistent = videoPersistent.getStreams().get(extension);
         }
-        StreamWS gblStreamWS;
+        StreamWS streamExtract;
         if (Objects.isNull(streamPersistent) || streamPersistent.getStreamUrl() == null || Instant.now().isAfter(streamPersistent.getStreamUrlExpireDate())) {
-            gblStreamWS = getYoutubeDLStream(videoId, isChrome);
-            if (!gblStreamWS.isSuccess()) {
-                return StreamWS.ERROR;
-            }
+            streamExtract = getYoutubeDLStream(videoId, isChrome);
 
             if (Objects.isNull(videoPersistent)) {
                 videoPersistent = new Video();
-                videoPersistent.setId(gblStreamWS.getId());
-                videoPersistent.setTitle(gblStreamWS.getTitle());
-                Channel channel = channelService.createChannel(gblStreamWS.getOwner());
+                videoPersistent.setId(streamExtract.getId());
+                videoPersistent.setTitle(streamExtract.getTitle());
+                Channel channel = channelService.createChannel(streamExtract.getOwner());
                 videoPersistent.setChannel(channel);
-                //videoPersistent.setDescription(gblStreamWS.getDescription());
-                videoPersistent.setDurationSec(gblStreamWS.getDuration());
-                videoPersistent.setUploadDate(gblStreamWS.getUploadDate());
+                videoPersistent.setDurationSec(streamExtract.getDuration());
+                videoPersistent.setUploadDate(streamExtract.getUploadDate());
             }
 
             streamPersistent = new Stream();
-            streamPersistent.setUuid(UUIDUtils.generateUuid(gblStreamWS.getId(), gblStreamWS.getExtension()));
-            String extn = gblStreamWS.getExtension();
-            streamPersistent.setExtension(extn);
-            streamPersistent.setStreamUrl(gblStreamWS.getStreamUrl());
-            streamPersistent.setAudioOnly(gblStreamWS.isAudioOnly());
-            streamPersistent.setMatchesExtension(gblStreamWS.isMatchesExtension());
+            StreamFormatWS streamFormatWS = streamExtract.getRecommendedFormat();
+            streamPersistent.setUuid(UUIDUtils.generateUuid(streamExtract.getId(), streamFormatWS.getExtension()));
+            streamPersistent.setExtension(streamFormatWS.getExtension());
+            streamPersistent.setStreamUrl(streamFormatWS.getUrl());
+            streamPersistent.setAudioOnly(streamFormatWS.isAudioOnly());
+            streamPersistent.setAbr(streamFormatWS.getAbr());
             videoPersistent.getStreams().put(extension, streamPersistent);
             videoService.createOrUpdateVideo(videoPersistent);
         }
@@ -107,6 +106,7 @@ public class StreamService {
         streamWS.setSuccess(StringUtils.isNotBlank(streamPersistent.getStreamUrl()));
         return streamWS;
     }
+    */
 
     public StreamWS getYoutubeDLStream(String videoId, boolean isChrome){
         ProcessBuilder pb = audioExtractorService.buildProcess(videoId, isChrome);
@@ -118,8 +118,7 @@ public class StreamService {
                 if (StringUtils.isBlank(output) || StringUtils.isNotBlank(error)) {
                     throw new RuntimeException(String.format("No stream found for video %s", videoId));
                 }
-                String extension = isChrome ? "webm" : "m4a";
-                return parseVideoInfo(output, extension);
+                return parseVideoInfo(output, isChrome);
             } catch (IOException e) {
                 throw new RuntimeException(String.format("No stream found for video %s", videoId));
             }
@@ -129,34 +128,39 @@ public class StreamService {
     }
 
 
-    private StreamWS parseVideoInfo(String videoInfoJson, String extension) {
+    private StreamWS parseVideoInfo(String videoInfoJson, boolean isChrome) {
         try {
-            if (StringUtils.isNotBlank(videoInfoJson)) {
-                JsonNode videoInfo = objectMapper.readTree(videoInfoJson);
-                StreamWS streamWS = new StreamWS();
-                streamWS.setData(videoInfo);
-                streamWS.setId(videoInfo.get("id").asText());
-                streamWS.setTitle(videoInfo.get("title").asText());
-                streamWS.setDuration(videoInfo.get("duration").asLong());
-                streamWS.setOwner(videoInfo.get("uploader").asText());
-                streamWS.setDescription(videoInfo.get("description").asText());
-                String uploadDateStr = videoInfo.get("upload_date").asText();
-                LocalDate uploadDate = LocalDate.parse(uploadDateStr, DATE_FORMATTER);
-                streamWS.setUploadDate(uploadDate);
-                String ext = videoInfo.get("ext").asText();
-                streamWS.setExtension(ext);
-                streamWS.setMatchesExtension(StringUtils.equalsIgnoreCase(extension, ext));
-                String streamUrl = videoInfo.get("url").asText();
-                streamWS.setStreamUrl(streamUrl);
-                String format = videoInfo.get("format_note").asText();
-                streamWS.setAudioOnly(StringUtils.contains(format, "DASH audio"));
-                streamWS.setSuccess(true);
-                return streamWS;
+            JsonNode videoInfo = objectMapper.readTree(videoInfoJson);
+            StreamWS streamWS = new StreamWS();
+            streamWS.setId(videoInfo.get("id").asText());
+            streamWS.setTitle(videoInfo.get("title").asText());
+            streamWS.setDuration(videoInfo.get("duration").asLong());
+            streamWS.setOwner(videoInfo.get("uploader").asText());
+            streamWS.setDescription(videoInfo.get("description").asText());
+            String uploadDateStr = videoInfo.get("upload_date").asText();
+            LocalDate uploadDate = LocalDate.parse(uploadDateStr, DATE_FORMATTER);
+            streamWS.setUploadDate(uploadDate);
+            streamWS.setChrome(isChrome);
+            JsonNode formatsNode = videoInfo.get("formats");
+            List<StreamFormatWS> formats = objectMapper.convertValue(formatsNode, new TypeReference<List<StreamFormatWS>>(){});
+
+            Optional<StreamFormatWS> filteredAndAbrSorted = formats.stream()
+                    .filter(e ->
+                         !isChrome && StringUtils.equals(e.getExtension(), "webm") ? false : true
+                    )
+                    .sorted(Comparator.comparing(StreamFormatWS::isAudioOnly)
+                                    .reversed()
+                            .thenComparing(Comparator.comparing(StreamFormatWS::getAbr)
+                                            .reversed()))
+                    .findFirst();
+            if (filteredAndAbrSorted.isPresent()) {
+                // log.info(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(filteredAndAbrSorted.get()));
+                streamWS.setRecommendedFormat(filteredAndAbrSorted.get());
             }
-            return StreamWS.ERROR;
+            // streamWS.setFormats(formats);
+            return streamWS;
         } catch (Exception e) {
-            log.info("Error parsing video json extract", e);
-            return StreamWS.ERROR;
+            throw new RuntimeException(String.format("Error mapping stream values to StreamWS", e));
         }
     }
 }
