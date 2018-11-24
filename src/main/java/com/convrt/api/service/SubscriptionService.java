@@ -30,6 +30,8 @@ public class SubscriptionService {
     private ContextService contextService;
     @Autowired
     private ChannelService channelService;
+    @Autowired
+    private VideoUploadEventService videoUploadEventService;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMM d, uuuu").withZone(ZoneOffset.UTC);
 
@@ -49,6 +51,8 @@ public class SubscriptionService {
             throw new RuntimeException(String.format("You have already subscribed to %s", channel.getName()));
         }
         subscriptionRepository.save(sub);
+        // TODO - Call PubSubHub Here - Subscribe
+        videoUploadEventService.subscribe(channel.getChannelId());
         return sub;
     }
 
@@ -63,7 +67,16 @@ public class SubscriptionService {
             throw new RuntimeException("Cannot delete subscription for user. Subscription uuid is null.");
         }
         User user = contextService.validateUserByToken(token);
+        Subscription subscription = subscriptionRepository.findOne(uuid);
+        String channelUuid = subscription.getChannel().getUuid();
+        // TODO - CHECK TO SEE IF THERE ARE ANY OTHER SUBSCRIBERS FOR WEBHOOK, IF SO THEN WE CAN SET THIS CHANNEL AS NOT SUBSCRIBED
         subscriptionRepository.deleteByUuidAndUser(uuid, user);
+        long subCount = subscriptionRepository.countByChannelUuid(channelUuid);
+        if (subCount == 0) {
+            Channel channel = channelService.readChannel(channelUuid);
+            channel.setSubscribed(false);
+            videoUploadEventService.unsubscribe(channel.getChannelId());
+        }
     }
 
     @Transactional(readOnly = true)

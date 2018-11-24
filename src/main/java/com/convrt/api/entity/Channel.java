@@ -16,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "channel", indexes = {@Index(name = "channel_name_idx0", columnList = "name")})
+@Table(name = "channel", indexes = {@Index(name = "channel_name_idx0", columnList = "name"), @Index(name = "channel_channel_id_idx1", columnList = "channel_id")})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Channel {
     @Id
@@ -28,6 +28,12 @@ public class Channel {
 
     @Column(name = "avatar_url", length = 300)
     private String avatarUrl;
+
+    @Column(name = "channel_id", length = 50)
+    private String channelId;
+
+    @Column(name = "is_subscribed")
+    private boolean subscribed;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "channel", orphanRemoval = true)

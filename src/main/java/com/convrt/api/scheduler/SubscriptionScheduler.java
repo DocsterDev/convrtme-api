@@ -24,7 +24,7 @@ public class SubscriptionScheduler {
     private VideoService videoService;
 
     //@Scheduled(fixedRate = 3600000)
-    public void scanNewVideos() {
+/*    public void scanNewVideos() {
         subscriptionService.readAllDistinctChannels().stream().forEach((channel) -> {
             log.info("Running search : {}", String.format("%s new videos", channel.getName()));
             List<Video> channelVideoResults = searchService.getSearch(String.format("%s new videos", channel.getName()));
@@ -43,9 +43,9 @@ public class SubscriptionScheduler {
 
             }
         });
-    }
+    }*/
 
-    public void updateOrAddVideo(Video video, Channel channel){
+/*    public void updateOrAddVideo(Video video, Channel channel){
         Video videoPersistent = videoService.readVideoByVideoId(video.getId());
         if (videoPersistent == null) {
             videoPersistent = new Video();
@@ -63,5 +63,5 @@ public class SubscriptionScheduler {
         videoPersistent.setChannel(channel);
         videoPersistent.setSubscriptionScannedDate(Instant.now());
         videoService.createOrUpdateVideo(videoPersistent);
-    }
+    }*/
 }

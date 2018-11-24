@@ -21,4 +21,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Stri
 
     List<Subscription> findByUser(User user);
 
+    Long countByChannelUuid(String channelUuid);
+
 }

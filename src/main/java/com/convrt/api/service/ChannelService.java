@@ -26,6 +26,7 @@ public class ChannelService {
     public Channel createChannel(Channel channel) {
         String uuid = UUIDUtils.generateUuid(channel.getName());
         Channel channelPersistent = readChannel(uuid);
+        log.info("CREATING CHANNEL ID :: {}", channel.getChannelId());
         if (channelPersistent == null) {
             channel.setUuid(uuid);
             channelPersistent = channelRepository.save(channel);
@@ -34,6 +35,22 @@ public class ChannelService {
             channelPersistent.setAvatarUrl(StringUtils.isNotBlank(channel.getAvatarUrl()) ? channel.getAvatarUrl() : channelPersistent.getAvatarUrl());
         }
         return channelPersistent;
+    }
+
+    @Transactional
+    public void updateSubscribed(String channelId, String mode) {
+        if (!StringUtils.equalsAny(mode, "subscribe", "unsubscribe")) {
+            log.error("Channel update subscribed mode is unknown: Mode: {}", mode);
+            return;
+        }
+        Channel channel = channelRepository.findChannelByChannelId(channelId);
+        boolean isSubscribed = StringUtils.equals(mode, "subscribe");
+        if (channel == null) {
+            log.error("No Channel found with channel ID {} to update subscription to {}", channelId, isSubscribed);
+            return;
+        }
+        log.info("Setting subscribed to {} for Channel ID: {}", isSubscribed, channelId);
+        channel.setSubscribed(isSubscribed);
     }
 
     @Transactional(readOnly = true)

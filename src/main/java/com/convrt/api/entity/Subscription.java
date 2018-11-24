@@ -12,6 +12,10 @@ import java.time.Instant;
 @Entity
 @Table(name = "subscription", uniqueConstraints = {@UniqueConstraint(columnNames = {"channel_uuid", "user_uuid"})}, indexes = {@Index(name = "subscription_channel_idx0", columnList = "channel_uuid"), @Index(name = "subscription_user_uuid_idx1", columnList = "user_uuid")})
 public class Subscription extends BaseEntity {
+
+    @Column(name = "channel_uuid", updatable = false, insertable = false)
+    private String channelUuid;
+
     @Column(name = "subscribedDate")
     private Instant subscribedDate;
 

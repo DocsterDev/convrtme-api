@@ -106,7 +106,11 @@ public class RecommendedService {
                 searchResult.setId(next.get("videoId").asText());
                 searchResult.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", searchResult.getId()));
                 searchResult.setTitle(next.get("title").get("simpleText").asText());
-                searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
+                JsonNode owner = next.get("shortBylineText").get("runs").get(0);
+                String channelId = owner.get("navigationEndpoint").get("browseEndpoint").get("browseId").asText();
+                searchResult.setChannelId(channelId);
+                searchResult.setOwner(owner.get("text").asText());
+                //searchResult.setOwner(next.get("shortBylineText").get("runs").get(0).get("text").asText());
                 searchResult.setViewCount(next.get("shortViewCountText").get("simpleText").asText());
                 searchResult.setDuration(next.get("lengthText").get("simpleText").asText());
                 if (next.hasNonNull("channelThumbnail")) {
