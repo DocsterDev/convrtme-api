@@ -44,8 +44,10 @@ public class VideoUploadEventService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         MultiValueMap<String, String> map= new LinkedMultiValueMap();
 
+        String topicEndpoint = String.format("https://www.youtube.com/xml/feeds/videos.xml?channel_id=%s", channelId);
+        log.info("Topic endpoint: {}", topicEndpoint);
         map.add("hub.callback", subscriptionCallbackUrl + "/api/video/event");
-        map.add("hub.topic", String.format("https://www.youtube.com/xml/feeds/videos.xml?channel_id=%s", channelId));
+        map.add("hub.topic", topicEndpoint);
         map.add("hub.mode", action);
         map.add("hub.verify", "async");
         map.add("hub.verify_token", channelId);
@@ -58,7 +60,7 @@ public class VideoUploadEventService {
             log.info("Successfully {}d to/from channel ID {}", action, channelId);
             return;
         }
-        throw new RuntimeException(String.format("Error %sing to channel id %s: Status code: %s", action, channelId, response.getStatusCodeValue()));
+        throw new RuntimeException(String.format("Error %sing to channel id %s: Status code: %s", action, channelId, response.getStatusCode()));
     }
 
     @Transactional

@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StopWatch;
 
 import java.time.Instant;
@@ -51,8 +54,17 @@ public class SubscriptionService {
             throw new RuntimeException(String.format("You have already subscribed to %s", channel.getName()));
         }
         subscriptionRepository.save(sub);
+        String channelId = channel.getChannelId();
         // TODO - Call PubSubHub Here - Subscribe
-        videoUploadEventService.subscribe(channel.getChannelId());
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        log.info("Waiting until after commit");
+                        videoUploadEventService.subscribe(channelId);
+                    }
+                });
+
         return sub;
     }
 

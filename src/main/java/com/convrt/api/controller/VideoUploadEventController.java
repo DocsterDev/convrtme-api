@@ -54,7 +54,7 @@ public class VideoUploadEventController {
         return challenge;
     }
 
-    @PostMapping(value = "/event", consumes = MediaType.APPLICATION_RSS_XML_VALUE)
+    @PostMapping(value = "/event", consumes = MediaType.APPLICATION_ATOM_XML_VALUE)
     public void receiveUploadVideoEvent(@RequestBody String body) {
         String channelId;
         String videoId;

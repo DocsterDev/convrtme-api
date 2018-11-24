@@ -8,7 +8,7 @@ server:
   address: localhost
   publicAddress: http://localhost:4200
 
-subscriptionCallbackUrl: http://21ab5097.ngrok.io
+subscriptionCallbackUrl: http://763a58fa.ngrok.io
 
 spring:
   jpa:
