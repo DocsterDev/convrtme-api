@@ -17,6 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Iterator;
 
 @Slf4j
@@ -24,6 +27,7 @@ import java.util.Iterator;
 @RequestMapping("/api/video")
 public class VideoUploadEventController {
     private static final ObjectMapper XML_MAPPER = new XmlMapper();
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
     @Autowired
     private VideoUploadEventService videoUploadEventService;
@@ -60,6 +64,7 @@ public class VideoUploadEventController {
         String videoId;
         String title;
         String owner;
+        String publishedDate;
         try {
             ObjectNode object = XML_MAPPER.readValue(body, ObjectNode.class);
             JsonNode entry = object.get("entry");
@@ -67,15 +72,16 @@ public class VideoUploadEventController {
             videoId = entry.get("videoId").asText();
             title = entry.get("title").asText();
             owner = entry.get("author").get("name").asText();
-            log.info("Video id:   {}", videoId);
-            log.info("Channel id: {}", channelId);
-            log.info("Title:      {}", title);
-            log.info("Owner:      {}", owner);
+            publishedDate = entry.get("published").asText();
 
             Video video = new Video();
             video.setId(videoId);
             video.setTitle(title);
             video.setOwner(owner);
+
+            TemporalAccessor accessor = DATE_TIME_FORMATTER.parse(publishedDate);
+            Instant publishedDateTime = Instant.from(accessor);
+            video.setUploadDate(publishedDateTime);
             videoUploadEventService.updateOrAddVideo(channelId, video);
         } catch (Exception e) {
             throw new RuntimeException(String.format("Unable to parse xml body: %s", body), e);

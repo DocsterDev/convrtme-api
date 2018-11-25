@@ -1,10 +1,9 @@
 package com.convrt.api.service;
 
-import com.convrt.api.entity.Channel;
-import com.convrt.api.entity.Context;
-import com.convrt.api.entity.User;
-import com.convrt.api.entity.Video;
+import com.convrt.api.entity.*;
+import com.convrt.api.repository.UserVideoRepository;
 import com.convrt.api.repository.VideoRepository;
+import com.convrt.api.utils.UUIDUtils;
 import com.convrt.api.view.View;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.google.common.collect.Lists;
@@ -28,6 +27,8 @@ public class VideoService {
     private VideoRepository videoRepository;
     @Autowired
     private ContextService contextService;
+    @Autowired
+    private UserVideoRepository userVideoRepository;
 
     @Transactional
     public Video createOrUpdateVideo(Video video) {
@@ -54,21 +55,6 @@ public class VideoService {
         sw.stop();
         log.info("Took {}ms to save videos", sw.getTotalTimeMillis());
     }
-
-    /*
-    @Transactional(readOnly = true)
-    public Video readVideoMetadata(String id) {
-        Video video = videoRepository.findByIdAndStreamUrlExpireDateNotNull(id);
-        if (video == null) {
-            return null;
-        }
-        Instant expireDate = video.getStreamUrlExpireDate();
-        if (Instant.now().isBefore(expireDate)) {
-            return video;
-        }
-        return null;
-    }
-    */
 
     @Transactional
     public Video updateVideo(Video video) {
@@ -107,17 +93,33 @@ public class VideoService {
     @Async
     @Transactional
     public Video updateVideoWatched(String videoId, String token) {
+        // TODO - Add Temporal auto generated date column to user_video table
         Video videoPersistent = videoRepository.findById(videoId);
         if (videoPersistent == null) {
             videoPersistent = new Video();
             videoPersistent.setId(videoId);
         }
-        Video video = createOrUpdateVideo(videoPersistent);
+        videoPersistent = videoRepository.save(videoPersistent);
         if (token != null) {
             Context context = contextService.validateContext(token);
             if (context != null) {
                 User user = context.getUser();
-                user.getVideos().add(video);
+                UserVideo userVideoPersistent = userVideoRepository.findFirstByUserOrderByVideosOrderDesc(user);
+                int count = 0;
+                if (userVideoPersistent != null) {
+                    count = userVideoPersistent.getVideosOrder();
+                    log.info("Current user video count: {}", count);
+                    count++;
+                }
+                UserVideo userVideo = new UserVideo();
+                userVideo.setUuid(UUIDUtils.generateUuid(user.getUuid() + count));
+                userVideo.setUser(user);
+                userVideo.setVideo(videoPersistent);
+                userVideo.setVideosOrder(count);
+                userVideo.setViewedDate(Instant.now());
+
+                userVideoRepository.save(userVideo);
+                //user.getVideos().add(videoPersistent);
             }
             log.info("Updating video as watch for user");
         }

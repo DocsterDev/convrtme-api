@@ -1,24 +1,31 @@
-/*package com.convrt.api.entity;
+package com.convrt.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 
+@Slf4j
 @Data
-//@NoArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "user_video", indexes = {@Index(name = "user_video_user_uuid_idx0", columnList = "user_uuid"), @Index(name = "user_video_video_id_idx0", columnList = "video_id"), @Index(name = "user_video_videos_order_idx0", columnList = "videos_order")}) //
+@Table(name = "user_video", indexes = {@Index(name = "user_video_user_uuid_idx0", columnList = "user_uuid"), @Index(name = "user_video_video_id_idx0", columnList = "video_id"), @Index(name = "user_video_videos_order_idx0", columnList = "videos_order")})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class UserVideo extends BaseEntity implements Serializable {
+public class UserVideo implements Serializable {
 
-    public UserVideo() {
-        this.uuid = UUID.randomUUID().toString();
-    }
+    @Id
+    @Column(name = "uuid", length = 36)
+    private String uuid;
+
+    @Column(name = "user_uuid", length = 36, insertable = false, updatable = false)
+    private String userUuid;
+
+    @Column(name = "video_id", length = 36, insertable = false, updatable = false)
+    private String videoId;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_uuid", foreignKey = @ForeignKey(name = "fk_user_video_user_uuid"))
@@ -31,13 +38,13 @@ public class UserVideo extends BaseEntity implements Serializable {
     @Column(name = "videos_order")
     private int videosOrder;
 
-//    @Column(name = "viewed_date", updatable = false)
-//    public Instant viewedDate = Instant.now();
-//
+    @Column(name = "viewed_date")
+    private Instant viewedDate;
+
 //    @PrePersist
-//    protected void prePersist() {
+//    protected void onCreate() {
+//        log.info("Setting timestamp");
 //        this.viewedDate = Instant.now();
 //    }
 }
 
-*/

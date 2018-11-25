@@ -44,7 +44,7 @@ public class Video {
     private Instant subscriptionScannedDate;
 
     @Column(name = "upload_date")
-    private LocalDate uploadDate;
+    private Instant uploadDate;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

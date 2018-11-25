@@ -67,6 +67,7 @@ public class VideoUploadEventService {
     public void updateOrAddVideo(String channelId, Video video) {
         Channel channel = channelRepository.findChannelByChannelId(channelId);
         if (channel == null) {
+            unsubscribe(channelId);
             throw new RuntimeException(String.format("No channel found for channel id %s", channelId));
         }
         List<Video> videoObjList = channel.getVideos();

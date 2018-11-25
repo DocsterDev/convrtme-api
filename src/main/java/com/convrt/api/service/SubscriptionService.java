@@ -2,6 +2,7 @@ package com.convrt.api.service;
 
 import com.convrt.api.entity.*;
 import com.convrt.api.repository.SubscriptionRepository;
+import com.convrt.api.repository.UserVideoRepository;
 import com.convrt.api.view.Status;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,6 +36,8 @@ public class SubscriptionService {
     private ChannelService channelService;
     @Autowired
     private VideoUploadEventService videoUploadEventService;
+    @Autowired
+    private UserVideoRepository userVideoRepository;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("EEEE, MMM d, uuuu").withZone(ZoneOffset.UTC);
 
@@ -81,7 +84,6 @@ public class SubscriptionService {
         User user = contextService.validateUserByToken(token);
         Subscription subscription = subscriptionRepository.findOne(uuid);
         String channelUuid = subscription.getChannel().getUuid();
-        // TODO - CHECK TO SEE IF THERE ARE ANY OTHER SUBSCRIBERS FOR WEBHOOK, IF SO THEN WE CAN SET THIS CHANNEL AS NOT SUBSCRIBED
         subscriptionRepository.deleteByUuidAndUser(uuid, user);
         long subCount = subscriptionRepository.countByChannelUuid(channelUuid);
         if (subCount == 0) {
@@ -122,7 +124,8 @@ public class SubscriptionService {
         Map<String, List<Video>> subscribedVideos = Maps.newLinkedHashMap();
         user.getSubscriptions().stream().forEach((subscription) -> {
             subscription.getChannel().getVideos().stream().forEach((video) -> {
-                if (!isVideoWatched(video, user.getVideos())) {
+                List<UserVideo> watchedVideos = userVideoRepository.findDistinctByUserUuid(user.getUuid());
+                if (!isVideoWatched(video, watchedVideos)) {
                     String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
                     if (!subscribedVideos.containsKey(date)) {
                         subscribedVideos.put(date, Lists.newLinkedList());
@@ -144,7 +147,8 @@ public class SubscriptionService {
             Channel channel = subscription.getChannel();
             String channelName = channel.getName();
             channel.getVideos().stream().forEach((video) -> {
-                if (!isVideoWatched(video, user.getVideos())) {
+                List<UserVideo> watchedVideos = userVideoRepository.findDistinctByUserUuid(user.getUuid());
+                if (!isVideoWatched(video, watchedVideos)) {
                     if (!subscribedVideos.containsKey(channelName)) {
                         subscribedVideos.put(channelName, Lists.newLinkedList());
                     }
@@ -166,9 +170,9 @@ public class SubscriptionService {
         return sortedSubscribedVideos;
     }
 
-    private boolean isVideoWatched(Video video, List<Video> watchedVideos) {
-        for (Video watchedVideo : watchedVideos) {
-            if (video.getId().equals(watchedVideo.getId())) {
+    private boolean isVideoWatched(Video video, List<UserVideo> watchedVideos) {
+        for (UserVideo watchedVideo : watchedVideos) {
+            if (video.getId().equals(watchedVideo.getVideoId())) {
                 return true;
             }
         }

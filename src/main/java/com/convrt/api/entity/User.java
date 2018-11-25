@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @Table(name = "user",
         uniqueConstraints = {@UniqueConstraint(columnNames = "email")},
         indexes = {@Index(name = "user_email_idx0", columnList = "email"), @Index(name = "user_pin_idx1", columnList = "pin")})
-public class User extends BaseEntity {
+public class User extends BaseEntity implements Serializable {
 
     public User (String email, String pin) {
         this.uuid = UUID.randomUUID().toString();
@@ -54,9 +55,9 @@ public class User extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true)
     private List<Subscription> subscriptions;
 
-    @JsonIgnore
-    @OrderColumn
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_video", joinColumns = @JoinColumn(name = "user_uuid"), inverseJoinColumns = @JoinColumn(name = "video_id"))
-    private List<Video> videos = Lists.newArrayList();
+//    @JsonIgnore
+//    @OrderColumn
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JoinTable(name = "user_video", joinColumns = @JoinColumn(name = "user_uuid"), inverseJoinColumns = @JoinColumn(name = "video_id"))
+//    private List<Video> videos = Lists.newArrayList();
 }
