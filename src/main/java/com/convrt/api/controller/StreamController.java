@@ -44,4 +44,10 @@ public class StreamController {
     public void updateVideoWatched(@PathVariable("videoId") String videoId, @RequestHeader("token") String token) {
         videoService.updateVideoWatched(videoId, token);
     }
+
+    @PutMapping("/{videoId}/position")
+    public void updatePlayheadPosition(@RequestHeader("token") String token, @PathVariable("videoId") String videoId, @RequestParam("position") Long position) {
+        videoService.updatePlayheadPosition(token, videoId, position);
+    }
+
 }

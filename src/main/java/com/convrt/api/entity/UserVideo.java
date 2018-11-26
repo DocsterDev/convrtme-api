@@ -41,6 +41,9 @@ public class UserVideo implements Serializable {
     @Column(name = "viewed_date")
     private Instant viewedDate;
 
+    @Column(name = "playhead_position")
+    private Long playheadPosition;
+
 //    @PrePersist
 //    protected void onCreate() {
 //        log.info("Setting timestamp");

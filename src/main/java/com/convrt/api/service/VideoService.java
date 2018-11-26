@@ -93,37 +93,54 @@ public class VideoService {
     @Async
     @Transactional
     public Video updateVideoWatched(String videoId, String token) {
+        if (token == null) {
+            return null;
+        }
         // TODO - Add Temporal auto generated date column to user_video table
         Video videoPersistent = videoRepository.findById(videoId);
         if (videoPersistent == null) {
             videoPersistent = new Video();
             videoPersistent.setId(videoId);
+            videoPersistent = videoRepository.save(videoPersistent);
         }
-        videoPersistent = videoRepository.save(videoPersistent);
-        if (token != null) {
-            Context context = contextService.validateContext(token);
-            if (context != null) {
-                User user = context.getUser();
-                UserVideo userVideoPersistent = userVideoRepository.findFirstByUserOrderByVideosOrderDesc(user);
-                int count = 0;
-                if (userVideoPersistent != null) {
-                    count = userVideoPersistent.getVideosOrder();
-                    log.info("Current user video count: {}", count);
-                    count++;
-                }
-                UserVideo userVideo = new UserVideo();
-                userVideo.setUuid(UUIDUtils.generateUuid(user.getUuid() + count));
-                userVideo.setUser(user);
-                userVideo.setVideo(videoPersistent);
-                userVideo.setVideosOrder(count);
-                userVideo.setViewedDate(Instant.now());
-
-                userVideoRepository.save(userVideo);
-                //user.getVideos().add(videoPersistent);
+        Context context = contextService.validateContext(token);
+        if (context != null) {
+            User user = context.getUser();
+            UserVideo userVideoPersistent = userVideoRepository.findFirstByUserUuidOrderByVideosOrderDesc(user.getUuid());
+            int count = 0;
+            if (userVideoPersistent != null) {
+                count = userVideoPersistent.getVideosOrder();
+                log.info("Current user video count: {}", count);
+                count++;
             }
+            UserVideo userVideo = new UserVideo();
+            userVideo.setUuid(UUIDUtils.generateUuid(user.getUuid() + count));
+            userVideo.setUser(user);
+            userVideo.setVideo(videoPersistent);
+            userVideo.setVideosOrder(count);
+            userVideo.setViewedDate(Instant.now());
+            userVideo.setPlayheadPosition(0L);
+            userVideoRepository.save(userVideo);
             log.info("Updating video as watch for user");
+            return videoPersistent;
         }
-        return videoPersistent;
+        log.error("Unable to update video as watched. No user context found.");
+        return null;
+    }
+
+    @Async
+    @Transactional
+    public void updatePlayheadPosition(String token, String videoId, Long position) {
+        Context context = contextService.validateContext(token);
+        if (context != null) {
+            User user = context.getUser();
+            UserVideo userVideoPersistent = userVideoRepository.findFirstByUserUuidAndVideoIdOrderByVideosOrderDesc(user.getUuid(), videoId);
+            userVideoPersistent.setPlayheadPosition(position);
+            log.info("Successfully updated video id {} to position {}", videoId, position);
+            return;
+        }
+        log.error("Unable to update video as watched. No user context found.");
+        return;
     }
 
     @Transactional
