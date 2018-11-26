@@ -22,7 +22,7 @@ public class CorsInterceptFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		response.addHeader("Access-Control-Allow-Origin", publicAddress);
-		response.addHeader("Access-Control-Allow-Headers", "Content-Type, Token");
+		response.addHeader("Access-Control-Allow-Headers", "Content-Type, Token, email, pin");
 		response.addHeader("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE,OPTIONS");
 		response.addHeader("Access-Control-Allow-Credentials", "true");
 		filterChain.doFilter(request, response);
