@@ -74,6 +74,9 @@ public class Video {
     private String dateScanned;
 
     @Transient
+    private String dateLastWatched;
+
+    @Transient
     private boolean isNew;
 
     @Transient

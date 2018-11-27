@@ -19,10 +19,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -125,7 +122,11 @@ public class SubscriptionService {
         user.getSubscriptions().stream().forEach((subscription) -> {
             subscription.getChannel().getVideos().stream().forEach((video) -> {
                 List<UserVideo> watchedVideos = userVideoRepository.findDistinctByUserUuid(user.getUuid());
-                if (!isVideoWatched(video, watchedVideos)) {
+                //if (!isVideoWatched(video, watchedVideos)) {
+                    Instant dateWatched = getDateLastWatched(video, watchedVideos);
+                    if (dateWatched != null) {
+                        video.setDateLastWatched(DateTimeFormatter.ISO_INSTANT.format(dateWatched));
+                    }
                     String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).format(DATE_FORMATTER);
                     if (!subscribedVideos.containsKey(date)) {
                         subscribedVideos.put(date, Lists.newLinkedList());
@@ -135,7 +136,7 @@ public class SubscriptionService {
                         video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);
                  //   }
-                }
+                //}
             });
         });
         return subscribedVideos;
@@ -148,7 +149,7 @@ public class SubscriptionService {
             String channelName = channel.getName();
             channel.getVideos().stream().forEach((video) -> {
                 List<UserVideo> watchedVideos = userVideoRepository.findDistinctByUserUuid(user.getUuid());
-                if (!isVideoWatched(video, watchedVideos)) {
+               // if (!isVideoWatched(video, watchedVideos)) {
                     if (!subscribedVideos.containsKey(channelName)) {
                         subscribedVideos.put(channelName, Lists.newLinkedList());
                     }
@@ -156,10 +157,14 @@ public class SubscriptionService {
                     //if (videos.size() < 3) {
                         // String date = LocalDateTime.ofInstant(video.getSubscriptionScannedDate(), ZoneOffset.UTC).toString();
                         video.setDateScanned(DateTimeFormatter.ISO_INSTANT.format(video.getSubscriptionScannedDate()));
+                        Instant dateWatched = getDateLastWatched(video, watchedVideos);
+                        if (dateWatched != null) {
+                            video.setDateLastWatched(DateTimeFormatter.ISO_INSTANT.format(dateWatched));
+                        }
                         video.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", video.getId()));
                         videos.add(video);
                    // }
-                }
+               // }
             });
         });
         Map<String, List<Video>> sortedSubscribedVideos = Maps.newLinkedHashMap();
@@ -170,13 +175,14 @@ public class SubscriptionService {
         return sortedSubscribedVideos;
     }
 
-    private boolean isVideoWatched(Video video, List<UserVideo> watchedVideos) {
-        for (UserVideo watchedVideo : watchedVideos) {
-            if (video.getId().equals(watchedVideo.getVideoId())) {
-                return true;
-            }
+    private Instant getDateLastWatched(Video video, List<UserVideo> watchedVideos) {
+        Optional<UserVideo> lastWatchedLog = watchedVideos.stream().filter(e -> e.getVideoId().equals(video.getId())).sorted(Comparator.comparing(UserVideo::getViewedDate).reversed()).findFirst();
+        if (lastWatchedLog.isPresent()) {
+            UserVideo userVideo = lastWatchedLog.get();
+            log.info("Found last viewed date: {}", userVideo.getViewedDate());
+            return userVideo.getViewedDate();
         }
-        return false;
+        return null;
     }
 
     @Transactional(readOnly = true)
