@@ -179,7 +179,6 @@ public class SubscriptionService {
         Optional<UserVideo> lastWatchedLog = watchedVideos.stream().filter(e -> e.getVideoId().equals(video.getId())).sorted(Comparator.comparing(UserVideo::getViewedDate).reversed()).findFirst();
         if (lastWatchedLog.isPresent()) {
             UserVideo userVideo = lastWatchedLog.get();
-            log.info("Found last viewed date: {}", userVideo.getViewedDate());
             return userVideo.getViewedDate();
         }
         return null;

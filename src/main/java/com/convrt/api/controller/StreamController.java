@@ -29,9 +29,9 @@ public class StreamController {
     private VideoService videoService;
 
     @GetMapping("/{videoId}/stream")
-    public StreamWS fetchMediaStreamUrl(@RequestHeader("User-Agent") String userAgent, @PathVariable("videoId") String videoId) {
+    public StreamWS fetchMediaStreamUrl(@RequestHeader("User-Agent") String userAgent, @RequestHeader(value="token", required=false) String token, @PathVariable("videoId") String videoId) {
         userAgentService.parseUserAgent(userAgent);
-        return streamService.fetchStreamUrl(videoId, userAgentService.isChrome());
+        return streamService.fetchStreamUrl(videoId, userAgentService.isChrome(), token);
     }
 
     @GetMapping("/{videoId}/metadata/prefetch")

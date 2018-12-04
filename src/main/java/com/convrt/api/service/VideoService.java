@@ -135,7 +135,9 @@ public class VideoService {
         if (context != null) {
             User user = context.getUser();
             UserVideo userVideoPersistent = userVideoRepository.findFirstByUserUuidAndVideoIdOrderByVideosOrderDesc(user.getUuid(), videoId);
-            userVideoPersistent.setPlayheadPosition(position);
+            if (Objects.nonNull(userVideoPersistent)) {
+                userVideoPersistent.setPlayheadPosition(position);
+            }
             log.info("Successfully updated video id {} to position {}", videoId, position);
             return;
         }

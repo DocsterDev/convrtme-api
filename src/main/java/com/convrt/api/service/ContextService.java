@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -69,6 +70,12 @@ public class ContextService {
         return context.getUser();
     }
 
+    @Transactional(readOnly = true)
+    public User validateUserByTokenNoCheck(String token) {
+        Context context = validateContext(token);
+        return Objects.nonNull(context) ? context.getUser() : null;
+    }
+
     @Transactional
     public Context createNewContext(User user, String userAgent, UserLocationWS userLocation) {
         Context context = new Context();
@@ -113,7 +120,7 @@ public class ContextService {
 
     @Transactional
     public Context validateContext(String token) {
-        return contextRepository.findByTokenAndValidIsTrue(token);
+        return contextRepository.findByToken(token);
     }
 
     @Transactional

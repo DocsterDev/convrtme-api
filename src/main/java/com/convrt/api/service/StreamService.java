@@ -1,10 +1,10 @@
 package com.convrt.api.service;
 
-import com.convrt.api.entity.Channel;
+import com.convrt.api.entity.*;
 //import com.convrt.api.entity.Stream;
-import com.convrt.api.entity.Video;
 import com.convrt.api.repository.ChannelRepository;
 import com.convrt.api.repository.StreamRepository;
+import com.convrt.api.repository.UserVideoRepository;
 import com.convrt.api.utils.UUIDUtils;
 import com.convrt.api.view.StreamFormatWS;
 import com.convrt.api.view.StreamWS;
@@ -43,6 +43,10 @@ public class StreamService {
     @Autowired
     private AudioExtractorService audioExtractorService;
     @Autowired
+    private ContextService contextService;
+    @Autowired
+    private UserVideoRepository userVideoRepository;
+    @Autowired
     private ObjectMapper objectMapper;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuuMMdd");
@@ -52,9 +56,9 @@ public class StreamService {
 //        return streamRepository.findByVideoIdAndExtension(videoId, extension);
 //    }
 
-    public StreamWS fetchStreamUrl(String videoId, boolean isChrome) {
+    public StreamWS fetchStreamUrl(String videoId, boolean isChrome, String token) {
         log.info("Fetching video url for id {}", videoId);
-        StreamWS streamWS = getYoutubeDLStream(videoId, isChrome);
+        StreamWS streamWS = getYoutubeDLStream(videoId, isChrome, token);
         return streamWS;
     }
 
@@ -108,7 +112,7 @@ public class StreamService {
     }
     */
 
-    public StreamWS getYoutubeDLStream(String videoId, boolean isChrome){
+    public StreamWS getYoutubeDLStream(String videoId, boolean isChrome, String token){
         ProcessBuilder pb = audioExtractorService.buildProcess(videoId, isChrome);
         try {
             Process p = pb.start();
@@ -118,21 +122,22 @@ public class StreamService {
                 if (StringUtils.isBlank(output) || StringUtils.isNotBlank(error)) {
                     throw new RuntimeException(String.format("No stream found for video %s", videoId));
                 }
-                return parseVideoInfo(output, isChrome);
+                return parseVideoInfo(output, isChrome, token);
             } catch (IOException e) {
                 throw new RuntimeException(String.format("No stream found for video %s", videoId));
             }
         } catch (Exception e) {
-            throw new RuntimeException(String.format("No stream found for video %s", videoId));
+            throw new RuntimeException(e);
         }
     }
 
 
-    private StreamWS parseVideoInfo(String videoInfoJson, boolean isChrome) {
+    private StreamWS parseVideoInfo(String videoInfoJson, boolean isChrome, String token) {
         try {
             JsonNode videoInfo = objectMapper.readTree(videoInfoJson);
             StreamWS streamWS = new StreamWS();
-            streamWS.setId(videoInfo.get("id").asText());
+            String videoId = videoInfo.get("id").asText();
+            streamWS.setId(videoId);
             streamWS.setTitle(videoInfo.get("title").asText());
             streamWS.setDuration(videoInfo.get("duration").asLong());
             streamWS.setOwner(videoInfo.get("uploader").asText());
@@ -141,6 +146,15 @@ public class StreamService {
             LocalDate uploadDate = LocalDate.parse(uploadDateStr, DATE_FORMATTER);
             streamWS.setUploadDate(uploadDate);
             streamWS.setChrome(isChrome);
+            if (StringUtils.isNotBlank(token)) {
+                User user = contextService.validateUserByTokenNoCheck(token);
+                if (user != null) {
+                    UserVideo userVideo = userVideoRepository.findFirstByUserUuidAndVideoIdOrderByVideosOrderDesc(user.getUuid(), videoId);
+                    Long elapsed = userVideo != null ? userVideo.getPlayheadPosition() : null;
+                    streamWS.setWatchedTime(elapsed);
+                }
+            }
+
             JsonNode formatsNode = videoInfo.get("formats");
             List<StreamFormatWS> formats = objectMapper.convertValue(formatsNode, new TypeReference<List<StreamFormatWS>>(){});
 
@@ -160,7 +174,7 @@ public class StreamService {
             // streamWS.setFormats(formats);
             return streamWS;
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Error mapping stream values to StreamWS", e));
+            throw new RuntimeException(e);
         }
     }
 }

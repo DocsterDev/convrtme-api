@@ -15,6 +15,7 @@ public class StreamWS {
     private String title;
     private String owner;
     private String description;
+    private Long watchedTime;
     private long duration;
     private LocalDate uploadDate;
     private boolean isChrome;
