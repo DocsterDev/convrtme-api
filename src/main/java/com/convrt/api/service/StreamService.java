@@ -131,8 +131,8 @@ public class StreamService {
         }
     }
 
-
-    private StreamWS parseVideoInfo(String videoInfoJson, boolean isChrome, String token) {
+    @Transactional
+    public StreamWS parseVideoInfo(String videoInfoJson, boolean isChrome, String token) {
         try {
             JsonNode videoInfo = objectMapper.readTree(videoInfoJson);
             StreamWS streamWS = new StreamWS();
@@ -150,8 +150,11 @@ public class StreamService {
                 User user = contextService.validateUserByTokenNoCheck(token);
                 if (user != null) {
                     UserVideo userVideo = userVideoRepository.findFirstByUserUuidAndVideoIdOrderByVideosOrderDesc(user.getUuid(), videoId);
-                    Long elapsed = userVideo != null ? userVideo.getPlayheadPosition() : null;
-                    streamWS.setWatchedTime(elapsed);
+                    if (userVideo != null) {
+                        Long elapsed = userVideo.getPlayheadPosition();
+                        streamWS.setWatchedTime(elapsed);
+                        // userVideo.setPlayheadPosition(null); // TODO Remove if you want to reset after seek load
+                    }
                 }
             }
 
