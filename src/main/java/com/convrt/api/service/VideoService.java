@@ -17,6 +17,7 @@ import org.springframework.util.StopWatch;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -51,15 +52,15 @@ public class VideoService {
                 videos.add(video);
             }
         });
-        videoRepository.save(videos);
+        videoRepository.saveAll(videos);
         sw.stop();
         log.info("Took {}ms to save videos", sw.getTotalTimeMillis());
     }
 
     @Transactional
     public Video updateVideo(Video video) {
-        Video videoPersistent = videoRepository.findById(video.getId());
-        if (videoPersistent == null) {
+        Optional<Video> videoPersistent = videoRepository.findById(video.getId());
+        if (!videoPersistent.isPresent()) {
             throw new RuntimeException(String.format("No video found to update: video id %s", video.getId()));
         }
         return videoRepository.save(video);
@@ -67,11 +68,11 @@ public class VideoService {
 
     @Transactional(readOnly = true)
     public Video readVideo(String id) {
-        Video video = videoRepository.findOne(id);
-        if (video == null) {
+        Optional<Video> video = videoRepository.findById(id);
+        if (!video.isPresent()) {
             throw new RuntimeException(String.format("Cannot find video with video id %s. Video must exist first.", id));
         }
-        return video;
+        return video.get();
     }
 
     @Transactional(readOnly=true)
@@ -82,12 +83,16 @@ public class VideoService {
     @JsonView(View.VideoWithPlaylist.class)
     @Transactional(readOnly = true)
     public Video readVideoByVideoId(String id) {
-        return videoRepository.findOne(id);
+        Optional<Video> video = videoRepository.findById(id);
+        if (!video.isPresent()) {
+            throw new RuntimeException(String.format("Cannot find video with video id %s. Video must exist first.", id));
+        }
+        return video.get();
     }
 
     @Transactional(readOnly = true)
     public boolean existsByVideoId(String videoId) {
-        return videoRepository.exists(videoId);
+        return videoRepository.existsById(videoId);
     }
 
     @Async
@@ -97,11 +102,14 @@ public class VideoService {
             return null;
         }
         // TODO - Add Temporal auto generated date column to user_video table
-        Video videoPersistent = videoRepository.findById(videoId);
-        if (videoPersistent == null) {
-            videoPersistent = new Video();
-            videoPersistent.setId(videoId);
-            videoPersistent = videoRepository.save(videoPersistent);
+        Optional<Video> videoPersistent = videoRepository.findById(videoId);
+        Video video = null;
+        if (!videoPersistent.isPresent()) {
+            video = new Video();
+            video.setId(videoId);
+            video = videoRepository.save(video);
+        } else {
+            video = videoPersistent.get();
         }
         Context context = contextService.validateContext(token);
         if (context != null) {
@@ -116,13 +124,13 @@ public class VideoService {
             UserVideo userVideo = new UserVideo();
             userVideo.setUuid(UUIDUtils.generateUuid(user.getUuid() + count));
             userVideo.setUser(user);
-            userVideo.setVideo(videoPersistent);
+            userVideo.setVideo(video);
             userVideo.setVideosOrder(count);
             userVideo.setViewedDate(Instant.now());
             userVideo.setPlayheadPosition(0L);
             userVideoRepository.save(userVideo);
             log.info("Updating video as watch for user");
-            return videoPersistent;
+            return video;
         }
         log.error("Unable to update video as watched. No user context found.");
         return null;

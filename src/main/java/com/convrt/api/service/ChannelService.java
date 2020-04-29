@@ -55,7 +55,7 @@ public class ChannelService {
 
     @Transactional(readOnly = true)
     public Channel readChannel(String uuid) {
-        return channelRepository.findOne(uuid);
+        return channelRepository.getOne(uuid);
     }
 
     @Transactional(readOnly = true)

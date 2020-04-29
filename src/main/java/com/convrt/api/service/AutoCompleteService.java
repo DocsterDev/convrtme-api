@@ -32,7 +32,7 @@ public class AutoCompleteService {
             restTemplate.getMessageConverters().add(converter);
             return restTemplate.getForObject(uriComponents.toUriString(), JsonNode.class);
         } catch (Exception e) {
-            log.error("Error parsing auto-recommendation results {}", input);
+            //log.error("Error parsing auto-recommendation results {}", input);
             return null;
         }
     }

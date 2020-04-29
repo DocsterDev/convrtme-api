@@ -8,6 +8,5 @@ import java.time.Instant;
 import java.util.List;
 
 public interface VideoRepository extends JpaRepository<Video, String> {
-	Video findById(String id);
 	List<Video> findVideosByChannelAndSubscriptionScannedDateIsAfter(Channel channel, Instant subscriptionScannedDate);
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -51,17 +52,19 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User readUser(String userUuid) {
-        User user = userRepository.findOne(userUuid);
-        if (user == null) {
+        // User user = userRepository.findOne(userUuid);
+        Optional<User> user = userRepository.findById(userUuid);
+        if (!user.isPresent()) {
             throw new RuntimeException(String.format("User not found uuid %s", userUuid));
         }
-        return user;
+        return user.get();
     }
 
     @Transactional
     public User updateUser(User user) {
-        User userPersistent = userRepository.findOne(user.getUuid());
-        if (userPersistent == null) {
+        // User userPersistent = userRepository.findOne(user.getUuid());
+        Optional<User> userPersistent = userRepository.findById(user.getUuid());
+        if (!userPersistent.isPresent()) {
             throw new RuntimeException(String.format("User not found to update uuid %s", user.getUuid()));
         }
         return userRepository.save(user);

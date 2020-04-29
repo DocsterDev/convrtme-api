@@ -79,7 +79,7 @@ public class SubscriptionService {
             throw new RuntimeException("Cannot delete subscription for user. Subscription uuid is null.");
         }
         User user = contextService.validateUserByToken(token);
-        Subscription subscription = subscriptionRepository.findOne(uuid);
+        Subscription subscription = subscriptionRepository.getOne(uuid);
         String channelUuid = subscription.getChannel().getUuid();
         subscriptionRepository.deleteByUuidAndUser(uuid, user);
         long subCount = subscriptionRepository.countByChannelUuid(channelUuid);
