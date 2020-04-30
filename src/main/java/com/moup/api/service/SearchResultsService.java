@@ -40,7 +40,7 @@ public class SearchResultsService {
                 JsonNode next = iterator.next().get("videoRenderer");
                 searchVideo.setId(next.get("videoId").asText());
                 searchVideo.setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", searchVideo.getId()));
-                searchVideo.setTitle(next.get("title").get("simpleText").asText());
+                searchVideo.setTitle(next.get("title").get("runs").get(0).get("text").asText());
                 JsonNode owner = next.get("shortBylineText").get("runs").get(0);
                 String channelId = owner.get("navigationEndpoint").get("browseEndpoint").get("browseId").asText();
                 searchVideo.setChannelId(channelId);
