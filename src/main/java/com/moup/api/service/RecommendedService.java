@@ -58,7 +58,7 @@ public class RecommendedService {
         NowPlayingVideoWS nowPlayingVideoWS = new NowPlayingVideoWS();
         if (Objects.nonNull(primaryVideoDetails)) {
             nowPlayingVideoWS.getNowPlayingVideo().setId(videoId);
-            nowPlayingVideoWS.getNowPlayingVideo().setTitle(primaryVideoDetails.get("title").get("simpleText").asText());
+            nowPlayingVideoWS.getNowPlayingVideo().setTitle(primaryVideoDetails.get("title").get("runs").get(0).get("text").asText());
             nowPlayingVideoWS.getNowPlayingVideo().setViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("shortViewCount").get("simpleText").asText());
             nowPlayingVideoWS.getNowPlayingVideo().setThumbnailUrl(String.format("http://i.ytimg.com/vi/%s/mqdefault.jpg", videoId));
             nowPlayingVideoWS.setShortViewCount(primaryVideoDetails.get("viewCount").get("videoViewCountRenderer").get("viewCount").get("simpleText").asText());
@@ -72,8 +72,8 @@ public class RecommendedService {
             }
             nowPlayingVideoWS.getNowPlayingVideo().setOwner(videoRenderer.get("title").get("runs").get(0).get("text").asText());
             //nowPlayingVideoWS.setCategory(secondaryVideoDetails.get("metadataRowContainer").get("metadataRowContainerRenderer").get("rows").get(0).get("metadataRowRenderer").get("contents").get(0).get("runs").get(0).get("text").asText());
-            nowPlayingVideoWS.setPublishedDate(secondaryVideoDetails.get("dateText").get("simpleText").asText());
-            nowPlayingVideoWS.getNowPlayingVideo().setPublishedTimeAgo(secondaryVideoDetails.get("dateText").get("simpleText").asText());
+            //nowPlayingVideoWS.setPublishedDate(secondaryVideoDetails.get("dateText").get("simpleText").asText());
+            //nowPlayingVideoWS.getNowPlayingVideo().setPublishedTimeAgo(secondaryVideoDetails.get("dateText").get("simpleText").asText());
             JsonNode description = secondaryVideoDetails.get("description");
             if (description != null) {
                 if (description.get("runs") != null) {
