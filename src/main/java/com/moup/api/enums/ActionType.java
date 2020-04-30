@@ -1,4 +1,4 @@
-package com.convrt.api.enums;
+package com.moup.api.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

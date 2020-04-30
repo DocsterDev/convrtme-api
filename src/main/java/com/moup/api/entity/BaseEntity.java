@@ -1,4 +1,4 @@
-package com.convrt.api.entity;
+package com.moup.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;

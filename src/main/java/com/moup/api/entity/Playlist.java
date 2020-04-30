@@ -1,6 +1,6 @@
-package com.convrt.api.entity;
+package com.moup.api.entity;
 
-import com.convrt.api.view.View;
+import com.moup.api.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;

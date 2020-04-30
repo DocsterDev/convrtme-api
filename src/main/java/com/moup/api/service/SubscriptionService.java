@@ -1,6 +1,10 @@
 package com.moup.api.service;
 
-import com.moup.api.entity.*;
+import com.moup.api.entity.Channel;
+import com.moup.api.entity.Subscription;
+import com.moup.api.entity.User;
+import com.moup.api.entity.UserVideo;
+import com.moup.api.entity.Video;
 import com.moup.api.repository.SubscriptionRepository;
 import com.moup.api.repository.UserVideoRepository;
 import com.google.common.collect.Lists;

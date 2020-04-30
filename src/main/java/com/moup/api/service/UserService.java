@@ -1,7 +1,7 @@
 package com.moup.api.service;
 
-import com.moup.api.repository.UserRepository;
 import com.moup.api.entity.User;
+import com.moup.api.repository.UserRepository;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,26 +1,20 @@
-package com.convrt.api.controller;
+package com.moup.api.controller;
 
-import com.convrt.api.entity.Video;
-import com.convrt.api.service.ChannelService;
-import com.convrt.api.service.VideoUploadEventService;
+import com.moup.api.entity.Video;
+import com.moup.api.service.ChannelService;
+import com.moup.api.service.VideoUploadEventService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.SimpleEmail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
-import java.util.Iterator;
 
 @Slf4j
 @RestController

@@ -1,7 +1,7 @@
-package com.convrt.api.controller;
+package com.moup.api.controller;
 
-import com.convrt.api.entity.Video;
-import com.convrt.api.service.SearchService;
+import com.moup.api.entity.Video;
+import com.moup.api.service.SearchService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

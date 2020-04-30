@@ -1,4 +1,4 @@
-package com.convrt.api.entity;
+package com.moup.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -11,7 +11,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j

@@ -1,4 +1,4 @@
-package com.convrt.api.entity;
+package com.moup.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Data

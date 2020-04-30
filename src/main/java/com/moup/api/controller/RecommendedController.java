@@ -1,13 +1,10 @@
-package com.convrt.api.controller;
+package com.moup.api.controller;
 
-import com.convrt.api.entity.Video;
-import com.convrt.api.service.RecommendedService;
-import com.convrt.api.view.NowPlayingVideoWS;
+import com.moup.api.service.RecommendedService;
+import com.moup.api.view.NowPlayingVideoWS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController

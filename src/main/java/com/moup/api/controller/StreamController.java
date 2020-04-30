@@ -1,15 +1,11 @@
 
-package com.convrt.api.controller;
+package com.moup.api.controller;
 
-import com.convrt.api.entity.Channel;
-import com.convrt.api.entity.Video;
-import com.convrt.api.service.AudioExtractorService;
-import com.convrt.api.service.RecommendedService;
-import com.convrt.api.service.StreamService;
-import com.convrt.api.service.VideoService;
-import com.convrt.api.utils.UserAgentService;
-import com.convrt.api.view.NowPlayingVideoWS;
-import com.convrt.api.view.StreamWS;
+import com.moup.api.service.AudioExtractorService;
+import com.moup.api.service.StreamService;
+import com.moup.api.service.VideoService;
+import com.moup.api.utils.UserAgentService;
+import com.moup.api.view.StreamWS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

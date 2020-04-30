@@ -1,15 +1,14 @@
-package com.convrt.api.controller;
+package com.moup.api.controller;
 
-import com.convrt.api.entity.Channel;
-import com.convrt.api.entity.Subscription;
-import com.convrt.api.entity.Video;
-import com.convrt.api.service.SubscriptionService;
-import com.convrt.api.view.Status;
+import com.moup.api.entity.Channel;
+import com.moup.api.entity.Subscription;
+import com.moup.api.entity.Video;
+import com.moup.api.service.SubscriptionService;
+import com.moup.api.view.Status;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 

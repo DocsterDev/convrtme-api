@@ -1,9 +1,9 @@
 package com.moup.api.service;
 
-import com.moup.api.entity.Playlist;
 import com.moup.api.entity.User;
 import com.moup.api.entity.Video;
 import com.moup.api.repository.PlaylistRepository;
+import com.moup.api.entity.Playlist;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;

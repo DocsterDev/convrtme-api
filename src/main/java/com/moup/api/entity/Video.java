@@ -1,6 +1,6 @@
-package com.convrt.api.entity;
+package com.moup.api.entity;
 
-import com.convrt.api.view.View;
+import com.moup.api.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
 @Data

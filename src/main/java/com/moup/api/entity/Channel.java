@@ -1,17 +1,14 @@
-package com.convrt.api.entity;
+package com.moup.api.entity;
 
-import com.convrt.api.utils.UUIDUtils;
+import com.moup.api.utils.UUIDUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 @NoArgsConstructor
 @Data
