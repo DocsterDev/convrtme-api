@@ -6,7 +6,7 @@ server:
   contextPath: /
   port: 8083
   address: localhost
-  publicAddress: http://localhost:4200
+  publicAddress: http://localhost:8083
 
 subscriptionCallbackUrl: http://763a58fa.ngrok.io
 
