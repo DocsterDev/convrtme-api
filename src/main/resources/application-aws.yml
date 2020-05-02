@@ -5,10 +5,10 @@ server:
   contextPath: /
   port: 8083
   address: 172.31.80.247
-  publicAddress: http://moup-ui.s3-website-us-east-1.amazonaws.com
+  publicAddress: http://moup.io
 
 
-subscriptionCallbackUrl: http://ec2-34-207-194-1.compute-1.amazonaws.com:8083
+subscriptionCallbackUrl: http://api.moup.io:8083
 
 spring:
   jpa:
