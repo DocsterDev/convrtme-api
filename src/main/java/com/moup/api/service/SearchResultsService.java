@@ -68,13 +68,16 @@ public class SearchResultsService {
         String script = null;
         for (int i = 0; i < scripts.size(); i++) {
             String html = scripts.eq(i).html();
-            if ( html.contains("window[\"ytInitialData\"]")) {
+            if (html.contains("scraper_data_begin")) {
                 script = html;
                 break;
             }
         }
-        String json = script.split("\r\n|\r|\n")[0];
-        json = StringUtils.substring(json, 26, json.length() - 1);
+        String json = script;
+        json = StringUtils.remove(json, "// scraper_data_begin\n");
+        json = StringUtils.remove(json, "// scraper_data_end");
+        json = StringUtils.remove(json, "var ytInitialData = ");
+        json = StringUtils.removeEnd(json, ";");
         JsonNode jsonNode = objectMapper.readTree(json);
         return jsonNode.get("contents").get("twoColumnSearchResultsRenderer").get("primaryContents").get("sectionListRenderer").get("contents").get(0).get("itemSectionRenderer").get("contents");
     }
